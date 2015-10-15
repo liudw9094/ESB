@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "includes", "includes\includ
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Thread", "base_lv3\Thread\Thread.vcxproj", "{DAE7B5D3-329F-4446-B834-F62B7C6EE281}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Thread", "app_lv1\Test_Thread\Test_Thread.vcxproj", "{25995B88-8BD0-45E5-97A9-BCC5B9C28B8A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test_Thread", "TestAndQA\Test\UnitTest\Test_Thread\Test_Thread.vcxproj", "{25995B88-8BD0-45E5-97A9-BCC5B9C28B8A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DAE7B5D3-329F-4446-B834-F62B7C6EE281} = {DAE7B5D3-329F-4446-B834-F62B7C6EE281}
 		{13C011D6-4275-45D4-AEF6-7A640E6A3371} = {13C011D6-4275-45D4-AEF6-7A640E6A3371}
