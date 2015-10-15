@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{82e26acb-4463-4d9b-af64-f380ec4ecd3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{773cd6ab-94b5-4b82-b98d-494625ab16a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\SafeCoding">
+      <UniqueIdentifier>{43d573d6-84a8-42b8-b25e-40df1ba1a2a0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Utils\SafeCoding\Finalize.h">
+      <Filter>Utils\SafeCoding</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding\IDisposable.h">
+      <Filter>Utils\SafeCoding</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding\SafeAllocator.h">
+      <Filter>Utils\SafeCoding</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding\SmartPointer.h">
+      <Filter>Utils\SafeCoding</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\Application.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\ArgumentSet.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\Event.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\MultiLock.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\SafeLock.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\Signal.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\TaskThread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\ThreadPool.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\ScopeLock.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\ILockable.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\CriticalSection.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\Thread.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread\AsynTask.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding\UniPtr.h">
+      <Filter>Utils\SafeCoding</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
