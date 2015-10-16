@@ -13,8 +13,9 @@ private:
 	volatile BOOL m_bRunning;
 	volatile BOOL m_bCancled;
 	volatile CThreadImp *m_pthread;
+	volatile BOOL m_bAutoDispose;
 public:
-	CAsynTaskImp(const std::function<void()> &func, CThreadImp *pthread);
+	CAsynTaskImp(const std::function<void()> &func, CThreadImp *pthread, bool autoDispose);
 	~CAsynTaskImp();
 public:
 	void SetThread(CThreadImp *pthread);
@@ -22,6 +23,7 @@ public:
 protected:
 	void SetComplete();
 	void AbortAllWaitings();
+	void AutoDispose();
 public:
 	virtual void Join();
 	virtual bool Wait(unsigned long millisec);

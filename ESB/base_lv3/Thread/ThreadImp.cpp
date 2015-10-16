@@ -80,6 +80,7 @@ bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
 		pTask = *cur;
 		if (pTask == task)
 		{
+			pTask->SetThread(NULL);
 			m_dqTasks.erase(cur);
 			return true;
 		}
@@ -133,8 +134,9 @@ void CThreadImp::CleanUpTasks()
 	while (!m_dqTasks.empty())
 	{
 		pTask = m_dqTasks.back();
-		pTask->Cancle();
 		pTask->SetThread(NULL);
+		pTask->Cancle();
+		m_dqTasks.pop_back();
 	}
 }
 
@@ -145,16 +147,15 @@ void CThreadImp::Invoke(const std::function<void()> &func)
 		func();
 	else
 	{
-		auto task = AsynInvoke(func);
+		auto task = AsynInvoke(func, true);
 		task->Join();
-		task->Dispose();
 	}
 }
 
 
-Thread::IAsynTask* CThreadImp::AsynInvoke(const std::function<void()> &func)
+Thread::IAsynTask* CThreadImp::AsynInvoke(const std::function<void()> &func, bool autoDispose)
 {
-	CAsynTaskImp *pTask = new CAsynTaskImp(func, this);
+	CAsynTaskImp *pTask = new CAsynTaskImp(func, this, autoDispose);
 	if (pTask == NULL)
 	{
 		// TODO: throw;
@@ -165,6 +166,18 @@ Thread::IAsynTask* CThreadImp::AsynInvoke(const std::function<void()> &func)
 	}
 	::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0);
 	return pTask;
+}
+
+bool CThreadImp::CancleTask(Thread::IAsynTask* task)
+{
+	CAsynTaskImp* _task = static_cast<CAsynTaskImp*>(task);
+	if (CancleAWaitingTask(_task))
+	{
+		task->Cancle();
+		return true;
+	}
+	else
+		return false;
 }
 
 void CThreadImp::Dispose()

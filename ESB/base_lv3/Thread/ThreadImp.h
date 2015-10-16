@@ -33,6 +33,7 @@ protected:
 public:
 	// Thread::IThread
 	virtual void Invoke(const std::function<void()> &func);
-	virtual Thread::IAsynTask* AsynInvoke(const std::function<void()> &func);
+	virtual Thread::IAsynTask* AsynInvoke(const std::function<void()> &func, bool autoDispose);
+	virtual bool CancleTask(Thread::IAsynTask* task);
 	virtual void Dispose();
 };
