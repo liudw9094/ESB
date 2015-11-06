@@ -26,7 +26,8 @@ CThreadImp::CThreadImp()
 	// Use m_hThreadParamSig to ensure the thread would be running
 	// before this object deleted.
 	m_hThreadParamSig = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-	if (m_hThreadParamSig == NULL)
+	m_hhThread = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (m_hThreadParamSig == NULL || m_hhThread == NULL)
 	{
 		// TODO: throw exception.
 	}
@@ -39,6 +40,8 @@ CThreadImp::CThreadImp()
 	{
 		// TODO: throw exception.
 	}
+	// Notify the thread that m_hThread and m_nThreadID have already created.
+	SetEvent(m_hhThread);
 
 	// Wait for the thread running.
 	::WaitForSingleObject(m_hThreadParamSig, INFINITE);
@@ -50,7 +53,7 @@ CThreadImp::CThreadImp()
 	{
 		THREAD_CONTEXT tx;
 		tx.pthread = this;
-		SLOCK(s_csmapThreads);
+		SLOCK(&s_csmapThreads);
 		s_mapThreads[m_nThreadID] = tx;
 	}
 }
@@ -66,14 +69,14 @@ CThreadImp::~CThreadImp()
 
 	// Clear up thread information.
 	{
-		SLOCK(s_csmapThreads);
+		SLOCK(&s_csmapThreads);
 		s_mapThreads.erase(m_nThreadID);
 	}
 }
 
 bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
 {
-	SLOCK(m_csdqTasks);
+	SLOCK(&m_csdqTasks);
 	CAsynTaskImp *pTask = NULL;
 	for (auto cur = m_dqTasks.begin(); cur != m_dqTasks.end(); ++cur)
 	{
@@ -90,6 +93,11 @@ bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
 
 unsigned int CThreadImp::Run()
 {
+	// Wait for the creation of m_hThread and m_nThreadID.
+	::WaitForSingleObject(m_hhThread, INFINITE);
+	// m_hhThread is no long needed.
+	::CloseHandle(m_hhThread);
+	m_hhThread = NULL;
 	MSG msg;
 	// Tell the system this thread has a message pump before it start GetMessage.
 	// Or the message would post to this thread failedly after SetEvent(m_hThreadParamSig).
@@ -111,7 +119,7 @@ void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 	{
 		CAsynTaskImp *pTask = NULL;
 		{
-			SLOCK(m_csdqTasks);
+			SLOCK(&m_csdqTasks);
 			if (m_dqTasks.empty())
 				break;
 			pTask = *m_dqTasks.begin();
@@ -129,7 +137,7 @@ unsigned int _stdcall CThreadImp::_Run(CThreadImp* This)
 
 void CThreadImp::CleanUpTasks()
 {
-	SLOCK(m_csdqTasks);
+	SLOCK(&m_csdqTasks);
 	CAsynTaskImp *pTask = NULL;
 	while (!m_dqTasks.empty())
 	{
@@ -161,7 +169,7 @@ Thread::IAsynTask* CThreadImp::AsynInvoke(const std::function<void()> &func, boo
 		// TODO: throw;
 	}
 	{
-		SLOCK(m_csdqTasks);
+		SLOCK(&m_csdqTasks);
 		m_dqTasks.push_back(pTask);
 	}
 	::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0);
@@ -195,7 +203,7 @@ namespace Thread
 	THREAD_API IThread* GetCurrentThread()
 	{
 		int nThreadID = ::GetCurrentThreadId();
-		SLOCK(s_csmapThreads);
+		SLOCK(&s_csmapThreads);
 		auto lookup = s_mapThreads.find(nThreadID);
 		if (lookup != s_mapThreads.end())
 			return lookup->second.pthread;

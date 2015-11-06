@@ -19,24 +19,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Thread\Application.h" />
-    <ClInclude Include="Thread\ArgumentSet.h" />
-    <ClInclude Include="Thread\AsynTask.h" />
-    <ClInclude Include="Thread\CriticalSection.h" />
-    <ClInclude Include="Thread\Event.h" />
-    <ClInclude Include="Thread\ILockable.h" />
-    <ClInclude Include="Thread\Thread.h" />
-    <ClInclude Include="Thread\MultiLock.h" />
-    <ClInclude Include="Thread\SafeLock.h" />
-    <ClInclude Include="Thread\Signal.h" />
-    <ClInclude Include="Thread\ScopeLock.h" />
-    <ClInclude Include="Thread\TaskThread.h" />
-    <ClInclude Include="Thread\ThreadPool.h" />
+    <ClInclude Include="Thread.h" />
     <ClInclude Include="Utils\SafeCoding\UniPtr.h" />
     <ClInclude Include="Utils\SafeCoding\Finalize.h" />
     <ClInclude Include="Utils\SafeCoding\IDisposable.h" />
     <ClInclude Include="Utils\SafeCoding\SafeAllocator.h" />
-    <ClInclude Include="Utils\SafeCoding\SmartPointer.h" />
+    <ClInclude Include="Utils\SafeCoding\SmtPtr.h" />
+    <ClInclude Include="Utils\Thread\Application.h" />
+    <ClInclude Include="Utils\Thread\ArgumentSet.h" />
+    <ClInclude Include="Utils\Thread\AsynTask.h" />
+    <ClInclude Include="Utils\Thread\CriticalSection.h" />
+    <ClInclude Include="Utils\Thread\Event.h" />
+    <ClInclude Include="Utils\Thread\ILockable.h" />
+    <ClInclude Include="Utils\Thread\MultiLock.h" />
+    <ClInclude Include="Utils\Thread\ScopeLock.h" />
+    <ClInclude Include="Utils\Thread\Signal.h" />
+    <ClInclude Include="Utils\Thread\TaskThread.h" />
+    <ClInclude Include="Utils\Thread\Thread.h" />
+    <ClInclude Include="Utils\Thread\ThreadPool.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{13C011D6-4275-45D4-AEF6-7A640E6A3371}</ProjectGuid>
