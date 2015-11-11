@@ -12,6 +12,7 @@
 
 #include <functional>
 #include "../SafeCoding/IDisposable.h"
+#include "../SafeCoding/SmtPtr.h"
 #include "AsynTask.h"
 
 #ifndef UTILSRUNTIME_API
@@ -26,9 +27,9 @@ namespace Utils
 		{
 		public:
 			virtual void Invoke(const std::function<void()> &func) = 0;
-			virtual IAsynTask* AsynInvoke(const std::function<void()> &func, bool autoDispose = true) = 0;
+			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func) = 0;
 			// A safe method to cancle a task.
-			virtual bool CancleTask(IAsynTask* task) = 0;
+			//virtual bool CancleTask(IAsynTask* task) = 0;
 		};
 
 		UTILSRUNTIME_API IThread* CreateThread();

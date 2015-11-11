@@ -9,7 +9,6 @@ namespace Utils
 	{
 		class IAsynTask : public Utils::SafeCoding::IDisposable
 		{
-			// following methods would be unsafe if AutoDispose is enabled.
 		public:
 			virtual void Join() = 0;
 			virtual bool Wait(unsigned long millisec) = 0;
