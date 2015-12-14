@@ -27,7 +27,6 @@
     <ClInclude Include="Utils\SafeCoding\SmtPtr.h">
       <Filter>Utils\SafeCoding</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h" />
     <ClInclude Include="Utils\Thread\Application.h">
       <Filter>Utils\Thread</Filter>
     </ClInclude>
@@ -63,6 +62,15 @@
     </ClInclude>
     <ClInclude Include="Utils\Thread\ThreadPool.h">
       <Filter>Utils\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Thread.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding\Object.h">
+      <Filter>Utils\SafeCoding</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

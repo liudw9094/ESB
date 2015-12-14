@@ -1,0 +1,22 @@
+// The following ifdef block is the standard way of creating macros which make exporting 
+// from a DLL simpler. All files within this DLL are compiled with the ESBMIDSERVICE_EXPORTS
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see 
+// ESBMIDSERVICE_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+#ifdef ESBMIDSERVICE_EXPORTS
+#define ESBMIDSERVICE_API __declspec(dllexport)
+#else
+#define ESBMIDSERVICE_API __declspec(dllimport)
+#endif
+
+// This class is exported from the ESBMidService.dll
+class ESBMIDSERVICE_API CESBMidService {
+public:
+	CESBMidService(void);
+	// TODO: add your methods here.
+};
+
+extern ESBMIDSERVICE_API int nESBMidService;
+
+ESBMIDSERVICE_API int fnESBMidService(void);

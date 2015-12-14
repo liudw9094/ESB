@@ -6,8 +6,12 @@
 #include <iostream>
 #include <string>
 #include <time.h>
-#pragma comment(lib, "UtilsRuntime")
 
+#ifdef _DEBUG
+#pragma comment(lib, "UtilsRuntimeD")
+#else
+#pragma comment(lib, "UtilsRuntime")
+#endif
 using namespace std;
 using namespace Utils::Thread;
 int main()
