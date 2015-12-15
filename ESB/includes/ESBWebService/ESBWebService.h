@@ -1,0 +1,7 @@
+#ifndef _INCLUDE_ESBWEBSERVICE_ESBWEBSERVICE_H_
+#define _INCLUDE_ESBWEBSERVICE_ESBWEBSERVICE_H_
+
+#include "ESBWebServiceServer.h"
+#include "ESBWebServiceClient.h"
+
+#endif //_INCLUDE_ESBWEBSERVICE_ESBWEBSERVICE_H_
