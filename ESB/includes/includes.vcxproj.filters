@@ -1,76 +1,136 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Utils">
+    <Filter Include="includes">
+      <UniqueIdentifier>{34de3dba-472c-46ed-8ad5-1f57e74d6c5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\ESBWebService">
+      <UniqueIdentifier>{d7e47e54-b24a-42fe-bc28-6714c277644f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\Utils">
       <UniqueIdentifier>{773cd6ab-94b5-4b82-b98d-494625ab16a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\SafeCoding">
+    <Filter Include="includes\Utils\SafeCoding">
       <UniqueIdentifier>{43d573d6-84a8-42b8-b25e-40df1ba1a2a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\Thread">
+    <Filter Include="includes\Utils\Thread">
       <UniqueIdentifier>{82e26acb-4463-4d9b-af64-f380ec4ecd3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\ESBMidService">
+      <UniqueIdentifier>{0551ac71-9d50-4819-83f5-db8c6ad7e3e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\ESBMidClient">
+      <UniqueIdentifier>{b832fb90-6bc5-4311-9763-42015f3ee038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\ESBDataSerializer">
+      <UniqueIdentifier>{7ff33b5f-d82f-4239-9bd4-319d23a948a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="includes\Common">
+      <UniqueIdentifier>{de8f11a8-7b9e-4e5c-92c2-cfafe4ab5177}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\SafeCoding\Finalize.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\SafeCoding\IDisposable.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\SafeCoding\SafeAllocator.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\SafeCoding\UniPtr.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\SafeCoding\SmtPtr.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Application.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\ArgumentSet.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\AsynTask.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\CriticalSection.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Event.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\ILockable.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\MultiLock.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\ScopeLock.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Signal.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\TaskThread.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Thread.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\ThreadPool.h">
-      <Filter>Utils\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Utils.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Thread.h">
-      <Filter>Utils</Filter>
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\SafeCoding\Object.h">
-      <Filter>Utils\SafeCoding</Filter>
+      <Filter>includes\Utils\SafeCoding</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBWebService\ESBWebService.h">
+      <Filter>includes\ESBWebService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBWebService\ESBWebServiceServer.h">
+      <Filter>includes\ESBWebService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBWebService\ESBWebServiceClient.h">
+      <Filter>includes\ESBWebService</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Thread.h">
+      <Filter>includes\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Utils.h">
+      <Filter>includes\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidService\ESBMidService.h">
+      <Filter>includes\ESBMidService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidService\ESBMidService_HubService.h">
+      <Filter>includes\ESBMidService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidService\ESBMidService_Service.h">
+      <Filter>includes\ESBMidService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidService\ESBMidService_HubConnection.h">
+      <Filter>includes\ESBMidService</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidClient\ESBMidClient.h">
+      <Filter>includes\ESBMidClient</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBMidClient\ESBMidClient_Connection.h">
+      <Filter>includes\ESBMidClient</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBDataSerializer\Serializer.h">
+      <Filter>includes\ESBDataSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBDataSerializer\ESBHubSerializer.h">
+      <Filter>includes\ESBDataSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\ESBHub.h">
+      <Filter>includes\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Common.h">
+      <Filter>includes\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBDataSerializer\StdSerializer.h">
+      <Filter>includes\ESBDataSerializer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

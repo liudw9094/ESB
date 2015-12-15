@@ -154,10 +154,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ESBWebService.h" />
+    <ClInclude Include="ESBSoapClientImp.h" />
     <ClInclude Include="soapESBServiceSoapProxy.h" />
-    <ClInclude Include="soapESBServiceSoapService.h" />
     <ClInclude Include="soapH.h" />
-    <ClInclude Include="SoapServerTool.h" />
+    <ClInclude Include="ESBSoapServerImp.h" />
     <ClInclude Include="soapStub.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stdsoap2.h" />
@@ -186,13 +186,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ESBSoapClientImp.cpp" />
+    <ClCompile Include="soapESBServiceSoapProxy.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="soapServer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SoapServerTool.cpp" />
+    <ClCompile Include="ESBSoapServerImp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

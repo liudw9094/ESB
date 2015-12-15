@@ -1,4 +1,4 @@
-// Test_Thread.cpp : Defines the entry point for the console application.
+﻿// Test_Thread.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -6,6 +6,15 @@
 #include <iostream>
 #include <string>
 #include <time.h>
+
+
+#include <iomanip>
+#include <string>
+#include <codecvt>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <locale>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilsRuntimeD")
@@ -16,6 +25,16 @@ using namespace std;
 using namespace Utils::Thread;
 int main()
 {
+	{
+		// UTF8 UTF16 test
+		const wchar_t adfas[] = L"fdsdsf没有z\u00df\u6c34\U0001d10b";
+		wstring wstr = adfas;
+		std::wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t> conv8;
+		std::string s1 = conv8.to_bytes(wstr);
+		wstring ws1 = conv8.from_bytes(s1);
+		wcout << ws1 << endl;
+	}
+
 	string s;
 	IThread* th = CreateThread();
 	th->Invoke([th]()
@@ -79,6 +98,14 @@ int main()
 	}
 	th1->Dispose();
 	cout << "All task finished!" << endl;
+	cin >> s;
+	for (;;)
+	{
+		SREF(IThread) th1 = CreateThread();
+		if (::GetKeyState(VK_ESCAPE) & 0x8000)
+			break;
+	}
+
 	cin >> s;
     return 0;
 }

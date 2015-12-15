@@ -9,14 +9,3 @@
 #else
 #define ESBMIDSERVICE_API __declspec(dllimport)
 #endif
-
-// This class is exported from the ESBMidService.dll
-class ESBMIDSERVICE_API CESBMidService {
-public:
-	CESBMidService(void);
-	// TODO: add your methods here.
-};
-
-extern ESBMIDSERVICE_API int nESBMidService;
-
-ESBMIDSERVICE_API int fnESBMidService(void);

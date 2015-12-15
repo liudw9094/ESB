@@ -1,0 +1,9 @@
+#ifndef _INCLUDE_ESBSERIALIZER_SERIALIZER_H_
+#define _INCLUDE_ESBSERIALIZER_SERIALIZER_H_
+
+#include "StdSerializer.h"
+#include "ESBHubSerializer.h"
+
+
+
+#endif //_INCLUDE_ESBSERIALIZER_SERIALIZER_H_

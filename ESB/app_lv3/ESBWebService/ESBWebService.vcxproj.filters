@@ -33,9 +33,6 @@
     <ClInclude Include="soapESBServiceSoapProxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="soapESBServiceSoapService.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="soapH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -45,7 +42,10 @@
     <ClInclude Include="stdsoap2.h">
       <Filter>soap</Filter>
     </ClInclude>
-    <ClInclude Include="SoapServerTool.h">
+    <ClInclude Include="ESBSoapServerImp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBSoapClientImp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,13 +65,19 @@
     <ClCompile Include="stdsoap2.cpp">
       <Filter>soap</Filter>
     </ClCompile>
-    <ClCompile Include="SoapServerTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="soapServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="soapClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ESBSoapServerImp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="soapESBServiceSoapProxy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ESBSoapClientImp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -10,16 +10,7 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
-#include <locale>
-#include <codecvt>
-#include <string>
-#include <Utils/Utils.h>
 
-#ifdef _DEBUG
-#pragma comment (lib, "UtilsRuntimeD")
-#else
-#pragma comment (lib, "UtilsRuntime")
-#endif
 
-#define WITH_PURE_VIRTUAL
-//#define WITH_OPENSSL
+
+// TODO: reference additional headers your program requires here

@@ -9,14 +9,3 @@
 #else
 #define ESBWEBSERVICE_API __declspec(dllimport)
 #endif
-
-// This class is exported from the ESBWebService.dll
-class ESBWEBSERVICE_API CESBWebService {
-public:
-	CESBWebService(void);
-	// TODO: add your methods here.
-};
-
-extern ESBWEBSERVICE_API int nESBWebService;
-
-ESBWEBSERVICE_API int fnESBWebService(void);

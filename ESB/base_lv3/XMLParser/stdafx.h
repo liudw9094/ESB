@@ -13,13 +13,15 @@
 #include <locale>
 #include <codecvt>
 #include <string>
-#include <Utils/Utils.h>
+#include <fstream>
+#include <vector>
+
+#import "msxml3.dll" named_guids
 
 #ifdef _DEBUG
-#pragma comment (lib, "UtilsRuntimeD")
+#pragma comment(lib, "UtilsRuntimeD")
 #else
-#pragma comment (lib, "UtilsRuntime")
+#pragma comment(lib, "UtilsRuntime")
 #endif
 
-#define WITH_PURE_VIRTUAL
-//#define WITH_OPENSSL
+// TODO: reference additional headers your program requires here

@@ -7,10 +7,10 @@ class CFinalize
 private:
 	TCALL _fincall;
 public:
-	CFinalize (TCALL _finalize) : _fincall(_finalize)
+	inline CFinalize (TCALL _finalize) : _fincall(_finalize)
 	{
 	}
-	~CFinalize()
+	inline ~CFinalize()
 	{
 		_fincall();
 	}

@@ -8,18 +8,20 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
-// Windows Header Files:
+
 #include <windows.h>
-#include <locale>
-#include <codecvt>
-#include <string>
-#include <Utils/Utils.h>
+#include <Utils/SafeCoding/SmtPtr.h>
+#include <XMLParser/XMLParser.h>
 
 #ifdef _DEBUG
-#pragma comment (lib, "UtilsRuntimeD")
+#pragma comment(lib, "UtilsRuntimeD")
+#pragma comment(lib, "XMLParserD")
 #else
-#pragma comment (lib, "UtilsRuntime")
+#pragma comment(lib, "UtilsRuntime")
+#pragma comment(lib, "XMLParser")
 #endif
 
-#define WITH_PURE_VIRTUAL
-//#define WITH_OPENSSL
+
+#include <ESBDataSerializer/Serializer.h>
+
+// TODO: reference additional headers your program requires here
