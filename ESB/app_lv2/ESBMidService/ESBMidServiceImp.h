@@ -17,6 +17,7 @@ public:
 	virtual int Start(int nPort);
 	virtual int End(void);
 	virtual BOOL IsStarted(void) const;
+	virtual BOOL SetInvokeFunction(const std::function<int(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)> &func);
 	virtual int	RegisterToHub(const std::wstring& wsHubURL,
 							const std::wstring& wsServiceURL,
 							const GUID guidService,
@@ -26,6 +27,10 @@ public:
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	virtual void Dispose();
 private:
-	int _ProcessWebServiceInvoke(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults);
+	int _ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pthread,
+								struct soap* psoap,
+								const std::wstring& wsSession,
+								const std::wstring& wsInputs,
+								std::wstring& wsResults);
 };
 

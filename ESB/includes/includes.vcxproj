@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\ESBHub.h" />
+    <ClInclude Include="Common\InOut.h" />
     <ClInclude Include="ESBDataSerializer\ESBHubSerializer.h" />
     <ClInclude Include="ESBDataSerializer\StdSerializer.h" />
     <ClInclude Include="ESBDataSerializer\Serializer.h" />
@@ -53,6 +54,7 @@
     <ClInclude Include="Utils\Thread\Thread.h" />
     <ClInclude Include="Utils\Thread\ThreadPool.h" />
     <ClInclude Include="Utils\Utils.h" />
+    <ClInclude Include="XMLParser\XMLParser.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{13C011D6-4275-45D4-AEF6-7A640E6A3371}</ProjectGuid>

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "XMLParser.h"
 #include "XMLParserImp.h"
 
 using namespace ESBXMLParser;

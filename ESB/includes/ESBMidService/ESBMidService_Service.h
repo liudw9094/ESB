@@ -11,6 +11,8 @@
 #include "../Utils/SafeCoding/SmtPtr.h"
 #include "ESBMidService_HubConnection.h"
 
+#include <functional>
+
 #ifndef ESBMIDSERVICE_API
 #define ESBMIDSERVICE_API
 #endif // ESBMIDSERVICE_API
@@ -23,6 +25,7 @@ namespace ESBMidService
 		virtual int Start(int nPort) = 0;
 		virtual int End(void) = 0;
 		virtual BOOL IsStarted(void) const = 0;
+		virtual BOOL SetInvokeFunction(const std::function<int(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)> &func) = 0;
 		virtual int	RegisterToHub(const std::wstring& wsHubURL,
 								const std::wstring& wsServiceURL,
 								const GUID guidService,

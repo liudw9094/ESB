@@ -28,6 +28,9 @@
     <Filter Include="includes\Common">
       <UniqueIdentifier>{de8f11a8-7b9e-4e5c-92c2-cfafe4ab5177}</UniqueIdentifier>
     </Filter>
+    <Filter Include="includes\XMLParser">
+      <UniqueIdentifier>{39b851ff-9e3a-4d40-8261-4925a24d4233}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\SafeCoding\Finalize.h">
@@ -131,6 +134,12 @@
     </ClInclude>
     <ClInclude Include="ESBDataSerializer\StdSerializer.h">
       <Filter>includes\ESBDataSerializer</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\InOut.h">
+      <Filter>includes\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="XMLParser\XMLParser.h">
+      <Filter>includes\XMLParser</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

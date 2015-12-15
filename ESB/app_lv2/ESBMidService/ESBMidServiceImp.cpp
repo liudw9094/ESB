@@ -18,13 +18,35 @@ CESBMidServiceImp::~CESBMidServiceImp()
 
 int CESBMidServiceImp::Start(int nPort)
 {
+	if (IsStarted())
+		return -1;
+	auto func = [this](SREF(Utils::Thread::IThread) pthread,
+					struct soap* psoap,
+					const std::wstring& wsSession,
+					const std::wstring& wsInputs,
+					std::wstring& wsResults) -> int
+	{
+		return _ProcessWebServiceInvoke(pthread, psoap, wsSession, wsInputs, wsResults);
+	};
+	if (!m_webService->SetEvent_Invoke(func))
+		return -2;
 	return m_webService->Start(nPort);
 }
 
 int CESBMidServiceImp::End(void)
 {
 	if (IsStarted())
-		return m_webService->End();
+	{
+		int nRet = m_webService->End();
+		m_webService->SetEvent_Invoke(std::function<
+										int(SREF(Utils::Thread::IThread) pthread,
+										struct soap* psoap,
+										const std::wstring& wsSession,
+										const std::wstring& wsInputs,
+										std::wstring& wsResults)>()
+									);
+		return nRet;
+	}
 	else
 		return -1;
 }
@@ -32,6 +54,14 @@ int CESBMidServiceImp::End(void)
 BOOL CESBMidServiceImp::IsStarted(void) const
 {
 	return m_webService->IsStarted();
+}
+
+BOOL CESBMidServiceImp::SetInvokeFunction(const std::function<int(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)> &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcInvoke = func;
+	return TRUE;
 }
 
 int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
@@ -59,7 +89,16 @@ void CESBMidServiceImp::Dispose()
 }
 
 
-int CESBMidServiceImp::_ProcessWebServiceInvoke(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults);
+int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pthread,
+												struct soap* psoap,
+												const std::wstring& wsSession,
+												const std::wstring& wsInputs,
+												std::wstring& wsResults)
+{
+	// TODO: add implementation here.
+	ASSERT(FALSE);
+	return 0;
+}
 
 
 ESBMIDSERVICE_API IESBService* ESBMidService::CreateESBService()

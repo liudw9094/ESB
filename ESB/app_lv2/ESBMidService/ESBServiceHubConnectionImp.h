@@ -9,22 +9,26 @@ class CESBServiceHubConnectionImp : public ESBMidService::IESBServiceHubConnecti
 {
 private:
 	SREF(ESBWebService::IESBWebServiceClient) m_webClient;
+	mutable SREF(Utils::Thread::IThread)	m_threadClient;
 	BOOL m_bValid;
-	ESBCommon::ESBServiceHubSession m_wsHubSession;
+	ESBCommon::ESBServiceHubSessionReply m_wsHubSession;
 public:
 	CESBServiceHubConnectionImp();
 	~CESBServiceHubConnectionImp();
 
-	int	RegisterToHub(const std::wstring& wsHubURL,
-					const std::wstring& wsServiceURL,
-					const GUID guidService,
-					const std::wstring& wsServiceName,
-					UINT maximumSession);
 
-	virtual BOOL IsValid();
+
+	virtual int	RegisterToHub(const std::wstring& wsHubURL,
+		const std::wstring& wsServiceURL,
+		const GUID guidService,
+		const std::wstring& wsServiceName,
+		UINT maximumSession);
+	virtual int Unregister();
+	virtual BOOL IsValid() const;
 	virtual int ModifySessionLimitation(int nLimitation);
 	virtual int IncreaseSessionLoad();
 	virtual int DecreaseSessionLoad();
-	virtual int Unregister();
+
+public:
 };
 
