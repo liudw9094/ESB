@@ -5,8 +5,10 @@ using namespace std;
 using namespace ESBCommon;
 using namespace Utils::Thread;
 using namespace ESBDataSerialzer;
+using namespace ESBWebService;
 
 CESBServiceHubConnectionImp::CESBServiceHubConnectionImp() :
+	m_webClient(CreateESBWebServiceClient()),
 	m_threadClient(CreateThread()),
 	m_bValid(FALSE)
 {
@@ -30,12 +32,12 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	reg.wsServiceName = wsServiceName;
 	reg.maximumSession = maximumSession;
 	ESBServiceRequest rq;
+	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, reg))
 		return -2;
 	wstring wsRequest;
 	if (!Data2String(wsRequest, rq))
 		return -3;
-	wstring wsPackage;
 
 	m_threadClient->Invoke([this, &wsHubURL, &wsRequest, &nRet]() {
 		if (IsValid())
@@ -50,7 +52,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply))
+		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
 		{
 			nRet = -4;
 			return;
@@ -71,6 +73,7 @@ int CESBServiceHubConnectionImp::Unregister()
 	int nRet = 0;
 	ESBService_HubMethod_Unregister command;
 	ESBServiceRequest rq;
+	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, command))
 		return -2;
 	wstring wsRequest;
@@ -89,7 +92,7 @@ int CESBServiceHubConnectionImp::Unregister()
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply))
+		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -122,6 +125,7 @@ int CESBServiceHubConnectionImp::ModifySessionLimitation(int nLimitation)
 	ESBService_HubMethod_ModifySessionLimitation command;
 	command.maximumSession = nLimitation;
 	ESBServiceRequest rq;
+	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, command))
 		return -2;
 	wstring wsRequest;
@@ -140,7 +144,7 @@ int CESBServiceHubConnectionImp::ModifySessionLimitation(int nLimitation)
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply))
+		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -163,6 +167,7 @@ int CESBServiceHubConnectionImp::IncreaseSessionLoad()
 	int nRet = 0;
 	ESBService_HubMethod_IncreaseSessionLoad command;
 	ESBServiceRequest rq;
+	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, command))
 		return -2;
 	wstring wsRequest;
@@ -181,7 +186,7 @@ int CESBServiceHubConnectionImp::IncreaseSessionLoad()
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply))
+		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -204,6 +209,7 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 	int nRet = 0;
 	ESBService_HubMethod_DecreaseSessionLoad command;
 	ESBServiceRequest rq;
+	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, command))
 		return -2;
 	wstring wsRequest;
@@ -222,7 +228,7 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply))
+		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -240,4 +246,12 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 	return nRet;
 }
 
+BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession)
+{
+	BOOL bValid = FALSE;
+	m_threadClient->Invoke([this, &bValid, &wsSession]() {
+		bValid = (wsSession == m_wsHubSession.wsServiceSession);
+	});
+	return bValid;
+}
 

@@ -169,6 +169,7 @@ copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\winx64\dll\</Command>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ESBConnectionImp.h" />
     <ClInclude Include="ESBMidConn.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -188,6 +189,7 @@ copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\winx64\dll\</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ESBConnectionImp.cpp" />
     <ClCompile Include="ESBMidConn.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

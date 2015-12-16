@@ -6,10 +6,45 @@ using namespace std;
 using namespace ESBCommon;
 using namespace ESBDataSerialzer;
 
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ENUM_IDTYPE& data)
+{
+	switch (data)
+	{
+	case IDTYPE_ESBClient:
+		string = L"IDTYPE_ESBClient";
+		break;
+	case IDTYPE_ESBService:
+		string = L"IDTYPE_ESBService";
+		break;
+	case IDTYPE_ESBHub:
+		string = L"IDTYPE_ESBHub";
+		break;
+	default:
+		string = L"Unknown";
+	};
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ENUM_IDTYPE& data, IN const std::wstring& string)
+{
+	if (string == L"IDTYPE_ESBClient")
+		data = IDTYPE_ESBClient;
+	else if (string == L"IDTYPE_ESBService")
+		data = IDTYPE_ESBService;
+	else if (string == L"IDTYPE_ESBService")
+		data = IDTYPE_ESBService;
+	else
+		data = IDTYPE_ESBUnknown;
+	return TRUE;
+}
+
 BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceRequest& data)
 {
 	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
-	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_ReplyOK::NAMES.ROOTNAME);
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBServiceRequest::NAMES.ROOTNAME);
+	wstring wsIDType;
+	Data2String(wsIDType, data.idType);
+	root->SetAttributeStr(ESBServiceRequest::NAMES.IDTYPE, wsIDType);
 	root->SetNodeValueStr(data.contents);
 	string = root->ToXMLString();
 	return TRUE;
@@ -21,6 +56,8 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceRequest& data, IN co
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
 	if (!root->IsValid() || root->GetNodeName() != ESBServiceRequest::NAMES.ROOTNAME)
 		return FALSE;
+	wstring wsIDType = root->GetAttributeStr(ESBServiceRequest::NAMES.IDTYPE);
+	String2Data(data.idType, wsIDType);
 	data.contents = root->GetNodeValueStr();
 	return TRUE;
 }
@@ -29,6 +66,9 @@ BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon:
 {
 	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
 	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBServiceReply::NAMES.ROOTNAME);
+	wstring wsIDType;
+	Data2String(wsIDType, data.idType);
+	root->SetAttributeStr(ESBServiceReply::NAMES.IDTYPE, wsIDType);
 	root->SetNodeValueStr(data.contents);
 	string = root->ToXMLString();
 	return TRUE;
@@ -40,6 +80,8 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceReply& data, IN cons
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
 	if (!root->IsValid() || root->GetNodeName() != ESBServiceReply::NAMES.ROOTNAME)
 		return FALSE;
+	wstring wsIDType = root->GetAttributeStr(ESBServiceReply::NAMES.IDTYPE);
+	String2Data(data.idType, wsIDType);
 	data.contents = root->GetNodeValueStr();
 	return TRUE;
 }
@@ -119,22 +161,22 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceToken& data, IN cons
 	return TRUE;
 }
 
-BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceHubSessionReply& data)
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceSessionReply& data)
 {
 	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
-	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBServiceHubSessionReply::NAMES.ROOTNAME);
-	root->AddAttributeStr(ESBServiceHubSessionReply::NAMES.WSSERVICESESSION, data.wsServiceSession);
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBServiceSessionReply::NAMES.ROOTNAME);
+	root->AddAttributeStr(ESBServiceSessionReply::NAMES.WSSERVICESESSION, data.wsServiceSession);
 	string = root->ToXMLString();
 	return TRUE;
 }
 
-BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceHubSessionReply& data, IN const std::wstring& string)
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceSessionReply& data, IN const std::wstring& string)
 {
 	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
-	if (!root->IsValid() || root->GetNodeName() != ESBServiceHubSessionReply::NAMES.ROOTNAME)
+	if (!root->IsValid() || root->GetNodeName() != ESBServiceSessionReply::NAMES.ROOTNAME)
 		return FALSE;
-	data.wsServiceSession = root->GetAttributeStr(ESBServiceHubSessionReply::NAMES.WSSERVICESESSION);
+	data.wsServiceSession = root->GetAttributeStr(ESBServiceSessionReply::NAMES.WSSERVICESESSION);
 	return TRUE;
 }
 
@@ -240,5 +282,102 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_HubMethod_Unregiste
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
 	if (!root->IsValid() || root->GetNodeName() != ESBService_HubMethod_Unregister::NAMES.ROOTNAME)
 		return FALSE;
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_StartSession& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_HubMethod_StartSession::NAMES.ROOTNAME);
+	wstring wsGuidService;
+	Data2String(wsGuidService, data.guidService);
+	root->AddAttributeStr(ESBService_HubMethod_StartSession::NAMES.GUIDSERVICE, wsGuidService);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_HubMethod_StartSession& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_HubMethod_StartSession::NAMES.ROOTNAME)
+		return FALSE;
+	wstring wsGuidService = root->GetAttributeStr(ESBService_HubMethod_StartSession::NAMES.GUIDSERVICE);
+	String2Data(data.guidService, wsGuidService);
+	
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_ClientSessionEnd& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_HubMethod_ClientSessionEnd::NAMES.ROOTNAME);
+	root->AddAttributeStr(ESBService_HubMethod_ClientSessionEnd::NAMES.WSCLIENTSESSION, data.wsClientSession);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_HubMethod_ClientSessionEnd& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_HubMethod_ClientSessionEnd::NAMES.ROOTNAME)
+		return FALSE;
+	data.wsClientSession = root->GetAttributeStr(ESBService_HubMethod_ClientSessionEnd::NAMES.WSCLIENTSESSION);
+
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_SessionConfirm& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_ServiceMethod_SessionConfirm::NAMES.ROOTNAME);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_ServiceMethod_SessionConfirm& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_ServiceMethod_SessionConfirm::NAMES.ROOTNAME)
+		return FALSE;
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_EndSession& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_ServiceMethod_EndSession::NAMES.ROOTNAME);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_ServiceMethod_EndSession& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_ServiceMethod_EndSession::NAMES.ROOTNAME)
+		return FALSE;
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_ClientRequest& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_ServiceMethod_ClientRequest::NAMES.ROOTNAME);
+	wstring wsIDType;
+	root->SetNodeValueStr(data.wsContent);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_ServiceMethod_ClientRequest& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_ServiceMethod_ClientRequest::NAMES.ROOTNAME)
+		return FALSE;
+	data.wsContent = root->GetNodeValueStr();
 	return TRUE;
 }

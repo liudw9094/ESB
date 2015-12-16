@@ -8,6 +8,9 @@
 
 namespace ESBDataSerialzer
 {
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ENUM_IDTYPE& data);
+	BOOL String2Data(OUT ESBCommon::ENUM_IDTYPE& data, IN const std::wstring& string);
+
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceRequest& data);
 	BOOL String2Data(OUT ESBCommon::ESBServiceRequest& data, IN const std::wstring& string);
 
@@ -23,11 +26,11 @@ namespace ESBDataSerialzer
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceToken& data);
 	BOOL String2Data(OUT ESBCommon::ESBServiceToken& data, IN const std::wstring& string);
 
-	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceHubSessionReply& data);
-	BOOL String2Data(OUT ESBCommon::ESBServiceHubSessionReply& data, IN const std::wstring& string);
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceSessionReply& data);
+	BOOL String2Data(OUT ESBCommon::ESBServiceSessionReply& data, IN const std::wstring& string);
 
-	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceHubSessionReply& data);
-	BOOL String2Data(OUT ESBCommon::ESBServiceHubSessionReply& data, IN const std::wstring& string);
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBServiceSessionReply& data);
+	BOOL String2Data(OUT ESBCommon::ESBServiceSessionReply& data, IN const std::wstring& string);
 
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_RegisterToHub& data);
 	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_RegisterToHub& data, IN const std::wstring& string);
@@ -43,6 +46,21 @@ namespace ESBDataSerialzer
 
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_Unregister& data);
 	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_Unregister& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_StartSession& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_StartSession& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_ClientSessionEnd& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_ClientSessionEnd& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_SessionConfirm& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_ServiceMethod_SessionConfirm& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_EndSession& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_ServiceMethod_EndSession& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_ClientRequest& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_ServiceMethod_ClientRequest& data, IN const std::wstring& string);
 };
 
 

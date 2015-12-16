@@ -11,7 +11,7 @@ private:
 	SREF(ESBWebService::IESBWebServiceClient) m_webClient;
 	mutable SREF(Utils::Thread::IThread)	m_threadClient;
 	BOOL m_bValid;
-	ESBCommon::ESBServiceHubSessionReply m_wsHubSession;
+	ESBCommon::ESBServiceSessionReply m_wsHubSession;
 public:
 	CESBServiceHubConnectionImp();
 	~CESBServiceHubConnectionImp();
@@ -28,7 +28,7 @@ public:
 	virtual int ModifySessionLimitation(int nLimitation);
 	virtual int IncreaseSessionLoad();
 	virtual int DecreaseSessionLoad();
-
 public:
+	BOOL IsHubSessionValid(const std::wstring& wsSession);
 };
 

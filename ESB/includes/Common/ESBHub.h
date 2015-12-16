@@ -5,22 +5,34 @@
 
 namespace ESBCommon
 {
+	enum ENUM_IDTYPE
+	{
+		IDTYPE_ESBClient,
+		IDTYPE_ESBService,
+		IDTYPE_ESBHub,
+		IDTYPE_ESBUnknown = -1
+	};
+
 	struct ESBServiceRequest
 	{
+		ENUM_IDTYPE idType;
 		std::wstring contents;
 		static struct _TAGNAME
 		{
 			const wchar_t * const ROOTNAME = L"ESBServiceRequest";
+			const wchar_t * const IDTYPE = L"idType";
 		} NAMES;
 	};
 	
 
 	struct ESBServiceReply
 	{
+		ENUM_IDTYPE idType;
 		std::wstring contents;
 		static struct _TAGNAME
 		{
 			const wchar_t * const ROOTNAME = L"ESBServiceReply";
+			const wchar_t * const IDTYPE = L"idType";
 		} NAMES;
 	};
 
@@ -64,13 +76,13 @@ namespace ESBCommon
 		} NAMES;
 	};
 
-	struct ESBServiceHubSessionReply
+	struct ESBServiceSessionReply
 	{
 		std::wstring	wsServiceSession;
 
 		static struct _TAGNAME
 		{
-			const wchar_t * const ROOTNAME = L"ESBServiceHubSessionReply";
+			const wchar_t * const ROOTNAME = L"ESBServiceSessionReply";
 			const wchar_t * const WSSERVICESESSION = L"wsServiceSession";
 		} NAMES;
 	};
@@ -127,6 +139,52 @@ namespace ESBCommon
 		static struct _TAGNAME
 		{
 			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_Unregister";
+		} NAMES;
+	};
+
+	struct ESBService_HubMethod_StartSession
+	{
+		GUID guidService;
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_StartSession";
+			const wchar_t * const GUIDSERVICE = L"guidService";
+		} NAMES;
+	};
+
+	struct ESBService_HubMethod_ClientSessionEnd
+	{
+		std::wstring wsClientSession;
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_ClientSessionEnd";
+			const wchar_t * const WSCLIENTSESSION = L"wsClientSession";
+		} NAMES;
+	};
+
+	struct ESBService_ServiceMethod_SessionConfirm
+	{
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_ServiceMethod_SessionConfirm";
+		} NAMES;
+	};
+
+	struct ESBService_ServiceMethod_EndSession
+	{
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_ServiceMethod_EndSession";
+		} NAMES;
+	};
+
+	struct ESBService_ServiceMethod_ClientRequest
+	{
+		std::wstring wsContent;
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_ServiceMethod_ClientRequest";
+			const wchar_t * const WSCONTENT = L"wsContent";
 		} NAMES;
 	};
 };

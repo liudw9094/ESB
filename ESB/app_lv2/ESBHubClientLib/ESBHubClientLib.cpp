@@ -4,19 +4,3 @@
 #include "stdafx.h"
 #include "ESBHubClientLib.h"
 
-
-// This is an example of an exported variable
-ESBHUBCLIENTLIB_API int nESBHubClientLib=0;
-
-// This is an example of an exported function.
-ESBHUBCLIENTLIB_API int fnESBHubClientLib(void)
-{
-    return 42;
-}
-
-// This is the constructor of a class that has been exported.
-// see ESBHubClientLib.h for the class definition
-CESBHubClientLib::CESBHubClientLib()
-{
-    return;
-}
