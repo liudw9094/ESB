@@ -14,6 +14,19 @@ CESBSoapServerImp::CESBSoapServerImp(void) :
 	m_nPort(-1)
 {
 	m_soap = soap_new();
+	m_funcInvoke = [](SREF(Utils::Thread::IThread),
+						struct soap* psoap,
+						const std::wstring& wsSession,
+						const std::wstring& wsInputs,
+						std::wstring& wsResults) -> int
+	{
+		return 0;
+	};
+	
+	m_funcAccept = [](const struct soap* sSoap)->BOOL
+	{
+		return TRUE;
+	};
 }
 
 CESBSoapServerImp::~CESBSoapServerImp(void)
@@ -114,15 +127,7 @@ wstring CESBSoapServerImp::GetClientIP(struct soap* pSoap)
 	return L"";
 }
 
-
-BOOL CESBSoapServerImp::SetEvent_Invoke(
-	const std::function<
-	int(SREF(Utils::Thread::IThread) pthread,
-	struct soap* psoap,
-	const std::wstring& wsSession,
-	const std::wstring& wsInputs,
-	std::wstring& wsResults)>& func
-	)
+BOOL CESBSoapServerImp::SetEvent_Invoke(const IESBWebServiceServer::TInvokeFunc& func)
 {
 	if (!IsStarted())
 	{
@@ -133,7 +138,7 @@ BOOL CESBSoapServerImp::SetEvent_Invoke(
 		return FALSE;
 }
 
-BOOL CESBSoapServerImp::SetEvent_Accept(const std::function<BOOL(const struct soap* sSoap)>& func)
+BOOL CESBSoapServerImp::SetEvent_Accept(const IESBWebServiceServer::TAcceptFunc& func)
 {
 	if (!IsStarted())
 	{

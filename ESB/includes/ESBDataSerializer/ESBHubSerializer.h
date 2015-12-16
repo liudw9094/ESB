@@ -61,6 +61,9 @@ namespace ESBDataSerialzer
 
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceMethod_ClientRequest& data);
 	BOOL String2Data(OUT ESBCommon::ESBService_ServiceMethod_ClientRequest& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceReply_LoadStateUpdate& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_ServiceReply_LoadStateUpdate& data, IN const std::wstring& string);
 };
 
 

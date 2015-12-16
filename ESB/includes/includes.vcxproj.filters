@@ -31,6 +31,9 @@
     <Filter Include="includes\XMLParser">
       <UniqueIdentifier>{39b851ff-9e3a-4d40-8261-4925a24d4233}</UniqueIdentifier>
     </Filter>
+    <Filter Include="includes\ESBHubService">
+      <UniqueIdentifier>{671426f9-2615-4f04-8695-08c9fb574f37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils\SafeCoding\Finalize.h">
@@ -105,9 +108,6 @@
     <ClInclude Include="ESBMidService\ESBMidService.h">
       <Filter>includes\ESBMidService</Filter>
     </ClInclude>
-    <ClInclude Include="ESBMidService\ESBMidService_HubService.h">
-      <Filter>includes\ESBMidService</Filter>
-    </ClInclude>
     <ClInclude Include="ESBMidService\ESBMidService_Service.h">
       <Filter>includes\ESBMidService</Filter>
     </ClInclude>
@@ -140,6 +140,15 @@
     </ClInclude>
     <ClInclude Include="XMLParser\XMLParser.h">
       <Filter>includes\XMLParser</Filter>
+    </ClInclude>
+    <ClInclude Include="ESBHubService\ESBHubService.h">
+      <Filter>includes\ESBHubService</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\SafeCoding.h">
+      <Filter>includes\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GUID.h">
+      <Filter>includes\Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

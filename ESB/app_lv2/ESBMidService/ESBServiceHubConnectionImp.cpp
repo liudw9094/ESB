@@ -23,7 +23,8 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	const std::wstring& wsServiceURL,
 	const GUID guidService,
 	const std::wstring& wsServiceName,
-	UINT maximumSession)
+	UINT maximumSession,
+	UINT currentSessionNum)
 {
 	int nRet = 0;
 	ESBService_HubMethod_RegisterToHub reg;
@@ -31,6 +32,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	reg.guidService = guidService;
 	reg.wsServiceName = wsServiceName;
 	reg.maximumSession = maximumSession;
+	reg.currentSessionNum = currentSessionNum;
 	ESBServiceRequest rq;
 	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, reg))

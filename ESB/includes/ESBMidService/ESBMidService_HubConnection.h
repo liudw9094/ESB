@@ -8,11 +8,13 @@ namespace ESBMidService
 	class IESBServiceHubConnection
 	{
 	public:
+		/*
 		virtual int	RegisterToHub(const std::wstring& wsHubURL,
 			const std::wstring& wsServiceURL,
 			const GUID guidService,
 			const std::wstring& wsServiceName,
 			UINT maximumSession) = 0;
+		*/
 		virtual int Unregister() = 0;
 		virtual BOOL IsValid() const = 0;
 		virtual int ModifySessionLimitation(int nLimitation) = 0;

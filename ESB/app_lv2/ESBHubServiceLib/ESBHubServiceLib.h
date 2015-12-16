@@ -10,13 +10,3 @@
 #define ESBHUBSERVICELIB_API __declspec(dllimport)
 #endif
 
-// This class is exported from the ESBHubServiceLib.dll
-class ESBHUBSERVICELIB_API CESBHubServiceLib {
-public:
-	CESBHubServiceLib(void);
-	// TODO: add your methods here.
-};
-
-extern ESBHUBSERVICELIB_API int nESBHubServiceLib;
-
-ESBHUBSERVICELIB_API int fnESBHubServiceLib(void);

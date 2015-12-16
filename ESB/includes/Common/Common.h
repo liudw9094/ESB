@@ -3,5 +3,6 @@
 
 #include "InOut.h"
 #include "ESBHub.h"
+#include "GUID.h"
 
 #endif

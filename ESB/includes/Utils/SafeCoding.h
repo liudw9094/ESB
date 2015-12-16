@@ -1,6 +1,6 @@
 #ifndef _INCLUDE_UITILS_SAFECODING_H_
 #define _INCLUDE_UITILS_SAFECODING_H_
 
-
+#include "SafeCoding/Finalize.h"
 
 #endif //_INCLUDE_UITILS_SAFECODING_H_

@@ -189,9 +189,11 @@ BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon:
 	Data2String(wsguidService, data.guidService);
 	root->AddAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.GUIDSERVICE, wsguidService);
 	root->AddAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.WSSERVICENAME, data.wsServiceName);
-	wstring wsmaximumSession;
+	wstring wsmaximumSession, wsCurrenSessionNum;
 	Data2String(wsmaximumSession, data.maximumSession);
+	Data2String(wsCurrenSessionNum, data.currentSessionNum);
 	root->AddAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.MAXIMUMSESSION, wsmaximumSession);
+	root->AddAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.CURRENTSESSIONNUM, wsCurrenSessionNum);
 	string = root->ToXMLString();
 	return TRUE;
 
@@ -208,7 +210,9 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_HubMethod_RegisterT
 	String2Data(data.guidService, wsguidService);
 	data.wsServiceName = root->GetAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.WSSERVICENAME);
 	wstring wsmaximumSession = root->GetAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.MAXIMUMSESSION);
+	wstring wsCurrentSessionNum = root->GetAttributeStr(ESBService_HubMethod_RegisterToHub::NAMES.CURRENTSESSIONNUM);
 	String2Data(data.maximumSession, wsmaximumSession);
+	String2Data(data.currentSessionNum, wsCurrentSessionNum);
 	return TRUE;
 }
 
@@ -379,5 +383,32 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_ServiceMethod_Clien
 	if (!root->IsValid() || root->GetNodeName() != ESBService_ServiceMethod_ClientRequest::NAMES.ROOTNAME)
 		return FALSE;
 	data.wsContent = root->GetNodeValueStr();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_ServiceReply_LoadStateUpdate& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBService_ServiceReply_LoadStateUpdate::NAMES.ROOTNAME);
+	wstring wsmaximumSession, wsCurrenSessionNum;
+	Data2String(wsmaximumSession, data.maximumSession);
+	Data2String(wsCurrenSessionNum, data.currentSessionNum);
+	root->AddAttributeStr(ESBService_ServiceReply_LoadStateUpdate::NAMES.MAXIMUMSESSION, wsmaximumSession);
+	root->AddAttributeStr(ESBService_ServiceReply_LoadStateUpdate::NAMES.CURRENTSESSIONNUM, wsCurrenSessionNum);
+	string = root->ToXMLString();
+	return TRUE;
+
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_ServiceReply_LoadStateUpdate& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBService_ServiceReply_LoadStateUpdate::NAMES.ROOTNAME)
+		return FALSE;
+	wstring wsmaximumSession = root->GetAttributeStr(ESBService_ServiceReply_LoadStateUpdate::NAMES.MAXIMUMSESSION);
+	wstring wsCurrentSessionNum = root->GetAttributeStr(ESBService_ServiceReply_LoadStateUpdate::NAMES.CURRENTSESSIONNUM);
+	String2Data(data.maximumSession, wsmaximumSession);
+	String2Data(data.currentSessionNum, wsCurrentSessionNum);
 	return TRUE;
 }

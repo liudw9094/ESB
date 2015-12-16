@@ -93,8 +93,12 @@ namespace ESBCommon
 		GUID guidService;
 		std::wstring wsServiceName;
 		UINT maximumSession;
+		UINT currentSessionNum;
 
-		ESBService_HubMethod_RegisterToHub() : guidService({ 0 }), maximumSession(0)
+		ESBService_HubMethod_RegisterToHub() :
+			guidService({ 0 }),
+			maximumSession(0),
+			currentSessionNum(0)
 		{
 		}
 
@@ -105,6 +109,7 @@ namespace ESBCommon
 			const wchar_t * const GUIDSERVICE = L"guidService";
 			const wchar_t * const WSSERVICENAME = L"wsServiceName";
 			const wchar_t * const MAXIMUMSESSION = L"maximumSession";
+			const wchar_t * const CURRENTSESSIONNUM = L"currentSessionNum";
 		} NAMES;
 	};
 
@@ -186,6 +191,26 @@ namespace ESBCommon
 			const wchar_t * const ROOTNAME = L"ESBService_ServiceMethod_ClientRequest";
 			const wchar_t * const WSCONTENT = L"wsContent";
 		} NAMES;
+	};
+
+	struct ESBService_ServiceReply_LoadStateUpdate
+	{
+		UINT maximumSession;
+		UINT currentSessionNum;
+
+		ESBService_ServiceReply_LoadStateUpdate() :
+			maximumSession(0),
+			currentSessionNum(0)
+		{
+		}
+
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBService_ServiceReply_LoadStateUpdate";
+			const wchar_t * const MAXIMUMSESSION = L"maximumSession";
+			const wchar_t * const CURRENTSESSIONNUM = L"currentSessionNum";
+		} NAMES;
+
 	};
 };
 

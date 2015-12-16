@@ -2,6 +2,7 @@
 #define _INCLUDE_ESBMIDCLIENT_CONNECTION_H_
 
 #include <string>
+#include "../Utils/SafeCoding/IDisposable.h"
 
 #ifndef ESBMIDCONN_API
 #define ESBMIDCONN_API
@@ -9,7 +10,7 @@
 
 namespace ESBMidClient
 {
-	class IESBConnection : Utils::SafeCoding::IDisposable
+	class IESBConnection : public Utils::SafeCoding::IDisposable
 	{
 	public:
 		virtual int StartSession(const std::wstring& wsURL, const GUID& guidService) = 0;

@@ -9,6 +9,8 @@
 
 #include "../Utils/SafeCoding/IDisposable.h"
 #include "../Utils/SafeCoding/SmtPtr.h"
+#include "../ESBWebService/ESBWebServiceServer.h"
+#include "../Common/ESBHub.h"
 #include "ESBMidService_HubConnection.h"
 
 #include <functional>
@@ -19,20 +21,27 @@
 
 namespace ESBMidService
 {
-	class IESBService : Utils::SafeCoding::IDisposable
+	class IESBService : public ESBWebService::IESBWebServiceServer
 	{
 	public:
-		virtual int Start(int nPort) = 0;
-		virtual int End(void) = 0;
-		virtual BOOL IsStarted(void) const = 0;
-		virtual BOOL SetInvokeFunction(const std::function<int(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)> &func) = 0;
+		typedef std::function<int(SREF(Utils::Thread::IThread) pthread,
+		struct soap* psoap,
+			IN OUT std::wstring& wsSession,
+			IN OUT std::wstring& wsInputs,
+			OUT BOOL& bNoFurtherProcess,
+			OUT std::wstring& wsResults,
+			ESBCommon::ENUM_IDTYPE &idType)> TPreInvokeFunc;
+
+		virtual BOOL SetEvent_PreInvoke(const TPreInvokeFunc &func) = 0;
+
 		virtual int	RegisterToHub(const std::wstring& wsHubURL,
 								const std::wstring& wsServiceURL,
 								const GUID guidService,
 								const std::wstring& wsServiceName,
 								UINT maximumSession) = 0;
-		virtual int GetPort(void) const = 0;
 		virtual IESBServiceHubConnection* GetHubConnection() = 0;
+		virtual BOOL CheckClientSession(const std::wstring& wsSession) = 0;
+		virtual BOOL CheckHubSession(const std::wstring& wsSession) = 0;
 	};
 
 	ESBMIDSERVICE_API IESBService* CreateESBService();

@@ -32,5 +32,8 @@
     <ClCompile Include="ESBHub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GUID.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

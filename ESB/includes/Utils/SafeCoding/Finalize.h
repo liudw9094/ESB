@@ -1,19 +1,26 @@
 #ifndef _ESB_UTILS_SAFECODING_FINALIZE_H_
 #define _ESB_UTILS_SAFECODING_FINALIZE_H_
 
-template <class TCALL>
-class CFinalize
+#include <functional>
+namespace Utils
 {
-private:
-	TCALL _fincall;
-public:
-	inline CFinalize (TCALL _finalize) : _fincall(_finalize)
+	namespace SafeCoding
 	{
-	}
-	inline ~CFinalize()
-	{
-		_fincall();
-	}
+		class CFinalize
+		{
+		private:
+			std::function<void()> _fincall;
+		public:
+			inline CFinalize(const std::function<void()>& _finalize) : _fincall(_finalize)
+			{
+			}
+			inline ~CFinalize()
+			{
+				_fincall();
+			}
+		};
+	};
 };
+
 
 #endif // _ESB_UTILS_SAFECODING_FINALIZE_H_

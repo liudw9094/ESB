@@ -3,8 +3,6 @@
 #include <ESBMidService/ESBMidService_HubConnection.h>
 #include <Common/ESBHub.h>
 
-class CESBServiceHubConnectionImp;
-
 class CESBServiceHubConnectionImp : public ESBMidService::IESBServiceHubConnection
 {
 private:
@@ -22,7 +20,8 @@ public:
 		const std::wstring& wsServiceURL,
 		const GUID guidService,
 		const std::wstring& wsServiceName,
-		UINT maximumSession);
+		UINT maximumSession,
+		UINT currentSessionNum);
 	virtual int Unregister();
 	virtual BOOL IsValid() const;
 	virtual int ModifySessionLimitation(int nLimitation);

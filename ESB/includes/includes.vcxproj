@@ -21,19 +21,21 @@
   <ItemGroup>
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\ESBHub.h" />
+    <ClInclude Include="Common\GUID.h" />
     <ClInclude Include="Common\InOut.h" />
     <ClInclude Include="ESBDataSerializer\ESBHubSerializer.h" />
     <ClInclude Include="ESBDataSerializer\StdSerializer.h" />
     <ClInclude Include="ESBDataSerializer\Serializer.h" />
+    <ClInclude Include="ESBHubService\ESBHubService.h" />
     <ClInclude Include="ESBMidClient\ESBMidClient.h" />
     <ClInclude Include="ESBMidClient\ESBMidClient_Connection.h" />
     <ClInclude Include="ESBMidService\ESBMidService.h" />
     <ClInclude Include="ESBMidService\ESBMidService_HubConnection.h" />
-    <ClInclude Include="ESBMidService\ESBMidService_HubService.h" />
     <ClInclude Include="ESBMidService\ESBMidService_Service.h" />
     <ClInclude Include="ESBWebService\ESBWebService.h" />
     <ClInclude Include="ESBWebService\ESBWebServiceClient.h" />
     <ClInclude Include="ESBWebService\ESBWebServiceServer.h" />
+    <ClInclude Include="Utils\SafeCoding.h" />
     <ClInclude Include="Utils\SafeCoding\Object.h" />
     <ClInclude Include="Utils\SafeCoding\UniPtr.h" />
     <ClInclude Include="Utils\SafeCoding\Finalize.h" />

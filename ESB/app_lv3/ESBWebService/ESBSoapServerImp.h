@@ -18,12 +18,8 @@ private:
 
 	mutable SREF(Utils::Thread::ICriticalSection) m_plkMapAcceptSoap;
 	std::map<struct soap*, SREF(Utils::Thread::IThread)>m_mapAcceptSoap;
-	std::function<int(SREF(Utils::Thread::IThread) pthread,
-					struct soap* psoap,
-					const std::wstring& wsSession,
-					const std::wstring& wsInputs,
-					std::wstring& wsResults)> m_funcInvoke;
-	std::function<BOOL(const struct soap* sSoap)> m_funcAccept;
+	TInvokeFunc m_funcInvoke;
+	TAcceptFunc m_funcAccept;
 public:
 	CESBSoapServerImp(void);
 	~CESBSoapServerImp(void);
@@ -34,14 +30,8 @@ public:
 	virtual BOOL IsStarted() const;
 	virtual int GetPort() const;
 	virtual std::wstring GetClientIP(struct soap* pSoap);
-	virtual BOOL SetEvent_Invoke(const std::function<
-										int(SREF(Utils::Thread::IThread) pthread,
-										struct soap* psoap,
-										const std::wstring& wsSession,
-										const std::wstring& wsInputs,
-										std::wstring& wsResults)>& func
-								);
-	virtual BOOL SetEvent_Accept(const std::function<BOOL(const struct soap* sSoap)>& func);
+	virtual BOOL SetEvent_Invoke(const TInvokeFunc& func);
+	virtual BOOL SetEvent_Accept(const TAcceptFunc& func);
 	virtual void Dispose();
 
 	void SoapThread();

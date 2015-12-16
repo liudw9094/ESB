@@ -18,4 +18,5 @@ namespace ESBCommon
 	ESBService_ServiceMethod_SessionConfirm::_TAGNAME				ESBService_ServiceMethod_SessionConfirm::NAMES;
 	ESBService_ServiceMethod_EndSession::_TAGNAME					ESBService_ServiceMethod_EndSession::NAMES;
 	ESBService_ServiceMethod_ClientRequest::_TAGNAME				ESBService_ServiceMethod_ClientRequest::NAMES;
+	ESBService_ServiceReply_LoadStateUpdate::_TAGNAME				ESBService_ServiceReply_LoadStateUpdate::NAMES;
 };
