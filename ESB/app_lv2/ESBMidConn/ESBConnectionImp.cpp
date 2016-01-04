@@ -19,6 +19,8 @@ CESBConnectionImp::CESBConnectionImp() :
 
 CESBConnectionImp::~CESBConnectionImp()
 {
+	if (IsSessionValid())
+		EndSession();
 }
 
 int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidService)

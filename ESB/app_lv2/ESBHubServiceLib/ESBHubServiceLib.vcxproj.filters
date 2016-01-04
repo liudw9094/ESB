@@ -27,10 +27,10 @@
     <ClInclude Include="ESBHubServiceLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ESBHubService.h">
+    <ClInclude Include="RegisteredService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RegisteredService.h">
+    <ClInclude Include="ESBHubServiceImp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,10 +44,10 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ESBHubService.cpp">
+    <ClCompile Include="RegisteredService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RegisteredService.cpp">
+    <ClCompile Include="ESBHubServiceImp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

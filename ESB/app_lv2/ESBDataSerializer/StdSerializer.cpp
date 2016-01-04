@@ -2,18 +2,18 @@
 
 #include <stdlib.h>
 
+using namespace ESBCommon;
+
 BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const GUID& data)
 {
-	// TODO: add implementation.
-	ASSERT(false);
-	return FALSE;
+	string = GUID2String(data);
+	return TRUE;
 }
 
 BOOL ESBDataSerialzer::String2Data(OUT GUID& data, IN const std::wstring& string)
 {
-	// TODO: add implementation.
-	ASSERT(false);
-	return FALSE;
+	data = String2GUID(string);
+	return TRUE;
 }
 
 BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const time_t& data)

@@ -37,6 +37,7 @@ public:
 	// Thread::IThread
 	virtual void Invoke(const std::function<void()> &func);
 	virtual SREF(Utils::Thread::IAsynTask) AsynInvoke(const std::function<void()> &func);
+	virtual void DoEvents();
 	//virtual bool CancleTask(Utils::Thread::IAsynTask* task);
 	virtual void Dispose();
 };

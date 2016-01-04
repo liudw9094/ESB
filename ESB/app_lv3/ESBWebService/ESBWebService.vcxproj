@@ -98,8 +98,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)bin\win32\lib;$(SolutionDir)ThirdPartyUtils\OpenSSL\forDev\Win32\lib\VC;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)\bin\win32\lib\
-copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\win32\dll\</Command>
+      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)bin\win32\lib\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\dll\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\executable\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,8 +118,9 @@ copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\win32\dll\</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)\bin\winx64\lib\
-copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\winx64\dll\</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\lib\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\dll\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -139,8 +141,9 @@ copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\winx64\dll\</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\win32\lib;$(SolutionDir)ThirdPartyUtils\OpenSSL\forDev\Win32\lib\VC;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)\bin\win32\lib\
-copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\win32\dll\</Command>
+      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)bin\win32\lib\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\dll\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\executable\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,8 +164,9 @@ copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\win32\dll\</Command>
       <AdditionalLibraryDirectories>$(SolutionDir)bin\winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)\bin\winx64\lib\
-copy $(OutDir)$(TargetName).dll $(SolutionDir)\bin\winx64\dll\</Command>
+      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\lib\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\dll\
+copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

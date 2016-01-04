@@ -3,7 +3,7 @@
 #include <ESBHubService/ESBHubService.h>
 #include "RegisteredService.h"
 
-class CESBHubService : public ESBHubService::IESBHubService
+class CESBHubServiceImp : public ESBHubService::IESBHubService
 {
 private:
 	SREF(ESBMidService::IESBService)								m_service;
@@ -11,8 +11,8 @@ private:
 	std::map<std::wstring, std::vector<SREF(CRegisteredService)>>	m_mapServices_guid;
 	std::map<std::wstring, SREF(CRegisteredService)>				m_mapServices_session;
 public:
-	CESBHubService();
-	~CESBHubService();
+	CESBHubServiceImp();
+	~CESBHubServiceImp();
 
 	// Overriding ESBMidService::IESBService
 	virtual int Start(int nPort);
@@ -34,7 +34,6 @@ public:
 	virtual void Dispose();
 	
 private:
-	BOOL _FindAndAssignAService(const GUID& serviceGuid, std::wstring& session);
 	int _PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
 						struct soap* psoap,
 						std::wstring& wsSession,
@@ -74,6 +73,8 @@ private:
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,
 		std::wstring& results);
+
+	// when client request a service.
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_StartSession& param,
 		std::wstring& results);

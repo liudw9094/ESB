@@ -17,13 +17,16 @@ std::wstring&& ESBCommon::GUID2String(const GUID& guid, BOOL bIncludeLine /*= TR
 	{
 		swprintf_s(szGuid, L"%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X", guid.Data1, guid.Data2, guid.Data3
 			, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3]
-			, guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+			, guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+
 	}
 	wstring wsGuid = szGuid;
 	return move(wsGuid);
-}
-
-inline GUID&& ESBCommon::String2GUID(const wstring& wsGuid)
+}
+
+
+
+GUID&& ESBCommon::String2GUID(const std::wstring& wsGuid)
 {
 	GUID guid = GUID_NULL;
 	wchar_t szBuf[50];
@@ -49,13 +52,16 @@ inline GUID&& ESBCommon::String2GUID(const wstring& wsGuid)
 	else if (len == 32)
 		wsFormat = L"%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X";
 	else
-		return move(guid);
+		return move(guid);
+
 	if (swscanf_s(szGuid, wsFormat.c_str(),
 		&guid.Data1, &guid.Data2, &guid.Data3,
 		&guid.Data4[0], &guid.Data4[1], &guid.Data4[2], &guid.Data4[3],
 		&guid.Data4[4], &guid.Data4[5], &guid.Data4[6], &guid.Data4[7]) != 11)
-		guid = GUID_NULL;
-	return move(guid);
+		guid = GUID_NULL;
+
+	return move(guid);
+
 }
 
 std::wstring&& ESBCommon::CreateGuid(BOOL bLine /*= TRUE*/)

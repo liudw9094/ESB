@@ -4,8 +4,22 @@
 #include "stdafx.h"
 #include "UtilsRuntime.h"
 #include "ThreadImp.h"
+#include <exception>
 
 using namespace std;
+
+using namespace Utils::Thread;
+
+
+class CExpWMQuit : public exception
+{
+public:
+	virtual const char* what() const throw()
+	{
+		return "WM_QUIT Message.";
+	}
+};
+
 
 // For thread information looking up
 struct THREAD_CONTEXT
@@ -92,12 +106,21 @@ unsigned int CThreadImp::Run()
 	// Or the message would post to this thread failedly after SetEvent(m_hThreadParamSig).
 	::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 	SetEvent(m_hThreadParamSig);
-	while (::GetMessage(&msg, NULL, 0, 0))
+
+	try
 	{
-		if (msg.message == MSG_INVOKE)
-			DispatchInvoke(msg.wParam, msg.lParam);
-		::TranslateMessage(&msg);
-		::DispatchMessage(&msg);
+		while (::GetMessage(&msg, NULL, 0, 0))
+		{
+			if (msg.message == MSG_INVOKE)
+				DispatchInvoke(msg.wParam, msg.lParam);
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+	}
+	// Catch WM_QUIT exception from DoEvents()
+	catch (const CExpWMQuit* e)
+	{
+		delete e;
 	}
 
 	CleanUpTasks();
@@ -126,6 +149,12 @@ void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 				break;
 			pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(*m_dqTasks.begin()));
 			m_dqTasks.pop_front();
+
+			// Remove redudant messages.
+			MSG msg;
+			::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+			if (msg.message == MSG_INVOKE)
+				::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
 		}
 		if (pTask != NULL)
 			pTask->Execute();
@@ -170,13 +199,44 @@ SREF(Utils::Thread::IAsynTask) CThreadImp::AsynInvoke(const std::function<void()
 	if (spTask == NULL)
 	{
 		// TODO: throw;
+		throw;
 	}
+	else
 	{
-		SLOCK(&m_csdqTasks);
-		m_dqTasks.push_back(spTask);
+		{
+			SLOCK(&m_csdqTasks);
+			m_dqTasks.push_back(spTask);
+			::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0);
+		}
+		return spTask;
 	}
-	::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0);
-	return spTask;
+}
+
+void CThreadImp::DoEvents()
+{
+	if (Utils::Thread::GetCurrentThread() == this)
+	{
+		MSG msg;
+		::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+		if (msg.message == MSG_INVOKE)
+			DispatchInvoke(msg.wParam, msg.lParam);
+		else if (msg.message == WM_QUIT)
+		{
+			throw new CExpWMQuit;
+		}
+		else
+		{
+			::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+	}
+	else
+	{
+		// TODO: throw;
+		throw;
+	}
+
 }
 
 //bool CThreadImp::CancleTask(Utils::Thread::IAsynTask* task)
@@ -193,7 +253,7 @@ SREF(Utils::Thread::IAsynTask) CThreadImp::AsynInvoke(const std::function<void()
 
 void CThreadImp::Dispose()
 {
-	if (GetCurrentThread() != this)
+	if (Utils::Thread::GetCurrentThread() != this)
 	{
 		CleanUpTasks();
 		HANDLE hThread = m_hThread;
@@ -205,24 +265,19 @@ void CThreadImp::Dispose()
 		::PostThreadMessage(m_nThreadID, WM_QUIT, 0, 0);
 }
 
-namespace Utils
-{
-	namespace Thread
-	{
-		UTILSRUNTIME_API IThread* CreateThread()
-		{
-			return new CThreadImp;
-		}
 
-		UTILSRUNTIME_API IThread* GetCurrentThread()
-		{
-			int nThreadID = ::GetCurrentThreadId();
-			SLOCK(&s_csmapThreads);
-			auto lookup = s_mapThreads.find(nThreadID);
-			if (lookup != s_mapThreads.end())
-				return lookup->second.pthread;
-			else
-				return NULL;
-		}
-	};
-};
+UTILSRUNTIME_API IThread* Utils::Thread::CreateThread()
+{
+	return new CThreadImp;
+}
+
+UTILSRUNTIME_API IThread*  Utils::Thread::GetCurrentThread()
+{
+	int nThreadID = ::GetCurrentThreadId();
+	SLOCK(&s_csmapThreads);
+	auto lookup = s_mapThreads.find(nThreadID);
+	if (lookup != s_mapThreads.end())
+		return lookup->second.pthread;
+	else
+		return NULL;
+}

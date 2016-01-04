@@ -12,13 +12,16 @@
 #include <windows.h>
 #include <Utils/SafeCoding/SmtPtr.h>
 #include <XMLParser/XMLParser.h>
+#include <Common/Common.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "UtilsRuntimeD")
 #pragma comment(lib, "XMLParserD")
+#pragma comment(lib, "ESBCommonLibD")
 #else
 #pragma comment(lib, "UtilsRuntime")
 #pragma comment(lib, "XMLParser")
+#pragma comment(lib, "ESBCommonLib")
 #endif
 
 

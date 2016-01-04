@@ -28,6 +28,7 @@ namespace Utils
 		public:
 			virtual void Invoke(const std::function<void()> &func) = 0;
 			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func) = 0;
+			virtual void DoEvents() = 0;
 			// A safe method to cancle a task.
 			//virtual bool CancleTask(IAsynTask* task) = 0;
 		};

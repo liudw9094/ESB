@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ESBHubServiceLib.h"
-#include "ESBHubService.h"
+#include "ESBHubServiceImp.h"
 
 using namespace std;
 using namespace ESBMidService;
@@ -10,18 +10,18 @@ using namespace ESBCommon;
 using namespace ESBDataSerialzer;
 using namespace ESBXMLParser;
 
-CESBHubService::CESBHubService() :
+CESBHubServiceImp::CESBHubServiceImp() :
 	m_service(CreateESBService()),
 	m_serviceThread(CreateThread())
 {
 }
 
 
-CESBHubService::~CESBHubService()
+CESBHubServiceImp::~CESBHubServiceImp()
 {
 }
 
-int CESBHubService::Start(int nPort)
+int CESBHubServiceImp::Start(int nPort)
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, nPort, &nRet]() {
@@ -39,7 +39,7 @@ int CESBHubService::Start(int nPort)
 	return nRet;
 }
 
-int CESBHubService::End(void)
+int CESBHubServiceImp::End(void)
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
@@ -48,7 +48,7 @@ int CESBHubService::End(void)
 	return nRet;
 }
 
-BOOL CESBHubService::IsStarted(void) const
+BOOL CESBHubServiceImp::IsStarted(void) const
 {
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet]() {
@@ -57,22 +57,22 @@ BOOL CESBHubService::IsStarted(void) const
 	return bRet;
 }
 
-BOOL CESBHubService::SetEvent_PreInvoke(const TPreInvokeFunc &func)
+BOOL CESBHubServiceImp::SetEvent_PreInvoke(const TPreInvokeFunc &func)
 {
 	return FALSE;
 }
 
-BOOL CESBHubService::SetEvent_Invoke(const TInvokeFunc &func)
+BOOL CESBHubServiceImp::SetEvent_Invoke(const TInvokeFunc &func)
 {
 	return FALSE;
 }
 
-BOOL CESBHubService::SetEvent_Accept(const TAcceptFunc& func)
+BOOL CESBHubServiceImp::SetEvent_Accept(const TAcceptFunc& func)
 {
 	return FALSE;
 }
 
-int	CESBHubService::RegisterToHub(const std::wstring& wsHubURL,
+int	CESBHubServiceImp::RegisterToHub(const std::wstring& wsHubURL,
 	const std::wstring& wsServiceURL,
 	const GUID guidService,
 	const std::wstring& wsServiceName,
@@ -88,7 +88,7 @@ int	CESBHubService::RegisterToHub(const std::wstring& wsHubURL,
 	*/
 }
 
-int CESBHubService::GetPort(void) const
+int CESBHubServiceImp::GetPort(void) const
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
@@ -97,7 +97,7 @@ int CESBHubService::GetPort(void) const
 	return nRet;
 }
 
-ESBMidService::IESBServiceHubConnection* CESBHubService::GetHubConnection()
+ESBMidService::IESBServiceHubConnection* CESBHubServiceImp::GetHubConnection()
 {
 	return NULL;
 	/*
@@ -109,7 +109,7 @@ ESBMidService::IESBServiceHubConnection* CESBHubService::GetHubConnection()
 	*/
 }
 
-BOOL CESBHubService::CheckClientSession(const std::wstring& wsSession)
+BOOL CESBHubServiceImp::CheckClientSession(const std::wstring& wsSession)
 {
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
@@ -118,7 +118,7 @@ BOOL CESBHubService::CheckClientSession(const std::wstring& wsSession)
 	return bRet;
 }
 
-BOOL CESBHubService::CheckHubSession(const std::wstring& wsSession)
+BOOL CESBHubServiceImp::CheckHubSession(const std::wstring& wsSession)
 {
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
@@ -127,12 +127,12 @@ BOOL CESBHubService::CheckHubSession(const std::wstring& wsSession)
 	return bRet;
 }
 
-void CESBHubService::Dispose()
+void CESBHubServiceImp::Dispose()
 {
 	delete this;
 }
 
-int CESBHubService::_PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
+int CESBHubServiceImp::_PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
 										struct soap* psoap,
 										std::wstring& wsSession,
 										std::wstring& wsInputs,
@@ -153,7 +153,7 @@ int CESBHubService::_PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
 		return 0;
 }
 
-int CESBHubService::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthread,
+int CESBHubServiceImp::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthread,
 										struct soap* psoap,
 										const std::wstring& wsSession,
 										const std::wstring& wsInputs,
@@ -215,7 +215,7 @@ int CESBHubService::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthread,
 	}
 }
 
-int CESBHubService::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthread,
+int CESBHubServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthread,
 										struct soap* psoap,
 										const std::wstring& wsSession,
 										const std::wstring& wsInputs,
@@ -229,7 +229,7 @@ int CESBHubService::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthread,
 	return _On_ESBService_HubMethod(wsSession, request, wsResults);
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_RegisterToHub& param,
 	std::wstring& results)
 {
@@ -266,7 +266,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return nRet;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_Unregister& param,
 	std::wstring& results)
 {
@@ -303,7 +303,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return nRet;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_ModifySessionLimitation& param,
 	std::wstring& results)
 {
@@ -311,7 +311,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return -1;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& param,
 	std::wstring& results)
 {
@@ -319,7 +319,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return -1;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& param,
 	std::wstring& results)
 {
@@ -327,7 +327,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return -1;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,
 	std::wstring& results)
 {
@@ -335,7 +335,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 	return -1;
 }
 
-int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_StartSession& param,
 	std::wstring& results)
 {
@@ -357,6 +357,8 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 		}
 		size_t nIndex = refVec.size() - 1;
 		SREF(CRegisteredService) pService = refVec[nIndex];
+		
+		// Ask to send new token to service and retrieve the token info.
 		ESBClientToken newToken;
 		if (!pService->NewToken(newToken))
 		{
@@ -371,7 +373,7 @@ int CESBHubService::_On_ESBService_HubMethod(const std::wstring& session,
 			if (pServicePrev->GetCurrentCapacityUsageRate() < pService->GetCurrentCapacityUsageRate())
 				swap(refVec[nIndex], refVec[nIndex - 1]);
 		}
-		// reply token
+		// reply client with the token
 		Data2String(results, newToken);
 	});
 	return nRet;

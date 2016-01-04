@@ -201,7 +201,7 @@ int CESBMidServiceImp::_ProcessHubRequest(SREF(Utils::Thread::IThread) pthread,
 			return -1;
 		return _On_ESBService_ServiceMethod(wsSession, param, wsResults);
 	}
-	return 0;
+	return -101;
 }
 
 int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthread,
@@ -211,7 +211,7 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 											std::wstring& wsResults)
 {
 
-	return 0;
+	return -101;
 }
 
 int  CESBMidServiceImp::_On_ESBService_ServiceMethod(const std::wstring& session,
