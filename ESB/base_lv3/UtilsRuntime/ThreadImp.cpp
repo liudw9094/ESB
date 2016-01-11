@@ -21,15 +21,8 @@ public:
 };
 
 
-// For thread information looking up
-struct THREAD_CONTEXT
-{
-	Utils::Thread::IThread* pthread;
-};
-
-static map<int, THREAD_CONTEXT>	s_mapThreads;
-CCriticalSectionImp				s_csmapThreads;
-
+// Current thread information
+static thread_local IThread* s_pCurThread = NULL;
 
 const UINT CThreadImp::MSG_INVOKE(::RegisterWindowMessageW(L"CThreadImp::MSG_INVOKE"));
 
@@ -62,14 +55,6 @@ CThreadImp::CThreadImp()
 	// Thread running well. Therefore we release m_hThreadParamSig.
 	::CloseHandle(m_hThreadParamSig);
 	m_hThreadParamSig = NULL;
-
-	// Add thread information for looking up.
-	{
-		THREAD_CONTEXT tx;
-		tx.pthread = this;
-		SLOCK(&s_csmapThreads);
-		s_mapThreads[m_nThreadID] = tx;
-	}
 }
 
 CThreadImp::~CThreadImp()
@@ -96,6 +81,9 @@ bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
 
 unsigned int CThreadImp::Run()
 {
+	// Add thread information.
+	s_pCurThread = this;
+
 	// Wait for the creation of m_hThread and m_nThreadID.
 	::WaitForSingleObject(m_hhThread, INFINITE);
 	// m_hhThread is no long needed.
@@ -126,12 +114,8 @@ unsigned int CThreadImp::Run()
 	CleanUpTasks();
 	//::CloseHandle(m_hThread);
 
-	// Clear up thread information.
-	{
-		SLOCK(&s_csmapThreads);
-		s_mapThreads.erase(m_nThreadID);
-		::InterlockedExchange(reinterpret_cast<volatile long*>(&m_nThreadID), -1);
-	}
+	// Clean up thread information.
+	s_pCurThread = NULL;
 
 	delete this;
 
@@ -273,13 +257,8 @@ UTILSRUNTIME_API IThread* Utils::Thread::CreateThread()
 	return new CThreadImp;
 }
 
+
 UTILSRUNTIME_API IThread*  Utils::Thread::GetCurrentThread()
 {
-	int nThreadID = ::GetCurrentThreadId();
-	SLOCK(&s_csmapThreads);
-	auto lookup = s_mapThreads.find(nThreadID);
-	if (lookup != s_mapThreads.end())
-		return lookup->second.pthread;
-	else
-		return NULL;
+	return s_pCurThread;
 }

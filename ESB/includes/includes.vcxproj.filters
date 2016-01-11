@@ -153,5 +153,8 @@
     <ClInclude Include="Utils\Thread\EventSignal.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
+    <ClInclude Include="Utils\Thread\Dispatcher.h">
+      <Filter>includes\Utils\Thread</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
