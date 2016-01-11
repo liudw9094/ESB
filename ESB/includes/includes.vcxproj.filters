@@ -63,9 +63,6 @@
     <ClInclude Include="Utils\Thread\CriticalSection.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\Thread\Event.h">
-      <Filter>includes\Utils\Thread</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\Thread\ILockable.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
@@ -149,6 +146,12 @@
     </ClInclude>
     <ClInclude Include="Common\GUID.h">
       <Filter>includes\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Base64.h">
+      <Filter>includes\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Thread\EventSignal.h">
+      <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

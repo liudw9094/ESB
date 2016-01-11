@@ -142,12 +142,14 @@ void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 {
 	for (;;)
 	{
+		SREF(Utils::Thread::IAsynTask) spTask;
 		CAsynTaskImp *pTask = NULL;
 		{
 			SLOCK(&m_csdqTasks);
 			if (m_dqTasks.empty())
 				break;
-			pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(*m_dqTasks.begin()));
+			spTask = (*m_dqTasks.begin());
+			pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(spTask));
 			m_dqTasks.pop_front();
 
 			// Remove redudant messages.

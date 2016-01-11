@@ -6,10 +6,19 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 
+#include "AppConfig.h"
+
 
 // CHubServiceDlg dialog
 class CHubServiceDlg : public CDialogEx
 {
+private:
+	CAppConfig								m_appCfg;
+	SREF(ESBHubService::IESBHubService)		m_spHubService;
+	CButton m_btStartOrStop;
+	CEdit m_edtHubStatue;
+	CEdit m_edtServiceStatue;
+	CTreeCtrl m_treServices;
 // Construction
 public:
 	CHubServiceDlg(CWnd* pParent = NULL);	// standard constructor
@@ -19,10 +28,10 @@ public:
 	enum { IDD = IDD_HUBSERVICE_DIALOG };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
-
-
+private:
+	void _UpdateCtrls();
 // Implementation
 protected:
 	HICON m_hIcon;
@@ -33,10 +42,5 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-	CButton m_btStartOrStop;
-public:
-	CEdit m_edtHubStatue;
-	CEdit m_edtServiceStatue;
-	CTreeCtrl m_treServices;
 	afx_msg void OnClickedBtStartOrStop();
 };

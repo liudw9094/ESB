@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\Base64.h" />
     <ClInclude Include="Common\Common.h" />
     <ClInclude Include="Common\ESBHub.h" />
     <ClInclude Include="Common\GUID.h" />
@@ -47,7 +48,7 @@
     <ClInclude Include="Utils\Thread\ArgumentSet.h" />
     <ClInclude Include="Utils\Thread\AsynTask.h" />
     <ClInclude Include="Utils\Thread\CriticalSection.h" />
-    <ClInclude Include="Utils\Thread\Event.h" />
+    <ClInclude Include="Utils\Thread\EventSignal.h" />
     <ClInclude Include="Utils\Thread\ILockable.h" />
     <ClInclude Include="Utils\Thread\MultiLock.h" />
     <ClInclude Include="Utils\Thread\ScopeLock.h" />

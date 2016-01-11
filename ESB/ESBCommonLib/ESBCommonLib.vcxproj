@@ -167,6 +167,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Base64.cpp" />
     <ClCompile Include="ESBHub.cpp" />
     <ClCompile Include="GUID.cpp" />
     <ClCompile Include="stdafx.cpp">

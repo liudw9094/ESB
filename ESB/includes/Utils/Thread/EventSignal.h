@@ -1,7 +1,6 @@
-#ifndef _INCLUDES_THREAD_CRITICAL_SECTION_H_
-#define _INCLUDES_THREAD_CRITICAL_SECTION_H_
+#ifndef _INCLUDES_THREAD_EVENTSIGNAL_H_
+#define _INCLUDES_THREAD_EVENTSIGNAL_H_
 
-#include <windows.h>
 #include "ILockable.h"
 
 #ifndef UTILSRUNTIME_API
@@ -12,7 +11,7 @@ namespace Utils
 {
 	namespace Thread
 	{
-		class IEvent
+		class IEventSignal
 		{
 		public:
 			virtual void Signal() = 0;
@@ -20,8 +19,8 @@ namespace Utils
 			virtual BOOL Wait(unsigned long millisec) = 0;
 		};
 
-		UTILSRUNTIME_API IEvent* CreateEvent();
+		UTILSRUNTIME_API IEvent* CreateEventSignal();
 	}
 };
 
-#endif //_INCLUDES_THREAD_CRITICAL_SECTION_H_
+#endif //_INCLUDES_THREAD_EVENTSIGNAL_H_

@@ -8,7 +8,7 @@ using namespace ESBWebService;
 using namespace std;
 
 CESBSoapServerImp::CESBSoapServerImp(void) :
-	m_bIsIni(FALSE),
+	m_bIsStarted(FALSE),
 	m_bExitThread(FALSE),
 	m_plkMapAcceptSoap(CreateCriticalSection()),
 	m_nPort(-1)
@@ -31,13 +31,13 @@ CESBSoapServerImp::CESBSoapServerImp(void) :
 
 CESBSoapServerImp::~CESBSoapServerImp(void)
 {
-	soap_destroy(m_soap);
+	soap_free(m_soap);
 }
 
 BOOL CESBSoapServerImp::Start(int iPort)
 {
-	if (m_bIsIni)
-		End();
+	if (m_bIsStarted)
+		Stop();
 
 	soap_init(m_soap);
 	m_soap->send_timeout = 10; // 10 seconds 
@@ -60,15 +60,15 @@ BOOL CESBSoapServerImp::Start(int iPort)
 	{
 		m_thdSoap = CreateThread();
 		m_thdSoap->AsynInvoke([this]() {SoapThread();});
-		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsIni), TRUE);
+		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), TRUE);
 		m_nPort = iPort;
 		return TRUE;
 	}
 }
 
-BOOL CESBSoapServerImp::End()
+BOOL CESBSoapServerImp::Stop()
 {
-	if (!m_bIsIni)
+	if (!m_bIsStarted)
 		return FALSE;
 
 	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bExitThread), TRUE);
@@ -92,21 +92,20 @@ BOOL CESBSoapServerImp::End()
 					soap_destroy(pSoap); // dealloc C++ data
 					soap_end(pSoap); // dealloc data and clean up
 					soap_done(pSoap); // detach soap struct
-					soap_free(pSoap);
 				}
 			}
 			m_mapAcceptSoap.clear();
 		}
 	}
 
-	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsIni), FALSE);
+	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), FALSE);
 	m_nPort = -1;
 	return TRUE;
 }
 
 BOOL CESBSoapServerImp::IsStarted() const
 {
-	return m_bIsIni;
+	return m_bIsStarted;
 }
 
 int CESBSoapServerImp::GetPort() const
@@ -114,20 +113,20 @@ int CESBSoapServerImp::GetPort() const
 	return m_nPort;
 }
 
-wstring CESBSoapServerImp::GetClientIP(struct soap* pSoap)
+wstring&& CESBSoapServerImp::GetClientIP(const struct soap* pSoap) const
 {
-	/*
-	string str;
-
-	str.Format(_T("%d.%d.%d.%d:%d"),
-	(sSoap.ip >> 24)&0xFF, (sSoap.ip >> 16)&0xFF, (sSoap.ip >> 8)&0xFF, sSoap.ip&0xFF,
-	sSoap.port);
-	return str;
-	*/
-	return L"";
+	wchar_t buf[256];
+	swprintf_s(buf, L"%d.%d.%d.%d:%d",
+		(pSoap->ip >> 24) & 0xFF,
+		(pSoap->ip >> 16) & 0xFF,
+		(pSoap->ip >> 8) & 0xFF,
+		pSoap->ip & 0xFF,
+		pSoap->port);
+	wstring str(buf);
+	return move(str);
 }
 
-BOOL CESBSoapServerImp::SetEvent_Invoke(const IESBWebServiceServer::TInvokeFunc& func)
+BOOL CESBSoapServerImp::SetCallback_Invoke(const IESBWebServiceServer::TInvokeFunc& func)
 {
 	if (!IsStarted())
 	{
@@ -138,7 +137,7 @@ BOOL CESBSoapServerImp::SetEvent_Invoke(const IESBWebServiceServer::TInvokeFunc&
 		return FALSE;
 }
 
-BOOL CESBSoapServerImp::SetEvent_Accept(const IESBWebServiceServer::TAcceptFunc& func)
+BOOL CESBSoapServerImp::SetCallback_Accept(const IESBWebServiceServer::TAcceptFunc& func)
 {
 	if (!IsStarted())
 	{

@@ -25,7 +25,7 @@ int CESBHubServiceImp::Start(int nPort)
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, nPort, &nRet]() {
-		m_service->SetEvent_PreInvoke([this](SREF(Utils::Thread::IThread) pthread,
+		m_service->SetCallback_PreInvoke([this](SREF(Utils::Thread::IThread) pthread,
 											struct soap* psoap,
 											std::wstring& wsSession,
 											std::wstring& wsInputs,
@@ -39,11 +39,11 @@ int CESBHubServiceImp::Start(int nPort)
 	return nRet;
 }
 
-int CESBHubServiceImp::End(void)
+int CESBHubServiceImp::Stop(void)
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
-		nRet = m_service->End();
+		nRet = m_service->Stop();
 	});
 	return nRet;
 }
@@ -57,17 +57,17 @@ BOOL CESBHubServiceImp::IsStarted(void) const
 	return bRet;
 }
 
-BOOL CESBHubServiceImp::SetEvent_PreInvoke(const TPreInvokeFunc &func)
+BOOL CESBHubServiceImp::SetCallback_PreInvoke(const TPreInvokeFunc &func)
 {
 	return FALSE;
 }
 
-BOOL CESBHubServiceImp::SetEvent_Invoke(const TInvokeFunc &func)
+BOOL CESBHubServiceImp::SetCallback_Invoke(const TInvokeFunc &func)
 {
 	return FALSE;
 }
 
-BOOL CESBHubServiceImp::SetEvent_Accept(const TAcceptFunc& func)
+BOOL CESBHubServiceImp::SetCallback_Accept(const TAcceptFunc& func)
 {
 	return FALSE;
 }
@@ -95,6 +95,15 @@ int CESBHubServiceImp::GetPort(void) const
 		nRet = m_service->GetPort();
 	});
 	return nRet;
+}
+
+std::wstring&& CESBHubServiceImp::GetClientIP(const struct soap* pSoap) const
+{
+	wstring szRet = 0;
+	m_serviceThread->Invoke([this, &szRet, pSoap]() {
+		szRet = m_service->GetClientIP(pSoap);
+	});
+	return move(szRet);
 }
 
 ESBMidService::IESBServiceHubConnection* CESBHubServiceImp::GetHubConnection()
@@ -377,4 +386,11 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 		Data2String(results, newToken);
 	});
 	return nRet;
+}
+
+
+
+ESBHUBSERVICELIB_API IESBHubService* ESBHubService::CreateESBHubService()
+{
+	return new CESBHubServiceImp;
 }

@@ -16,17 +16,18 @@ public:
 
 	// Overriding ESBMidService::IESBService
 	virtual int Start(int nPort);
-	virtual int End(void);
+	virtual int Stop(void);
 	virtual BOOL IsStarted(void) const;
-	virtual BOOL SetEvent_PreInvoke(const TPreInvokeFunc &func);
-	virtual BOOL SetEvent_Invoke(const TInvokeFunc &func);
-	virtual BOOL SetEvent_Accept(const TAcceptFunc& func);
+	virtual BOOL SetCallback_PreInvoke(const TPreInvokeFunc &func);
+	virtual BOOL SetCallback_Invoke(const TInvokeFunc &func);
+	virtual BOOL SetCallback_Accept(const TAcceptFunc& func);
 	virtual int	RegisterToHub(const std::wstring& wsHubURL,
 							const std::wstring& wsServiceURL,
 							const GUID guidService,
 							const std::wstring& wsServiceName,
 							UINT maximumSession);
 	virtual int GetPort(void) const;
+	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
 	virtual BOOL CheckClientSession(const std::wstring& wsSession);
 	virtual BOOL CheckHubSession(const std::wstring& wsSession);
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();

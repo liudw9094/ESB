@@ -22,18 +22,18 @@ public:
 	~CESBMidServiceImp();
 
 	virtual int Start(int nPort);
-	virtual int End(void);
+	virtual int Stop(void);
 	virtual BOOL IsStarted(void) const;
-	virtual BOOL SetEvent_PreInvoke(const TPreInvokeFunc &func);
-	virtual BOOL SetEvent_Invoke(const TInvokeFunc &func);
-	virtual BOOL SetEvent_Accept(const TAcceptFunc& func);
+	virtual BOOL SetCallback_PreInvoke(const TPreInvokeFunc &func);
+	virtual BOOL SetCallback_Invoke(const TInvokeFunc &func);
+	virtual BOOL SetCallback_Accept(const TAcceptFunc& func);
 	virtual int	RegisterToHub(const std::wstring& wsHubURL,
 							const std::wstring& wsServiceURL,
 							const GUID guidService,
 							const std::wstring& wsServiceName,
 							UINT maximumSessionn);
 	virtual int GetPort(void) const;
-	virtual std::wstring GetClientIP(struct soap* pSoap);
+	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	virtual BOOL CheckClientSession(const std::wstring& wsSession);
 	virtual BOOL CheckHubSession(const std::wstring& wsSession);

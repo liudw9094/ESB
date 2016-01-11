@@ -32,12 +32,23 @@
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
+#include <string>
+
 #include <ESBHubService/ESBHubService.h>
+#include <Utils/Utils.h>
+#include <XMLParser/XMLParser.h>
+#include <ESBDataSerializer/Serializer.h>
 
 #ifdef _DEBUG
-#pragma comment(lib, "ESBHubServiceD")
+#pragma comment(lib, "ESBHubServiceLibD")
+#pragma comment(lib, "UtilsRuntimeD")
+#pragma comment(lib, "XMLParserD")
+#pragma comment(lib, "ESBDataSerializerD")
 #else
-#pragma comment(lib, "ESBHubService")
+#pragma comment(lib, "ESBHubServiceLib")
+#pragma comment(lib, "UtilsRuntime")
+#pragma comment(lib, "XMLParser")
+#pragma comment(lib, "ESBDataSerializer")
 #endif // _DEBUG
 
 

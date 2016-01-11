@@ -33,23 +33,25 @@ int CESBMidServiceImp::Start(int nPort)
 	{
 		return _ProcessWebServiceInvoke(pthread, psoap, wsSession, wsInputs, wsResults);
 	};
-	if (!m_webService->SetEvent_Invoke(func))
+	if (!m_webService->SetCallback_Invoke(func))
 		return -2;
 	return m_webService->Start(nPort);
 }
 
-int CESBMidServiceImp::End(void)
+int CESBMidServiceImp::Stop(void)
 {
 	if (IsStarted())
 	{
-		int nRet = m_webService->End();
-		m_webService->SetEvent_Invoke(std::function<
-										int(SREF(Utils::Thread::IThread) pthread,
-										struct soap* psoap,
-										const std::wstring& wsSession,
-										const std::wstring& wsInputs,
-										std::wstring& wsResults)>()
-									);
+		int nRet = m_webService->Stop();
+		m_webService->SetCallback_Invoke([](
+			SREF(Utils::Thread::IThread) pthread,
+			struct soap* psoap,
+			const std::wstring& wsSession,
+			const std::wstring& wsInputs,
+			std::wstring& wsResults) -> int
+		{
+			return 0;
+		});
 		return nRet;
 	}
 	else
@@ -61,7 +63,7 @@ BOOL CESBMidServiceImp::IsStarted(void) const
 	return m_webService->IsStarted();
 }
 
-BOOL CESBMidServiceImp::SetEvent_PreInvoke(const IESBService::TPreInvokeFunc &func)
+BOOL CESBMidServiceImp::SetCallback_PreInvoke(const IESBService::TPreInvokeFunc &func)
 {
 	if (IsStarted())
 		return FALSE;
@@ -69,7 +71,7 @@ BOOL CESBMidServiceImp::SetEvent_PreInvoke(const IESBService::TPreInvokeFunc &fu
 	return TRUE;
 }
 
-BOOL CESBMidServiceImp::SetEvent_Invoke(const IESBService::TInvokeFunc &func)
+BOOL CESBMidServiceImp::SetCallback_Invoke(const IESBService::TInvokeFunc &func)
 {
 	if (IsStarted())
 		return FALSE;
@@ -77,9 +79,9 @@ BOOL CESBMidServiceImp::SetEvent_Invoke(const IESBService::TInvokeFunc &func)
 	return TRUE;
 }
 
-BOOL CESBMidServiceImp::SetEvent_Accept(const IESBService::TAcceptFunc& func)
+BOOL CESBMidServiceImp::SetCallback_Accept(const IESBService::TAcceptFunc& func)
 {
-	return m_webService->SetEvent_Accept(func);
+	return m_webService->SetCallback_Accept(func);
 }
 
 int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
@@ -100,7 +102,7 @@ int CESBMidServiceImp::GetPort(void) const
 	return m_webService->GetPort();
 }
 
-std::wstring CESBMidServiceImp::GetClientIP(struct soap* pSoap)
+std::wstring&& CESBMidServiceImp::GetClientIP(const struct soap* pSoap) const
 {
 	return m_webService->GetClientIP(pSoap);
 }

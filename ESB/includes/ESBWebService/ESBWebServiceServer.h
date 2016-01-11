@@ -26,13 +26,13 @@ namespace ESBWebService
 		typedef std::function <BOOL(const struct soap* sSoap)> TAcceptFunc;
 
 		virtual BOOL Start(int nPort) = 0;
-		virtual BOOL End() = 0;
+		virtual BOOL Stop() = 0;
 		virtual BOOL IsStarted() const = 0;
 		virtual int GetPort() const = 0;
-		virtual std::wstring GetClientIP(struct soap* pSoap) = 0;
+		virtual std::wstring&& GetClientIP(const struct soap* pSoap) const = 0;
 		// the Invoke function would be called assynchronically.
-		virtual BOOL SetEvent_Invoke(const TInvokeFunc& func) = 0;
-		virtual BOOL SetEvent_Accept(const TAcceptFunc& func) = 0;
+		virtual BOOL SetCallback_Invoke(const TInvokeFunc& func) = 0;
+		virtual BOOL SetCallback_Accept(const TAcceptFunc& func) = 0;
 	};
 
 	ESBWEBSERVICE_API IESBWebServiceServer* CreateESBWebServiceServer();

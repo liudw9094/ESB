@@ -79,6 +79,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ESBCommonLib", "ESBCommonLib\ESBCommonLib.vcxproj", "{BD809B3A-D11A-4298-8A48-DC37CAAF34C9}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HubService", "app_lv1\HubService\HubService.vcxproj", "{A267D735-E138-4C44-903F-259E34803D1A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A96ABC4B-BF49-4FEB-9900-2CF28E532EC7} = {A96ABC4B-BF49-4FEB-9900-2CF28E532EC7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

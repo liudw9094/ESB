@@ -11,6 +11,8 @@
 #define new DEBUG_NEW
 #endif
 
+using namespace ESBHubService;
+using namespace Utils::SafeCoding;
 
 // CAboutDlg dialog used for App About
 
@@ -50,7 +52,9 @@ END_MESSAGE_MAP()
 
 
 CHubServiceDlg::CHubServiceDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(IDD_HUBSERVICE_DIALOG, pParent)
+	: CDialogEx(IDD_HUBSERVICE_DIALOG, pParent),
+	m_spHubService(CreateESBHubService()),
+	m_appCfg(L".\\HubService.xml")
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -62,6 +66,19 @@ void CHubServiceDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDT_HUB_STATUE, m_edtHubStatue);
 	DDX_Control(pDX, IDC_EDT_SERVICE_STATUE, m_edtServiceStatue);
 	DDX_Control(pDX, IDC_TRE_SERVICES, m_treServices);
+
+	if (!pDX->m_bSaveAndValidate)
+		_UpdateCtrls();
+}
+
+void CHubServiceDlg::_UpdateCtrls()
+{
+	CString btStartOrStopTitle;
+	if (m_spHubService->IsStarted())
+		btStartOrStopTitle.LoadString(IDS_BTSTARTORSTOP_STOP);
+	else
+		btStartOrStopTitle.LoadString(IDS_BTSTARTORSTOP_START);
+	m_btStartOrStop.SetWindowText(btStartOrStopTitle);
 }
 
 BEGIN_MESSAGE_MAP(CHubServiceDlg, CDialogEx)
@@ -161,5 +178,13 @@ HCURSOR CHubServiceDlg::OnQueryDragIcon()
 
 void CHubServiceDlg::OnClickedBtStartOrStop()
 {
-	// TODO: Add your control notification handler code here
+	if (!m_spHubService->IsStarted())
+	{
+		SAppConfig cfg = m_appCfg.GetConfig();
+		if (!m_spHubService->Start(cfg.nPort))
+			AfxMessageBox(_T("Error: Cannot start ESB Hub Service."));
+	}
+	else
+		m_spHubService->Stop();
+	UpdateData(FALSE);
 }

@@ -9,11 +9,9 @@ namespace ESBDataSerialzer
 	BOOL Data2String(OUT std::wstring& string, IN const GUID& data);
 	BOOL String2Data(OUT GUID& data, IN const std::wstring& string);
 	
-	BOOL Data2String(OUT std::wstring& string, IN const time_t& data);
-	BOOL String2Data(OUT time_t& data, IN const std::wstring& string);
-
-	BOOL Data2String(OUT std::wstring& string, IN const std::vector<char>& data);
-	BOOL String2Data(OUT std::vector<char>& data, IN const std::wstring& string);
+	BOOL Data2String(OUT std::wstring& string, IN const std::vector<BYTE>& data);
+	BOOL Data2String(OUT std::wstring& string, IN const void *data, IN size_t len);
+	BOOL String2Data(OUT std::vector<BYTE>& data, IN const std::wstring& string);
 
 	BOOL Data2String(OUT std::wstring& string, IN int data);
 	BOOL String2Data(OUT int& data, IN const std::wstring& string);
@@ -26,6 +24,12 @@ namespace ESBDataSerialzer
 
 	BOOL Data2String(OUT std::wstring& string, IN unsigned long data);
 	BOOL String2Data(OUT unsigned long& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN long long data);
+	BOOL String2Data(OUT long long& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN unsigned long long data);
+	BOOL String2Data(OUT unsigned long long& data, IN const std::wstring& string);
 
 	BOOL Data2String(OUT std::wstring& string, IN double data);
 	BOOL String2Data(OUT double& data, IN const std::wstring& string);

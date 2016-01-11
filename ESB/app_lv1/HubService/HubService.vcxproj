@@ -207,6 +207,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppConfig.h" />
     <ClInclude Include="HubService.h" />
     <ClInclude Include="HubServiceDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -214,6 +215,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AppConfig.cpp" />
     <ClCompile Include="HubService.cpp" />
     <ClCompile Include="HubServiceDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
