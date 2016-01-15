@@ -25,14 +25,8 @@ int CESBMidServiceImp::Start(int nPort)
 {
 	if (IsStarted())
 		return -1;
-	auto func = [this](SREF(Utils::Thread::IThread) pthread,
-					struct soap* psoap,
-					const std::wstring& wsSession,
-					const std::wstring& wsInputs,
-					std::wstring& wsResults) -> int
-	{
-		return _ProcessWebServiceInvoke(pthread, psoap, wsSession, wsInputs, wsResults);
-	};
+	using namespace std::placeholders;
+	auto func = std::bind(&CESBMidServiceImp::_ProcessWebServiceInvoke, this, _1, _2, _3, _4, _5);
 	if (!m_webService->SetCallback_Invoke(func))
 		return -2;
 	return m_webService->Start(nPort);

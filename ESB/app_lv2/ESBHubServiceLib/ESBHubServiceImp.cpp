@@ -25,15 +25,9 @@ int CESBHubServiceImp::Start(int nPort)
 {
 	int nRet = 0;
 	m_serviceThread->Invoke([this, nPort, &nRet]() {
-		m_service->SetCallback_PreInvoke([this](SREF(Utils::Thread::IThread) pthread,
-											struct soap* psoap,
-											std::wstring& wsSession,
-											std::wstring& wsInputs,
-											BOOL &bNoFuthureProcess,
-											std::wstring& wsResults,
-											ESBCommon::ENUM_IDTYPE& idType) -> int {
-			return _PreProcessInvoke(pthread, psoap, wsSession, wsInputs, bNoFuthureProcess, wsResults, idType);
-		});
+		using namespace std::placeholders;
+		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
+		m_service->SetCallback_PreInvoke(func);
 		nRet = m_service->Start(nPort);
 	});
 	return nRet;

@@ -15,6 +15,8 @@ class CHubServiceDlg : public CDialogEx
 private:
 	CAppConfig								m_appCfg;
 	SREF(ESBHubService::IESBHubService)		m_spHubService;
+	SREF(Utils::Thread::IDispatcher)		m_spDispatcher;
+	static const UINT						m_uMsgDispatch;
 	CButton m_btStartOrStop;
 	CEdit m_edtHubStatue;
 	CEdit m_edtServiceStatue;
@@ -36,11 +38,12 @@ private:
 protected:
 	HICON m_hIcon;
 
+	DECLARE_MESSAGE_MAP()
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
+	afx_msg LRESULT OnDispatchMsg(WPARAM, LPARAM);
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	DECLARE_MESSAGE_MAP()
 	afx_msg void OnClickedBtStartOrStop();
 };

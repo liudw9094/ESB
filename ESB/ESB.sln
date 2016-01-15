@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HubService", "app_lv1\HubSe
 		{A96ABC4B-BF49-4FEB-9900-2CF28E532EC7} = {A96ABC4B-BF49-4FEB-9900-2CF28E532EC7}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{6F5F571C-AF66-4B76-98D5-8B136F5B8AE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

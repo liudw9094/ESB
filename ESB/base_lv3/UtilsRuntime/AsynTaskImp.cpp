@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "UtilsRuntime.h"
-#include "ThreadImp.h"
 #include "AsynTaskImp.h"
+#include "DispatcherImp.h"
 
 
 
-CAsynTaskImp::CAsynTaskImp(const std::function<void()> &func, CThreadImp *pthread, bool autoDispose)
+CAsynTaskImp::CAsynTaskImp(const std::function<void()> &func, CDispatcherImp *pDispatcher, bool autoDispose)
 	: m_func(func),
 	m_evtComplete(NULL),
 	m_bComplete(FALSE),
 	m_bRunning(FALSE),
 	m_bCancled(FALSE),
-	m_pthread(pthread),
+	m_pDispatcher(pDispatcher),
 	m_bAutoDispose(autoDispose)
 {
 	m_evtComplete = ::CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -42,16 +42,16 @@ CAsynTaskImp::~CAsynTaskImp()
 	}
 }
 
-void CAsynTaskImp::SetThread(CThreadImp *pthread)
+void CAsynTaskImp::SetDispatcher(CDispatcherImp *pthread)
 {
-	::InterlockedExchangePointer((volatile PVOID*)(&m_pthread), pthread);
+	::InterlockedExchangePointer((volatile PVOID*)(&m_pDispatcher), pthread);
 }
 
 void CAsynTaskImp::Execute()
 {
 	::InterlockedExchange(reinterpret_cast<volatile long*>(&m_bRunning), TRUE);
 	m_func();
-	SetThread(NULL);
+	SetDispatcher(NULL);
 	SetComplete();
 	AutoDispose();
 }
@@ -121,14 +121,14 @@ bool CAsynTaskImp::Cancle()
 		return true;
 	};
 
-	if (m_pthread == NULL)
+	if (m_pDispatcher == NULL)
 	{
-		// No thread is attached with.
+		// No dispatcher is attached with.
 		return _Cancle();
 	}
 	else
 	{
-		if (const_cast<CThreadImp*>(m_pthread)->CancleAWaitingTask(this))
+		if (const_cast<CDispatcherImp*>(m_pDispatcher)->CancleAWaitingTask(this))
 		{
 			// Task is removed from the waiting list.
 			return _Cancle();

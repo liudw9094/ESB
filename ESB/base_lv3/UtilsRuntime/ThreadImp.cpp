@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "UtilsRuntime.h"
 #include "ThreadImp.h"
-#include <exception>
 
 using namespace std;
 
@@ -36,7 +35,7 @@ CThreadImp::CThreadImp()
 	m_hhThread = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (m_hThreadParamSig == NULL || m_hhThread == NULL)
 	{
-		// TODO: throw exception.
+		throw std::runtime_error("Failed to create resources.");
 	}
 
 	// Create a new thread.
@@ -45,7 +44,7 @@ CThreadImp::CThreadImp()
 		this, NULL, &m_nThreadID) );
 	if (m_hThread == NULL)
 	{
-		// TODO: throw exception.
+		throw std::runtime_error("Failed to create thread.");
 	}
 	// Notify the thread that m_hThread and m_nThreadID have already created.
 	SetEvent(m_hhThread);
@@ -62,27 +61,31 @@ CThreadImp::~CThreadImp()
 
 }
 
-bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
-{
-	SLOCK(&m_csdqTasks);
-	CAsynTaskImp *pTask = NULL;
-	for (auto cur = m_dqTasks.begin(); cur != m_dqTasks.end(); ++cur)
-	{
-		pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(*cur));
-		if (pTask == task)
-		{
-			pTask->SetThread(NULL);
-			m_dqTasks.erase(cur);
-			return true;
-		}
-	}
-	return false;
-}
+//bool CThreadImp::CancleAWaitingTask(const CAsynTaskImp* task)
+//{
+//	SLOCK(&m_csdqTasks);
+//	CAsynTaskImp *pTask = NULL;
+//	for (auto cur = m_dqTasks.begin(); cur != m_dqTasks.end(); ++cur)
+//	{
+//		pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(*cur));
+//		if (pTask == task)
+//		{
+//			pTask->SetThread(NULL);
+//			m_dqTasks.erase(cur);
+//			return true;
+//		}
+//	}
+//	return false;
+//}
 
 unsigned int CThreadImp::Run()
 {
 	// Add thread information.
 	s_pCurThread = this;
+
+	m_spDispatcher = CreateDispatcher([this](DWORD dwThreadID) -> BOOL {
+		return ::PostThreadMessage(dwThreadID, MSG_INVOKE, 0, 0);
+	});
 
 	// Wait for the creation of m_hThread and m_nThreadID.
 	::WaitForSingleObject(m_hhThread, INFINITE);
@@ -105,13 +108,13 @@ unsigned int CThreadImp::Run()
 			::DispatchMessage(&msg);
 		}
 	}
-	// Catch WM_QUIT exception from DoEvents()
-	catch (const CExpWMQuit* e)
+	// Catch WM_QUIT exception for jumping out from the message looping.
+	catch (const CExpWMQuit&)
 	{
-		delete e;
+		// Jumped out and do nothing.
 	}
 
-	CleanUpTasks();
+	m_spDispatcher = NULL;
 	//::CloseHandle(m_hThread);
 
 	// Clean up thread information.
@@ -124,27 +127,21 @@ unsigned int CThreadImp::Run()
 
 void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 {
-	for (;;)
+	/*
+	SREF(Utils::Thread::IAsynTask) spTask;
+	CAsynTaskImp *pTask = NULL;
 	{
-		SREF(Utils::Thread::IAsynTask) spTask;
-		CAsynTaskImp *pTask = NULL;
-		{
-			SLOCK(&m_csdqTasks);
-			if (m_dqTasks.empty())
-				break;
-			spTask = (*m_dqTasks.begin());
-			pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(spTask));
-			m_dqTasks.pop_front();
-
-			// Remove redudant messages.
-			MSG msg;
-			::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
-			if (msg.message == MSG_INVOKE)
-				::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
-		}
-		if (pTask != NULL)
-			pTask->Execute();
+		SLOCK(&m_csdqTasks);
+		if (m_dqTasks.empty())
+			return;
+		spTask = (*m_dqTasks.begin());
+		pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(spTask));
+		m_dqTasks.pop_front();
 	}
+	if (pTask != NULL)
+		pTask->Execute();
+	*/
+	m_spDispatcher->OnMessage();
 }
 
 unsigned int _stdcall CThreadImp::_Run(CThreadImp* This)
@@ -152,8 +149,10 @@ unsigned int _stdcall CThreadImp::_Run(CThreadImp* This)
 	return This->Run();
 }
 
+/*
 void CThreadImp::CleanUpTasks()
 {
+
 	SLOCK(&m_csdqTasks);
 	CAsynTaskImp *pTask = NULL;
 	while (!m_dqTasks.empty())
@@ -164,10 +163,11 @@ void CThreadImp::CleanUpTasks()
 		m_dqTasks.pop_back();
 	}
 }
-
+*/
 
 void CThreadImp::Invoke(const std::function<void()> &func)
 {
+	/*
 	if (::GetCurrentThreadId() == m_nThreadID)
 		func();
 	else
@@ -176,26 +176,40 @@ void CThreadImp::Invoke(const std::function<void()> &func)
 		auto task = AsynInvoke(func);
 		task->Join();
 	}
+	*/
+	return m_spDispatcher->Invoke(func);
 }
 
 
 SREF(Utils::Thread::IAsynTask) CThreadImp::AsynInvoke(const std::function<void()> &func)
 {
+	/*
 	SREF(Utils::Thread::IAsynTask) spTask = new CAsynTaskImp(func, this, false);
 	if (spTask == NULL)
 	{
-		// TODO: throw;
-		throw;
+		throw std::runtime_error("Failed to create a task.");;
 	}
 	else
 	{
+		const int nTryCount = 3;
+		int nTry = 0;
+		for (nTry = 0; nTry < nTryCount; ++nTry, Sleep(100))
 		{
 			SLOCK(&m_csdqTasks);
 			m_dqTasks.push_back(spTask);
-			::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0);
+			if (!::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0))
+				m_dqTasks.pop_back();
+			else
+				break;
+		}
+		if (nTry >= nTryCount)
+		{
+			throw std::runtime_error("Failed to post the thread a message.");
 		}
 		return spTask;
 	}
+	*/
+	return m_spDispatcher->AsynInvoke(func);
 }
 
 void CThreadImp::DoEvents()
@@ -203,24 +217,24 @@ void CThreadImp::DoEvents()
 	if (Utils::Thread::GetCurrentThread() == this)
 	{
 		MSG msg;
-		::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
-		if (msg.message == MSG_INVOKE)
-			DispatchInvoke(msg.wParam, msg.lParam);
-		else if (msg.message == WM_QUIT)
+		if(::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			throw new CExpWMQuit;
-		}
-		else
-		{
-			::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+			if (msg.message == MSG_INVOKE)
+				DispatchInvoke(msg.wParam, msg.lParam);
+			else if (msg.message == WM_QUIT)
+			{
+				throw CExpWMQuit();
+			}
+			else
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
 		}
 	}
 	else
 	{
-		// TODO: throw;
-		throw;
+		throw std::domain_error("Invalid usage: DoEvents() can only be used in its own thread.");
 	}
 
 }
@@ -241,14 +255,20 @@ void CThreadImp::Dispose()
 {
 	if (Utils::Thread::GetCurrentThread() != this)
 	{
-		CleanUpTasks();
+		// Clean up all tasks before release the thread.
+		// Thus, it would not wait for the tasks remained.
+		m_spDispatcher->CleanUpAllTasks();
 		HANDLE hThread = m_hThread;
 		int nThreadID = m_nThreadID;
-		::PostThreadMessage(nThreadID, WM_QUIT, 0, 0);
+		while (!::PostThreadMessage(nThreadID, WM_QUIT, 0, 0))
+			Sleep(100);
 		::WaitForSingleObject(hThread, INFINITE);
 	}
 	else
-		::PostThreadMessage(m_nThreadID, WM_QUIT, 0, 0);
+	{
+		while (!::PostThreadMessage(m_nThreadID, WM_QUIT, 0, 0))
+			Sleep(100);
+	}
 }
 
 

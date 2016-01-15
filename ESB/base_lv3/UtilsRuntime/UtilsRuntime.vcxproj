@@ -177,6 +177,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Co
     <ClInclude Include="..\..\includes\Utils\Utils.h" />
     <ClInclude Include="AsynTaskImp.h" />
     <ClInclude Include="CriticalSectionImp.h" />
+    <ClInclude Include="DispatcherImp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ThreadImp.h" />
@@ -185,6 +186,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Co
   <ItemGroup>
     <ClCompile Include="AsynTaskImp.cpp" />
     <ClCompile Include="CriticalSectionImp.cpp" />
+    <ClCompile Include="DispatcherImp.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

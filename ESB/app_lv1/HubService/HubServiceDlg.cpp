@@ -13,6 +13,7 @@
 
 using namespace ESBHubService;
 using namespace Utils::SafeCoding;
+using namespace Utils::Thread;
 
 // CAboutDlg dialog used for App About
 
@@ -49,11 +50,14 @@ END_MESSAGE_MAP()
 
 // CHubServiceDlg dialog
 
-
+const UINT CHubServiceDlg::m_uMsgDispatch(::RegisterWindowMessage(L"CHubServiceDlg::m_uMsgDispatch"));
 
 CHubServiceDlg::CHubServiceDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_HUBSERVICE_DIALOG, pParent),
 	m_spHubService(CreateESBHubService()),
+	m_spDispatcher(CreateDispatcher([this](DWORD dwThreadID) {
+		return PostMessage(m_uMsgDispatch);
+	})),
 	m_appCfg(L".\\HubService.xml")
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -86,6 +90,7 @@ BEGIN_MESSAGE_MAP(CHubServiceDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BT_STARTORSTOP, &CHubServiceDlg::OnClickedBtStartOrStop)
+	ON_REGISTERED_MESSAGE(CHubServiceDlg::m_uMsgDispatch, &CHubServiceDlg::OnDispatchMsg)
 END_MESSAGE_MAP()
 
 
@@ -123,6 +128,12 @@ BOOL CHubServiceDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
+}
+
+LRESULT CHubServiceDlg::OnDispatchMsg(WPARAM, LPARAM)
+{
+	m_spDispatcher->OnMessage();
+	return 0;
 }
 
 void CHubServiceDlg::OnSysCommand(UINT nID, LPARAM lParam)

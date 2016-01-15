@@ -1,10 +1,11 @@
 #pragma once
 
 #include <functional>
-#include "CriticalSectionImp.h"
-#include "AsynTaskImp.h"
 #include <Utils/Thread/ScopeLock.h>
 #include <Utils/Thread/Thread.h>
+#include <Utils/Thread/Dispatcher.h>
+#include "CriticalSectionImp.h"
+#include "AsynTaskImp.h"
 
 class CThreadImp : public Utils::Thread::IThread
 {
@@ -19,20 +20,22 @@ protected:
 	// Signal for m_hThread and m_nThreadID created.
 	HANDLE						m_hhThread;
 
-	std::deque<SREF(Utils::Thread::IAsynTask)>	m_dqTasks;
-	CCriticalSectionImp							m_csdqTasks;
+	//std::deque<SREF(Utils::Thread::IAsynTask)>	m_dqTasks;
+	//CCriticalSectionImp							m_csdqTasks;
+
+	SREF(Utils::Thread::IDispatcher)			m_spDispatcher;
 public:
 	CThreadImp();
 	virtual ~CThreadImp();
 public:
-	virtual bool CancleAWaitingTask(const CAsynTaskImp* task);
+	//virtual bool CancleAWaitingTask(const CAsynTaskImp* task);
 protected:
 	// overwrites
 	virtual unsigned int Run();
 	virtual void DispatchInvoke(WPARAM wparam, LPARAM lparam);
 protected:
 	static unsigned int _stdcall _Run(CThreadImp* This);
-	void CleanUpTasks();
+	//void CleanUpTasks();
 public:
 	// Thread::IThread
 	virtual void Invoke(const std::function<void()> &func);

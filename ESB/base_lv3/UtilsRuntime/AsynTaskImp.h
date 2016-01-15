@@ -2,7 +2,7 @@
 
 #include <Utils/Thread/AsynTask.h>
 
-class CThreadImp;
+class CDispatcherImp;
 
 class CAsynTaskImp : public Utils::Thread::IAsynTask
 {
@@ -12,13 +12,13 @@ private:
 	volatile BOOL m_bComplete;
 	volatile BOOL m_bRunning;
 	volatile BOOL m_bCancled;
-	volatile CThreadImp *m_pthread;
+	volatile CDispatcherImp *m_pDispatcher;
 	volatile BOOL m_bAutoDispose;
 public:
-	CAsynTaskImp(const std::function<void()> &func, CThreadImp *pthread, bool autoDispose);
+	CAsynTaskImp(const std::function<void()> &func, CDispatcherImp *pDispatcher, bool autoDispose);
 	~CAsynTaskImp();
 public:
-	void SetThread(CThreadImp *pthread);
+	void SetDispatcher(CDispatcherImp *pDispatcher);
 	void Execute();
 protected:
 	void SetComplete();
