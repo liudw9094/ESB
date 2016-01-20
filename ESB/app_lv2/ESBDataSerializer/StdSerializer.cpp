@@ -145,3 +145,20 @@ BOOL ESBDataSerialzer::String2Data(OUT float& data, IN const std::wstring& strin
 	data = stof(string);
 	return TRUE;
 }
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const std::chrono::steady_clock::time_point& data)
+{
+	return Data2String(string, data.time_since_epoch().count());
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT std::chrono::steady_clock::time_point& data, IN const std::wstring& string)
+{
+	long long count = 0;
+	if (!String2Data(count, string))
+		return FALSE;
+	std::chrono::steady_clock::time_point time;
+	std::chrono::nanoseconds nasec(count);
+	time += nasec;
+	data = time;
+	return TRUE;
+}

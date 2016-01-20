@@ -10,13 +10,13 @@ using namespace ESBDataSerialzer;
 using namespace ESBXMLParser;
 
 CRegisteredService::CRegisteredService(const std::wstring& session,
-	const ESBService_HubMethod_RegisterToHub param) :
-	m_threadCommu(CreateThread()),
+	const ESBService_HubMethod_RegisterToHub& info)
+	: m_threadCommu(CreateThread()),
 	m_commu(CreateESBWebServiceClient()),
-	m_paramCreated(param),
+	m_serviceInfo(info),
 	m_wsSession(session)
 {
-	m_commu->SetURL(param.wsServiceURL);
+	m_commu->SetURL(info.wsServiceURL);
 }
 
 CRegisteredService::~CRegisteredService()
@@ -33,7 +33,7 @@ std::wstring&& CRegisteredService::GetURL() const
 {
 	wstring wsURL;
 	m_threadCommu->Invoke([this, &wsURL]() {
-		wsURL = m_paramCreated.wsServiceURL;
+		wsURL = m_serviceInfo.wsServiceURL;
 	});
 	return move(wsURL);
 }
@@ -51,7 +51,7 @@ GUID&& CRegisteredService::GetServiceGUID() const
 {
 	GUID guidService = { 0 };
 	m_threadCommu->Invoke([this, &guidService]() {
-		guidService = m_paramCreated.guidService;
+		guidService = m_serviceInfo.guidService;
 	});
 	return move(guidService);
 }
@@ -60,7 +60,7 @@ float CRegisteredService::GetCurrentCapacityUsageRate() const
 {
 	float rate = { 0 };
 	m_threadCommu->Invoke([this, &rate]() {
-		rate = (float)m_paramCreated.currentSessionNum / (float)m_paramCreated.maximumSession;
+		rate = (float)m_serviceInfo.currentSessionNum / (float)m_serviceInfo.maximumSession;
 	});
 	return rate;
 }
@@ -69,7 +69,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 {
 	BOOL bRet = FALSE;
 	m_threadCommu->Invoke([this, &bRet, &token]() {
-		if (m_paramCreated.currentSessionNum >= m_paramCreated.maximumSession)
+		if (m_serviceInfo.currentSessionNum >= m_serviceInfo.maximumSession)
 			return;
 
 		ESBCommon::ESBClientToken newToken_Client;
@@ -77,7 +77,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 		newToken_Service.wsClientSession = newToken_Client.wsClientSession = CreateGuid();
 		newToken_Service.timeStamp = newToken_Client.timeStamp = time(NULL);
 		newToken_Service.timeReplyDeadLine = newToken_Client.timeReplyDeadLine = newToken_Client.timeStamp + 120;
-		newToken_Client.wsURLRedirection = m_paramCreated.wsServiceURL;
+		newToken_Client.wsURLRedirection = m_serviceInfo.wsServiceURL;
 
 		ESBServiceRequest request;
 		request.idType = IDTYPE_ESBHub;
@@ -95,11 +95,39 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 			return;
 
 		// Update load state.
-		m_paramCreated.maximumSession = replyContent.maximumSession;
-		m_paramCreated.currentSessionNum = replyContent.currentSessionNum;
+		m_serviceInfo.maximumSession = replyContent.maximumSession;
+		m_serviceInfo.currentSessionNum = replyContent.currentSessionNum;
 
 		bRet = TRUE;
 		return;
 	});
 	return bRet;
+}
+
+BOOL CRegisteredService::SetLoadState(UINT maxSessions, UINT currentSession, const std::chrono::steady_clock::time_point& timeStamp)
+{
+	BOOL nRet = FALSE;
+	m_threadCommu->Invoke([this, &nRet, maxSessions, currentSession, &timeStamp]() {
+		if (m_serviceInfo.timeStamp < timeStamp)
+		{
+			m_serviceInfo.maximumSession = maxSessions;
+			m_serviceInfo.currentSessionNum = currentSession;
+			m_serviceInfo.timeStamp = timeStamp;
+			nRet = TRUE;
+		}
+	});
+	return nRet;
+}
+
+BOOL CRegisteredService::UpdateServiceInfo(const ESBCommon::ESBService_HubMethod_RegisterToHub& info, BOOL cmpTimestamp /*= TRUE*/)
+{
+	BOOL nRet = FALSE;
+	m_threadCommu->Invoke([this, &nRet, &info, cmpTimestamp]() {
+		if (!cmpTimestamp || m_serviceInfo.timeStamp < info.timeStamp)
+		{
+			m_serviceInfo = info;
+			nRet = TRUE;
+		}
+	});
+	return nRet;
 }

@@ -33,6 +33,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	reg.wsServiceName = wsServiceName;
 	reg.maximumSession = maximumSession;
 	reg.currentSessionNum = currentSessionNum;
+	reg.timeStamp = chrono::steady_clock::now();
 	ESBServiceRequest rq;
 	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, reg))
@@ -121,11 +122,18 @@ BOOL CESBServiceHubConnectionImp::IsValid() const
 	return bValid;
 }
 
-int CESBServiceHubConnectionImp::ModifySessionLimitation(int nLimitation)
+int CESBServiceHubConnectionImp::ModifySessionLimitation(UINT maximumSessionNum)
+{
+	return UpdateLoadState(maximumSessionNum, ESBService_HubMethod_UpdateLoadState::DONT_CHANGE);
+}
+
+int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT currentSessionNum)
 {
 	int nRet = 0;
-	ESBService_HubMethod_ModifySessionLimitation command;
-	command.maximumSession = nLimitation;
+	ESBService_HubMethod_UpdateLoadState command;
+	command.maximumSession = maximumSessionNum;
+	command.currentSessionNum = currentSessionNum;
+	command.timeStamp = chrono::steady_clock::now();
 	ESBServiceRequest rq;
 	rq.idType = IDTYPE_ESBService;
 	if (!Data2String(rq.contents, command))
@@ -164,6 +172,8 @@ int CESBServiceHubConnectionImp::ModifySessionLimitation(int nLimitation)
 	return nRet;
 }
 
+/*
+// TODO: remove the codes later.
 int CESBServiceHubConnectionImp::IncreaseSessionLoad()
 {
 	int nRet = 0;
@@ -247,6 +257,8 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 	});
 	return nRet;
 }
+
+*/
 
 BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession)
 {

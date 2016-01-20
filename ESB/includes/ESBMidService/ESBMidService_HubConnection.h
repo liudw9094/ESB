@@ -9,6 +9,7 @@ namespace ESBMidService
 	{
 	public:
 		/*
+		// TODO: remove the codes later.
 		virtual int	RegisterToHub(const std::wstring& wsHubURL,
 			const std::wstring& wsServiceURL,
 			const GUID guidService,
@@ -17,9 +18,12 @@ namespace ESBMidService
 		*/
 		virtual int Unregister() = 0;
 		virtual BOOL IsValid() const = 0;
+		/*
+		// TODO: remove the codes later.
 		virtual int ModifySessionLimitation(int nLimitation) = 0;
 		virtual int IncreaseSessionLoad() = 0;
 		virtual int DecreaseSessionLoad() = 0;
+		*/
 	};
 
 };

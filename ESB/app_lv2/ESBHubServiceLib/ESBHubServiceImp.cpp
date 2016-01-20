@@ -53,16 +53,19 @@ BOOL CESBHubServiceImp::IsStarted(void) const
 
 BOOL CESBHubServiceImp::SetCallback_PreInvoke(const TPreInvokeFunc &func)
 {
+	throw logic_error("Invalid method.");
 	return FALSE;
 }
 
 BOOL CESBHubServiceImp::SetCallback_Invoke(const TInvokeFunc &func)
 {
+	throw logic_error("Invalid method.");
 	return FALSE;
 }
 
 BOOL CESBHubServiceImp::SetCallback_Accept(const TAcceptFunc& func)
 {
+	throw logic_error("Invalid method.");
 	return FALSE;
 }
 
@@ -72,6 +75,7 @@ int	CESBHubServiceImp::RegisterToHub(const std::wstring& wsHubURL,
 	const std::wstring& wsServiceName,
 	UINT maximumSession)
 {
+	throw logic_error("Invalid method.");
 	return -1;
 	/*
 	int nRet = 0;
@@ -102,6 +106,7 @@ std::wstring&& CESBHubServiceImp::GetClientIP(const struct soap* pSoap) const
 
 ESBMidService::IESBServiceHubConnection* CESBHubServiceImp::GetHubConnection()
 {
+	throw logic_error("Invalid method.");
 	return NULL;
 	/*
 	IESBServiceHubConnection* pRet = 0;
@@ -183,13 +188,15 @@ int CESBHubServiceImp::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthre
 			return -1;
 		return _On_ESBService_HubMethod(wsSession, param, wsResults);
 	}
-	else if (nodeName == ESBService_HubMethod_ModifySessionLimitation::NAMES.ROOTNAME)
+	else if (nodeName == ESBService_HubMethod_UpdateLoadState::NAMES.ROOTNAME)
 	{
-		ESBService_HubMethod_ModifySessionLimitation param;
+		ESBService_HubMethod_UpdateLoadState param;
 		if (!String2Data(param, wsInputs))
 			return -1;
 		return _On_ESBService_HubMethod(wsSession, param, wsResults);
 	}
+	/*
+	// TODO: remove the codes later.
 	else if (nodeName == ESBService_HubMethod_IncreaseSessionLoad::NAMES.ROOTNAME)
 	{
 		ESBService_HubMethod_IncreaseSessionLoad param;
@@ -204,6 +211,7 @@ int CESBHubServiceImp::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthre
 			return -1;
 		return _On_ESBService_HubMethod(wsSession, param, wsResults);
 	}
+	*/
 	else if (nodeName == ESBService_HubMethod_ClientSessionEnd::NAMES.ROOTNAME)
 	{
 		ESBService_HubMethod_ClientSessionEnd param;
@@ -251,6 +259,7 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 			if (pService->GetURL() == param.wsServiceURL)
 			{
 				wsSession = pService->GetSession();
+				pService->UpdateServiceInfo(param);
 				bExists = TRUE;
 				break;
 			}
@@ -262,9 +271,12 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 			refVec.push_back(newRegService);
 			m_mapServices_session[wsSession] = newRegService;
 		}
+
+		// Send the reply.
 		ESBServiceSessionReply sessionReply;
 		sessionReply.wsServiceSession = wsSession;
 		Data2String(results, sessionReply);
+		nRet = 0;
 	});
 	return nRet;
 }
@@ -307,13 +319,15 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 }
 
 int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
-	const ESBCommon::ESBService_HubMethod_ModifySessionLimitation& param,
+	const ESBCommon::ESBService_HubMethod_UpdateLoadState& param,
 	std::wstring& results)
 {
 	// TODO: add implementation
 	return -1;
 }
 
+/*
+// TODO: remove the codes later.
 int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& param,
 	std::wstring& results)
@@ -329,6 +343,7 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	// TODO: add implementation
 	return -1;
 }
+*/
 
 int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,

@@ -9,9 +9,7 @@ namespace ESBCommon
 	ESBClientToken::_TAGNAME										ESBClientToken::NAMES;
 	ESBServiceSessionReply::_TAGNAME								ESBServiceSessionReply::NAMES;
 	ESBService_HubMethod_RegisterToHub::_TAGNAME					ESBService_HubMethod_RegisterToHub::NAMES;
-	ESBService_HubMethod_ModifySessionLimitation::_TAGNAME			ESBService_HubMethod_ModifySessionLimitation::NAMES;
-	ESBService_HubMethod_IncreaseSessionLoad::_TAGNAME				ESBService_HubMethod_IncreaseSessionLoad::NAMES;
-	ESBService_HubMethod_DecreaseSessionLoad::_TAGNAME				ESBService_HubMethod_DecreaseSessionLoad::NAMES;
+	ESBService_HubMethod_UpdateLoadState::_TAGNAME					ESBService_HubMethod_UpdateLoadState::NAMES;
 	ESBService_HubMethod_Unregister::_TAGNAME						ESBService_HubMethod_Unregister::NAMES;
 	ESBService_HubMethod_StartSession::_TAGNAME						ESBService_HubMethod_StartSession::NAMES;
 	ESBService_HubMethod_ClientSessionEnd::_TAGNAME					ESBService_HubMethod_ClientSessionEnd::NAMES;

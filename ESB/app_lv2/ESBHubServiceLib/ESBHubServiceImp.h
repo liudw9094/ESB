@@ -63,14 +63,17 @@ private:
 		const ESBCommon::ESBService_HubMethod_Unregister& param,
 		std::wstring& results);
 	int _On_ESBService_HubMethod(const std::wstring& session,
-		const ESBCommon::ESBService_HubMethod_ModifySessionLimitation& param,
+		const ESBCommon::ESBService_HubMethod_UpdateLoadState& param,
 		std::wstring& results);
+	/*
+	// TODO: remove the codes later.
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& param,
 		std::wstring& results);
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& param,
 		std::wstring& results);
+	*/
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,
 		std::wstring& results);

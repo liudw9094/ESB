@@ -2,6 +2,7 @@
 #define _INCLUDE_COMMON_ESBHUBTOKEN_H_
 
 #include <string>
+#include <chrono>
 
 namespace ESBCommon
 {
@@ -94,6 +95,7 @@ namespace ESBCommon
 		std::wstring wsServiceName;
 		UINT maximumSession;
 		UINT currentSessionNum;
+		std::chrono::steady_clock::time_point timeStamp;
 
 		ESBService_HubMethod_RegisterToHub() :
 			guidService({ 0 }),
@@ -110,32 +112,25 @@ namespace ESBCommon
 			const wchar_t * const WSSERVICENAME = L"wsServiceName";
 			const wchar_t * const MAXIMUMSESSION = L"maximumSession";
 			const wchar_t * const CURRENTSESSIONNUM = L"currentSessionNum";
+			const wchar_t * const TIMESTAMP = L"timeStamp";
 		} NAMES;
 	};
 
-	struct ESBService_HubMethod_ModifySessionLimitation
+	struct ESBService_HubMethod_UpdateLoadState
 	{
+		enum
+		{
+			DONT_CHANGE = -1
+		};
 		UINT maximumSession;
+		UINT currentSessionNum;
+		std::chrono::steady_clock::time_point timeStamp;
 		static struct _TAGNAME
 		{
-			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_ModifySessionLimitation";
+			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_UpdateLoadState";
 			const wchar_t * const MAXIMUMSESSION = L"maximumSession";
-		} NAMES;
-	};
-
-	struct ESBService_HubMethod_IncreaseSessionLoad
-	{
-		static struct _TAGNAME
-		{
-			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_IncreaseSessionLoad";
-		} NAMES;
-	};
-
-	struct ESBService_HubMethod_DecreaseSessionLoad
-	{
-		static struct _TAGNAME
-		{
-			const wchar_t * const ROOTNAME = L"ESBService_HubMethod_DecreaseSessionLoad";
+			const wchar_t * const CURRENTSESSIONNUM = L"currentSessionNum";
+			const wchar_t * const TIMESTAMP = L"timeStamp";
 		} NAMES;
 	};
 
@@ -197,6 +192,7 @@ namespace ESBCommon
 	{
 		UINT maximumSession;
 		UINT currentSessionNum;
+		std::chrono::steady_clock::time_point timeStamp;
 
 		ESBService_ServiceReply_LoadStateUpdate() :
 			maximumSession(0),
@@ -209,6 +205,7 @@ namespace ESBCommon
 			const wchar_t * const ROOTNAME = L"ESBService_ServiceReply_LoadStateUpdate";
 			const wchar_t * const MAXIMUMSESSION = L"maximumSession";
 			const wchar_t * const CURRENTSESSIONNUM = L"currentSessionNum";
+			const wchar_t * const TIMESTAMP = L"timeStamp";
 		} NAMES;
 
 	};

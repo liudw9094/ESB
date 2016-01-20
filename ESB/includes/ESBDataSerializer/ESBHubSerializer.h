@@ -35,14 +35,8 @@ namespace ESBDataSerialzer
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_RegisterToHub& data);
 	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_RegisterToHub& data, IN const std::wstring& string);
 
-	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_ModifySessionLimitation& data);
-	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_ModifySessionLimitation& data, IN const std::wstring& string);
-
-	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& data);
-	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& data, IN const std::wstring& string);
-
-	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& data);
-	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& data, IN const std::wstring& string);
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_UpdateLoadState& data);
+	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_UpdateLoadState& data, IN const std::wstring& string);
 
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBService_HubMethod_Unregister& data);
 	BOOL String2Data(OUT ESBCommon::ESBService_HubMethod_Unregister& data, IN const std::wstring& string);

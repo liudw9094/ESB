@@ -17,6 +17,7 @@ private:
 	SREF(Utils::Thread::ICriticalSection) m_plkMapUsers;
 	std::map<std::wstring, CLIENTINFO>	m_mapUsers;
 	UINT								m_uMaxSessionNum;
+
 public:
 	CESBMidServiceImp();
 	~CESBMidServiceImp();

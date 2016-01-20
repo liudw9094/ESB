@@ -166,7 +166,8 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 		{
 			if (!CheckClientSession(_wsSession))
 				return -102;
-			_wsResults = L"";
+			// TODO: modify the error message.
+			_wsResults = L"Session Invalid.";
 			if (m_funcInvoke)
 				return m_funcInvoke(pthread, psoap, _wsSession, _wsInputs, _wsResults);
 			else
@@ -206,7 +207,7 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 											const std::wstring& wsInputs,
 											std::wstring& wsResults)
 {
-
+	// TODO: add operations.
 	return -101;
 }
 

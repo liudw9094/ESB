@@ -2,6 +2,7 @@
 #define _INCLUDE_ESBSERIALIZER_GUIDSERIALIZER_H_
 
 #include <vector>
+#include <chrono>
 #include "../Common/InOut.h"
 
 namespace ESBDataSerialzer
@@ -36,6 +37,10 @@ namespace ESBDataSerialzer
 
 	BOOL Data2String(OUT std::wstring& string, IN float data);
 	BOOL String2Data(OUT float& data, IN const std::wstring& string);
+
+	BOOL Data2String(OUT std::wstring& string, IN const std::chrono::steady_clock::time_point& data);
+	BOOL String2Data(OUT std::chrono::steady_clock::time_point& data, IN const std::wstring& string);
+
 };
 
 

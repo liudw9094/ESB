@@ -9,7 +9,7 @@ private:
 	SREF(ESBWebService::IESBWebServiceClient) m_webClient;
 	mutable SREF(Utils::Thread::IThread)	m_threadClient;
 	BOOL m_bValid;
-	ESBCommon::ESBServiceSessionReply m_wsHubSession;
+	ESBCommon::ESBServiceSessionReply		m_wsHubSession;
 public:
 	CESBServiceHubConnectionImp();
 	~CESBServiceHubConnectionImp();
@@ -20,13 +20,17 @@ public:
 		const std::wstring& wsServiceURL,
 		const GUID guidService,
 		const std::wstring& wsServiceName,
-		UINT maximumSession,
+		UINT maximumSessionNum,
 		UINT currentSessionNum);
 	virtual int Unregister();
 	virtual BOOL IsValid() const;
-	virtual int ModifySessionLimitation(int nLimitation);
+	virtual int ModifySessionLimitation(UINT maximumSessionNum);
+	virtual int UpdateLoadState(UINT maximumSessionNum, UINT currentSessionNum);
+	/*
+	// TODO: remove the codes later.
 	virtual int IncreaseSessionLoad();
 	virtual int DecreaseSessionLoad();
+	*/
 public:
 	BOOL IsHubSessionValid(const std::wstring& wsSession);
 };
