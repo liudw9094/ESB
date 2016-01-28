@@ -11,10 +11,10 @@ private:
 public:
 	CXMLDocImp();
 	~CXMLDocImp();
-	virtual SREF(ESBXMLParser::IXMLNode) && Load(const std::wstring& lpFilename);
-	virtual SREF(ESBXMLParser::IXMLNode) && LoadXML(const std::wstring& lpContent);
+	virtual SREF(ESBXMLParser::IXMLNode) Load(const std::wstring& lpFilename);
+	virtual SREF(ESBXMLParser::IXMLNode) LoadXML(const std::wstring& lpContent);
 	virtual std::wstring&&  GetXml();
-	virtual SREF(ESBXMLParser::IXMLNode) && CreateRootNode(const std::wstring& lpNodeName, bool bCreateHeadRow = false);
+	virtual SREF(ESBXMLParser::IXMLNode) CreateRootNode(const std::wstring& lpNodeName, bool bCreateHeadRow = false);
 	virtual BOOL Save(const std::wstring& lpFilename);
 	virtual void Unload();
 	virtual BOOL GetUTF8Str(std::string& str);
@@ -32,8 +32,8 @@ public:
 	~CXMLNodeImp();
 
 	virtual std::wstring&& GetNodeName() const;
-	virtual SREF(ESBXMLParser::IXMLNode) && CreateSubNode(const std::wstring& lpName);
-	virtual SREF(ESBXMLParser::IXMLNode) && CreateSubNode(const ESBXMLParser::IXMLNode* node);
+	virtual SREF(ESBXMLParser::IXMLNode) CreateSubNode(const std::wstring& lpName);
+	virtual SREF(ESBXMLParser::IXMLNode) CreateSubNode(const ESBXMLParser::IXMLNode* node);
 	virtual BOOL CreateSubNode(const std::wstring& lpName, const std::wstring& lpValue);
 	virtual void RemoveSubNode(const ESBXMLParser::IXMLNode* node);
 	virtual void ReplaceSubNode(const ESBXMLParser::IXMLNode* dest, const ESBXMLParser::IXMLNode* src);
@@ -49,7 +49,7 @@ public:
 
 	virtual std::wstring&&	ToXMLString() const;
 
-	virtual SREF(ESBXMLParser::IXMLNode) && GetSubNode(const std::wstring& lpNodeName) const;
+	virtual SREF(ESBXMLParser::IXMLNode) GetSubNode(const std::wstring& lpNodeName) const;
 	virtual std::wstring&& GetSubNodeValue(const std::wstring& lpNodeName) const;
 	virtual BOOL	GetSubNodeValue(const std::wstring& lpNodeName, OUT std::wstring& strValue) const;
 
@@ -58,14 +58,14 @@ public:
 	virtual int GetSubNodesCount() const;
 	virtual int GetSubNodesCountByTag(const std::wstring& lpName) const;
 
-	virtual SREF(ESBXMLParser::IXMLNode) && SelectSingleNode(const std::wstring& lpPath) const;
+	virtual SREF(ESBXMLParser::IXMLNode) SelectSingleNode(const std::wstring& lpPath) const;
 	virtual std::wstring&& GetSingleNodeValue(const std::wstring& lpPath) const;
 	virtual BOOL GetSingleNodeValue(const std::wstring& lpPath, OUT std::wstring& strValue) const;
-	virtual SREF(ESBXMLParser::IXMLNodeList) && SelectNodes(const std::wstring& lpPath) const;
+	virtual SREF(ESBXMLParser::IXMLNodeList) SelectNodes(const std::wstring& lpPath) const;
 
 	virtual BOOL HasAttribute(const std::wstring& lpName) const;
 
-	virtual SREF(ESBXMLParser::IXMLNode) && CloneSubNode(const std::wstring& nodeName) const;
+	virtual SREF(ESBXMLParser::IXMLNode) CloneSubNode(const std::wstring& nodeName) const;
 
 	virtual BOOL IsValid() const;
 
@@ -80,7 +80,7 @@ public:
 	CXMLNodeListImp(CyNodeList& list);
 
 	virtual LONG GetCount();
-	virtual SREF(ESBXMLParser::IXMLNode) && Next() const;
+	virtual SREF(ESBXMLParser::IXMLNode) Next() const;
 	virtual void Reset();
 	virtual void SetTagName(const std::wstring& lpName);
 

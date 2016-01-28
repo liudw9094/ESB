@@ -21,21 +21,21 @@ CESBHubServiceImp::~CESBHubServiceImp()
 {
 }
 
-int CESBHubServiceImp::Start(int nPort)
+BOOL CESBHubServiceImp::Start(int nPort)
 {
-	int nRet = 0;
+	BOOL nRet = FALSE;
 	m_serviceThread->Invoke([this, nPort, &nRet]() {
 		using namespace std::placeholders;
 		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
-		m_service->SetCallback_PreInvoke(func);
+		m_service->SetCallback_OnPreInvoke(func);
 		nRet = m_service->Start(nPort);
 	});
 	return nRet;
 }
 
-int CESBHubServiceImp::Stop(void)
+BOOL CESBHubServiceImp::Stop(void)
 {
-	int nRet = 0;
+	BOOL nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
 		nRet = m_service->Stop();
 	});
@@ -44,29 +44,47 @@ int CESBHubServiceImp::Stop(void)
 
 BOOL CESBHubServiceImp::IsStarted(void) const
 {
-	BOOL bRet = 0;
+	BOOL bRet = FALSE;
 	m_serviceThread->Invoke([this, &bRet]() {
 		bRet = m_service->IsStarted();
 	});
 	return bRet;
 }
 
-BOOL CESBHubServiceImp::SetCallback_PreInvoke(const TPreInvokeFunc &func)
+BOOL CESBHubServiceImp::SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func)
 {
 	throw logic_error("Invalid method.");
 	return FALSE;
 }
 
-BOOL CESBHubServiceImp::SetCallback_Invoke(const TInvokeFunc &func)
+BOOL CESBHubServiceImp::SetCallback_OnClientInvoke(const TOnClientInvokeFunc &func)
 {
 	throw logic_error("Invalid method.");
 	return FALSE;
 }
 
-BOOL CESBHubServiceImp::SetCallback_Accept(const TAcceptFunc& func)
+BOOL CESBHubServiceImp::SetCallback_OnAccept(const TOnAcceptFunc& func)
 {
 	throw logic_error("Invalid method.");
 	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnStarted(const TOnStartFunc& func)
+{
+	BOOL bRet = FALSE;
+	m_serviceThread->Invoke([this, &bRet, &func]() {
+		bRet = m_service->SetCallback_OnStarted(func);
+	});
+	return bRet;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnStoped(const TOnStopFunc& func)
+{
+	BOOL bRet = FALSE;
+	m_serviceThread->Invoke([this, &bRet, &func]() {
+		bRet = m_service->SetCallback_OnStoped(func);
+	});
+	return bRet;
 }
 
 int	CESBHubServiceImp::RegisterToHub(const std::wstring& wsHubURL,

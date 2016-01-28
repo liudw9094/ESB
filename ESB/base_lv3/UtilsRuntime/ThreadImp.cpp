@@ -10,18 +10,8 @@ using namespace std;
 using namespace Utils::Thread;
 
 
-class CExpWMQuit : public exception
-{
-public:
-	virtual const char* what() const throw()
-	{
-		return "WM_QUIT Message.";
-	}
-};
-
-
 // Current thread information
-static thread_local IThread* s_pCurThread = NULL;
+thread_local IThread* g_pCurThread = NULL;
 
 const UINT CThreadImp::MSG_INVOKE(::RegisterWindowMessageW(L"CThreadImp::MSG_INVOKE"));
 
@@ -56,6 +46,13 @@ CThreadImp::CThreadImp()
 	m_hThreadParamSig = NULL;
 }
 
+
+CThreadImp::CThreadImp(Init_AttachCurrentThread)
+	: m_hThread(::GetCurrentThread()),
+	m_nThreadID(::GetCurrentThreadId())
+{
+}
+
 CThreadImp::~CThreadImp()
 {
 
@@ -81,7 +78,12 @@ CThreadImp::~CThreadImp()
 unsigned int CThreadImp::Run()
 {
 	// Add thread information.
-	s_pCurThread = this;
+	if (g_pCurThread)
+	{
+		throw runtime_error("Invalid thread information: thread has already existed.");
+		return -1;
+	}
+	g_pCurThread = this;
 
 	m_spDispatcher = CreateDispatcher([this](DWORD dwThreadID) -> BOOL {
 		return ::PostThreadMessage(dwThreadID, MSG_INVOKE, 0, 0);
@@ -118,7 +120,7 @@ unsigned int CThreadImp::Run()
 	//::CloseHandle(m_hThread);
 
 	// Clean up thread information.
-	s_pCurThread = NULL;
+	g_pCurThread = NULL;
 
 	delete this;
 
@@ -127,20 +129,6 @@ unsigned int CThreadImp::Run()
 
 void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 {
-	/*
-	SREF(Utils::Thread::IAsynTask) spTask;
-	CAsynTaskImp *pTask = NULL;
-	{
-		SLOCK(&m_csdqTasks);
-		if (m_dqTasks.empty())
-			return;
-		spTask = (*m_dqTasks.begin());
-		pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(spTask));
-		m_dqTasks.pop_front();
-	}
-	if (pTask != NULL)
-		pTask->Execute();
-	*/
 	m_spDispatcher->OnMessage();
 }
 
@@ -149,66 +137,14 @@ unsigned int _stdcall CThreadImp::_Run(CThreadImp* This)
 	return This->Run();
 }
 
-/*
-void CThreadImp::CleanUpTasks()
-{
-
-	SLOCK(&m_csdqTasks);
-	CAsynTaskImp *pTask = NULL;
-	while (!m_dqTasks.empty())
-	{
-		pTask = static_cast<CAsynTaskImp*>((::Utils::Thread::IAsynTask*)(m_dqTasks.back()));
-		pTask->SetThread(NULL);
-		pTask->Cancle();
-		m_dqTasks.pop_back();
-	}
-}
-*/
-
 void CThreadImp::Invoke(const std::function<void()> &func)
 {
-	/*
-	if (::GetCurrentThreadId() == m_nThreadID)
-		func();
-	else
-	{
-		//auto task = AsynInvoke(func, true);
-		auto task = AsynInvoke(func);
-		task->Join();
-	}
-	*/
 	return m_spDispatcher->Invoke(func);
 }
 
 
 SREF(Utils::Thread::IAsynTask) CThreadImp::AsynInvoke(const std::function<void()> &func)
 {
-	/*
-	SREF(Utils::Thread::IAsynTask) spTask = new CAsynTaskImp(func, this, false);
-	if (spTask == NULL)
-	{
-		throw std::runtime_error("Failed to create a task.");;
-	}
-	else
-	{
-		const int nTryCount = 3;
-		int nTry = 0;
-		for (nTry = 0; nTry < nTryCount; ++nTry, Sleep(100))
-		{
-			SLOCK(&m_csdqTasks);
-			m_dqTasks.push_back(spTask);
-			if (!::PostThreadMessage(m_nThreadID, MSG_INVOKE, 0, 0))
-				m_dqTasks.pop_back();
-			else
-				break;
-		}
-		if (nTry >= nTryCount)
-		{
-			throw std::runtime_error("Failed to post the thread a message.");
-		}
-		return spTask;
-	}
-	*/
 	return m_spDispatcher->AsynInvoke(func);
 }
 
@@ -239,17 +175,11 @@ void CThreadImp::DoEvents()
 
 }
 
-//bool CThreadImp::CancleTask(Utils::Thread::IAsynTask* task)
-//{
-//	CAsynTaskImp* _task = static_cast<CAsynTaskImp*>(task);
-//	if (CancleAWaitingTask(_task))
-//	{
-//		task->Cancle();
-//		return true;
-//	}
-//	else
-//		return false;
-//}
+
+SREF(Utils::Thread::IDispatcher) CThreadImp::GetDispatcher()
+{
+	return m_spDispatcher;
+}
 
 void CThreadImp::Dispose()
 {
@@ -280,5 +210,5 @@ UTILSRUNTIME_API IThread* Utils::Thread::CreateThread()
 
 UTILSRUNTIME_API IThread*  Utils::Thread::GetCurrentThread()
 {
-	return s_pCurThread;
+	return g_pCurThread;
 }

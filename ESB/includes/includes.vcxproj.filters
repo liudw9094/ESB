@@ -42,9 +42,6 @@
     <ClInclude Include="Utils\SafeCoding\IDisposable.h">
       <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
-    <ClInclude Include="Utils\SafeCoding\SafeAllocator.h">
-      <Filter>includes\Utils\SafeCoding</Filter>
-    </ClInclude>
     <ClInclude Include="Utils\SafeCoding\UniPtr.h">
       <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
@@ -52,9 +49,6 @@
       <Filter>includes\Utils\SafeCoding</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Application.h">
-      <Filter>includes\Utils\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils\Thread\ArgumentSet.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\AsynTask.h">
@@ -154,6 +148,12 @@
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Utils\Thread\Dispatcher.h">
+      <Filter>includes\Utils\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Thread\IArgumentSet.h">
+      <Filter>includes\Utils\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils\Thread\Event.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
   </ItemGroup>

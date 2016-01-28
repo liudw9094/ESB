@@ -60,6 +60,12 @@
     <ClInclude Include="DispatcherImp.h">
       <Filter>Header Files\Thread</Filter>
     </ClInclude>
+    <ClInclude Include="AppplicationImp.h">
+      <Filter>Header Files\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="EventImp.h">
+      <Filter>Header Files\Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -81,6 +87,12 @@
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
     <ClCompile Include="DispatcherImp.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplicationImp.cpp">
+      <Filter>Source Files\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="EventImp.cpp">
       <Filter>Source Files\Thread</Filter>
     </ClCompile>
   </ItemGroup>

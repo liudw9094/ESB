@@ -14,19 +14,6 @@ CESBSoapServerImp::CESBSoapServerImp(void) :
 	m_nPort(-1)
 {
 	m_soap = soap_new();
-	m_funcInvoke = [](SREF(Utils::Thread::IThread),
-						struct soap* psoap,
-						const std::wstring& wsSession,
-						const std::wstring& wsInputs,
-						std::wstring& wsResults) -> int
-	{
-		return 0;
-	};
-	
-	m_funcAccept = [](const struct soap* sSoap)->BOOL
-	{
-		return TRUE;
-	};
 }
 
 CESBSoapServerImp::~CESBSoapServerImp(void)
@@ -49,11 +36,9 @@ BOOL CESBSoapServerImp::Start(int iPort)
 	soap_set_mode(m_soap, SOAP_C_UTFSTRING);
 
 	char* pURI = NULL;
-	if (!!soap_valid_socket(this->m_soap->master) && !soap_valid_socket(soap_bind(m_soap, NULL, iPort, 100)))
+	if (!soap_valid_socket(soap_bind(m_soap, NULL, iPort, 100)))
 	{
 		soap_print_fault(m_soap, stderr);
-		//soap_print_fault(&m_soap, stderr);
-
 		return FALSE;
 	}
 	else
@@ -62,6 +47,8 @@ BOOL CESBSoapServerImp::Start(int iPort)
 		m_thdSoap->AsynInvoke([this]() {SoapThread();});
 		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), TRUE);
 		m_nPort = iPort;
+		if (m_funcOnStarted)
+			m_funcOnStarted(this);
 		return TRUE;
 	}
 }
@@ -100,6 +87,9 @@ BOOL CESBSoapServerImp::Stop()
 
 	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), FALSE);
 	m_nPort = -1;
+
+	if (m_funcOnStoped)
+		m_funcOnStoped(this);
 	return TRUE;
 }
 
@@ -126,26 +116,60 @@ wstring&& CESBSoapServerImp::GetClientIP(const struct soap* pSoap) const
 	return move(str);
 }
 
-BOOL CESBSoapServerImp::SetCallback_Invoke(const IESBWebServiceServer::TInvokeFunc& func)
+BOOL CESBSoapServerImp::SetCallback_OnClientInvoke(const IESBWebServiceServer::TOnClientInvokeFunc& func)
 {
 	if (!IsStarted())
 	{
-		m_funcInvoke = func;
+		m_funcOnInvoke = func;
 		return TRUE;
 	}
 	else
+	{
+		// TODO: throw
 		return FALSE;
+	}
 }
 
-BOOL CESBSoapServerImp::SetCallback_Accept(const IESBWebServiceServer::TAcceptFunc& func)
+BOOL CESBSoapServerImp::SetCallback_OnAccept(const IESBWebServiceServer::TOnAcceptFunc& func)
 {
 	if (!IsStarted())
 	{
-		m_funcAccept = func;
+		m_funcOnAccept = func;
 		return TRUE;
 	}
 	else
+	{
+		// TODO: throw
 		return FALSE;
+	}
+}
+
+BOOL CESBSoapServerImp::SetCallback_OnStarted(const IESBWebServiceServer::TOnStartFunc& func)
+{
+	if (!IsStarted())
+	{
+		m_funcOnStarted = func;
+		return TRUE;
+	}
+	else
+	{
+		// TODO: throw
+		return FALSE;
+	}
+}
+
+BOOL CESBSoapServerImp::SetCallback_OnStoped(const IESBWebServiceServer::TOnStopFunc& func)
+{
+	if (!IsStarted())
+	{
+		m_funcOnStoped = func;
+		return TRUE;
+	}
+	else
+	{
+		// TODO: throw
+		return FALSE;
+	}
 }
 
 void CESBSoapServerImp::Dispose()
@@ -189,9 +213,9 @@ void CESBSoapServerImp::SoapThread()
 			break;
 		}
 
-		if (m_funcAccept)
+		if (m_funcOnAccept)
 		{
-			if (!m_funcAccept(pCloneSoap))
+			if (!m_funcOnAccept(pCloneSoap))
 				continue;
 		}
 
@@ -217,7 +241,7 @@ void CESBSoapServerImp::SoapThread()
 
 int CESBSoapServerImp::ESBOperation(struct soap *psoap, std::string session, std::string inputs, std::string &results)
 {
-	if (!m_funcInvoke)
+	if (!m_funcOnInvoke)
 		return 0;
 
 	wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t> convUTF8UTF16;
@@ -225,7 +249,7 @@ int CESBSoapServerImp::ESBOperation(struct soap *psoap, std::string session, std
 	wssession = convUTF8UTF16.from_bytes(session);
 	wsinputs = convUTF8UTF16.from_bytes(inputs);
 	SREF(IThread) pthread = m_mapAcceptSoap[psoap];
-	int hr = m_funcInvoke(pthread, psoap, wssession, wsinputs, wsresults);
+	int hr = m_funcOnInvoke(pthread, psoap, wssession, wsinputs, wsresults);
 	results = convUTF8UTF16.to_bytes(wsresults);
 
 	return hr;

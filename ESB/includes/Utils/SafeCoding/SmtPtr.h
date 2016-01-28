@@ -1,15 +1,11 @@
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 //
 //
 //				SafeAllocator.h
 //
-//	This is an implement of smart-pointer and smart-interface.
+//	This is an implement of smart-pointer.
 //
-//
-//
-//
-//
-//////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
 
 #ifndef _INCLUDES_UTILS_SMTPTR_H_
 #define _INCLUDES_UTILS_SMTPTR_H_
@@ -89,15 +85,6 @@ namespace Utils
 		};
 
 
-		// 智能指针 - 强引用指针，可直接用于单个“new”对象的智能指针
-		//
-		// 作用：		指针在不同模块多次引用的复杂情况下，确保内存不发生泄漏，无效指针的访问
-		//
-		// 用法：		TSafePointer<type> smartPointer(new type);			//生成一个对象并为其配备强引用
-		//				TSafePointer<type> smartPointer1(smartPointer);		//在已有的智能指针上添加个强引用
-		//				TSafePointer<type> smartPointer2 = smartPointer;	//在已有的智能指针上添加个强引用
-		//				TSafePointer<type> smartPointer3 = smartPointer1;	//在已有的智能指针上添加个强引用
-		//				smartPointer = smartPointerX;						// 释放当前强引用，在另一个已有的智能指针上添加一个强引用
 
 		template<class T>
 		void _Disposer(T *p)
@@ -142,7 +129,7 @@ namespace Utils
 				return m_smPtr.GetWeakRefCount();
 			}
 
-			inline CSmtPtr<T, freer>& operator =(T *pPointer) // 释放当前引用数并建立新的强引用
+			inline CSmtPtr<T, freer>& operator =(T *pPointer)
 			{
 				m_smPtr.ResetPointer(pPointer, freer);
 				return *this;
@@ -315,7 +302,7 @@ namespace Utils
 			//		}
 			//		m_pPointRef = NULL;
 			//	}
-			//	inline void operator &() {}; // 不允许显示方式取地址
+			//	inline void operator &() {};
 			//};
 		};
 	};

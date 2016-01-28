@@ -21,23 +21,23 @@ CESBMidServiceImp::~CESBMidServiceImp()
 {
 }
 
-int CESBMidServiceImp::Start(int nPort)
+BOOL CESBMidServiceImp::Start(int nPort)
 {
 	if (IsStarted())
-		return -1;
+		return FALSE;
 	using namespace std::placeholders;
 	auto func = std::bind(&CESBMidServiceImp::_ProcessWebServiceInvoke, this, _1, _2, _3, _4, _5);
-	if (!m_webService->SetCallback_Invoke(func))
-		return -2;
+	if (!m_webService->SetCallback_OnClientInvoke(func))
+		return FALSE;
 	return m_webService->Start(nPort);
 }
 
-int CESBMidServiceImp::Stop(void)
+BOOL CESBMidServiceImp::Stop(void)
 {
 	if (IsStarted())
 	{
 		int nRet = m_webService->Stop();
-		m_webService->SetCallback_Invoke([](
+		m_webService->SetCallback_OnClientInvoke([](
 			SREF(Utils::Thread::IThread) pthread,
 			struct soap* psoap,
 			const std::wstring& wsSession,
@@ -49,7 +49,7 @@ int CESBMidServiceImp::Stop(void)
 		return nRet;
 	}
 	else
-		return -1;
+		return FALSE;
 }
 
 BOOL CESBMidServiceImp::IsStarted(void) const
@@ -57,25 +57,35 @@ BOOL CESBMidServiceImp::IsStarted(void) const
 	return m_webService->IsStarted();
 }
 
-BOOL CESBMidServiceImp::SetCallback_PreInvoke(const IESBService::TPreInvokeFunc &func)
+BOOL CESBMidServiceImp::SetCallback_OnPreInvoke(const IESBService::TOnPreInvokeFunc &func)
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcPreInvoke = func;
+	m_funcOnPreInvoke = func;
 	return TRUE;
 }
 
-BOOL CESBMidServiceImp::SetCallback_Invoke(const IESBService::TInvokeFunc &func)
+BOOL CESBMidServiceImp::SetCallback_OnClientInvoke(const IESBService::TOnClientInvokeFunc &func)
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcInvoke = func;
+	m_funcOnInvoke = func;
 	return TRUE;
 }
 
-BOOL CESBMidServiceImp::SetCallback_Accept(const IESBService::TAcceptFunc& func)
+BOOL CESBMidServiceImp::SetCallback_OnAccept(const IESBService::TOnAcceptFunc& func)
 {
-	return m_webService->SetCallback_Accept(func);
+	return m_webService->SetCallback_OnAccept(func);
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnStarted(const TOnStartFunc& func)
+{
+	return m_webService->SetCallback_OnStarted(func);
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnStoped(const TOnStopFunc& func)
+{
+	return m_webService->SetCallback_OnStoped(func);
 }
 
 int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
@@ -141,9 +151,9 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 	});
 
 	BOOL bNoFurtherProcess = FALSE;
-	if(m_funcPreInvoke)
+	if(m_funcOnPreInvoke)
 	{
-		int nRet = m_funcPreInvoke(pthread, psoap, _wsSession, _wsInputs, bNoFurtherProcess, _wsResults, idType);
+		int nRet = m_funcOnPreInvoke(pthread, psoap, _wsSession, _wsInputs, bNoFurtherProcess, _wsResults, idType);
 		if (nRet < 0 || bNoFurtherProcess)
 		{
 			return nRet;
@@ -168,8 +178,8 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 				return -102;
 			// TODO: modify the error message.
 			_wsResults = L"Session Invalid.";
-			if (m_funcInvoke)
-				return m_funcInvoke(pthread, psoap, _wsSession, _wsInputs, _wsResults);
+			if (m_funcOnInvoke)
+				return m_funcOnInvoke(pthread, psoap, _wsSession, _wsInputs, _wsResults);
 			else
 				return 0;
 		}

@@ -21,4 +21,6 @@ namespace Utils
 	};
 };
 
+#include "ScopeLock.h"
+
 #endif //_INCLUDES_THREAD_CRITICAL_SECTION_H_

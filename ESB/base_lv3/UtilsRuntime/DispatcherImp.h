@@ -21,7 +21,7 @@ public:
 	virtual void Invoke(const std::function<void()> &func);
 	virtual SREF(Utils::Thread::IAsynTask) AsynInvoke(const std::function<void()> &func);
 	virtual void OnMessage();
-	virtual bool IsAccessibleDirectly();
+	virtual bool IsAccessibleDirectly() const;
 	virtual void CleanUpAllTasks();
 	virtual void Dispose();
 };

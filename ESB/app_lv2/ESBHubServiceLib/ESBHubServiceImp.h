@@ -15,12 +15,14 @@ public:
 	~CESBHubServiceImp();
 
 	// Overriding ESBMidService::IESBService
-	virtual int Start(int nPort);
-	virtual int Stop(void);
+	virtual BOOL Start(int nPort);
+	virtual BOOL Stop(void);
 	virtual BOOL IsStarted(void) const;
-	virtual BOOL SetCallback_PreInvoke(const TPreInvokeFunc &func);
-	virtual BOOL SetCallback_Invoke(const TInvokeFunc &func);
-	virtual BOOL SetCallback_Accept(const TAcceptFunc& func);
+	virtual BOOL SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func);
+	virtual BOOL SetCallback_OnClientInvoke(const TOnClientInvokeFunc &func);
+	virtual BOOL SetCallback_OnAccept(const TOnAcceptFunc& func);
+	virtual BOOL SetCallback_OnStarted(const TOnStartFunc& func);
+	virtual BOOL SetCallback_OnStoped(const TOnStopFunc& func);
 	virtual int	RegisterToHub(const std::wstring& wsHubURL,
 							const std::wstring& wsServiceURL,
 							const GUID guidService,

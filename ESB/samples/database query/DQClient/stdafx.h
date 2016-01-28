@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#include <iostream>
 
 
-// TODO: reference additional headers your program requires here
+#include <Utils/Utils.h>
+#include <ESBMidClient/ESBMidClient.h>
+#include <XMLParser/XMLParser.h>
+#include <ESBDataSerializer/Serializer.h>

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "UtilsRuntime.h"
 #include <Utils/Thread/ScopeLock.h>
 #include "DispatcherImp.h"
 
@@ -94,7 +95,7 @@ void CDispatcherImp::OnMessage()
 		pTask->Execute();
 }
 
-bool CDispatcherImp::IsAccessibleDirectly()
+bool CDispatcherImp::IsAccessibleDirectly() const
 {
 	return GetCurrentThreadId() == m_dwOwnerThreadID;
 }

@@ -30,9 +30,9 @@ namespace ESBMidService
 			IN OUT std::wstring& wsInputs,
 			OUT BOOL& bNoFurtherProcess,
 			OUT std::wstring& wsResults,
-			ESBCommon::ENUM_IDTYPE &idType)> TPreInvokeFunc;
+			ESBCommon::ENUM_IDTYPE &idType)> TOnPreInvokeFunc;
 
-		virtual BOOL SetCallback_PreInvoke(const TPreInvokeFunc &func) = 0;
+		virtual BOOL SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func) = 0;
 
 		virtual int	RegisterToHub(const std::wstring& wsHubURL,
 								const std::wstring& wsServiceURL,

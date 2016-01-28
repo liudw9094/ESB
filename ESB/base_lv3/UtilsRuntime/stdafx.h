@@ -14,6 +14,7 @@
 
 
 #include <process.h>
+#include <list>
 #include <deque>
 #include <map>
 #include <exception>

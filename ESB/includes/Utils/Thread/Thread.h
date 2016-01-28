@@ -14,6 +14,7 @@
 #include "../SafeCoding/IDisposable.h"
 #include "../SafeCoding/SmtPtr.h"
 #include "AsynTask.h"
+#include "Dispatcher.h"
 
 #ifndef UTILSRUNTIME_API
 #define UTILSRUNTIME_API
@@ -29,6 +30,7 @@ namespace Utils
 			virtual void Invoke(const std::function<void()> &func) = 0;
 			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func) = 0;
 			virtual void DoEvents() = 0;
+			virtual SREF(IDispatcher) GetDispatcher() = 0;
 		};
 
 		UTILSRUNTIME_API IThread* CreateThread();

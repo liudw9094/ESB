@@ -41,11 +41,11 @@
     <ClInclude Include="Utils\SafeCoding\UniPtr.h" />
     <ClInclude Include="Utils\SafeCoding\Finalize.h" />
     <ClInclude Include="Utils\SafeCoding\IDisposable.h" />
-    <ClInclude Include="Utils\SafeCoding\SafeAllocator.h" />
     <ClInclude Include="Utils\SafeCoding\SmtPtr.h" />
     <ClInclude Include="Utils\Thread.h" />
     <ClInclude Include="Utils\Thread\Application.h" />
-    <ClInclude Include="Utils\Thread\ArgumentSet.h" />
+    <ClInclude Include="Utils\Thread\Event.h" />
+    <ClInclude Include="Utils\Thread\IArgumentSet.h" />
     <ClInclude Include="Utils\Thread\AsynTask.h" />
     <ClInclude Include="Utils\Thread\CriticalSection.h" />
     <ClInclude Include="Utils\Thread\EventSignal.h" />

@@ -20,7 +20,7 @@ namespace Utils
 			virtual void Invoke(const std::function<void()> &func) = 0;
 			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func) = 0;
 			virtual void OnMessage() = 0;
-			virtual bool IsAccessibleDirectly() = 0;
+			virtual bool IsAccessibleDirectly() const = 0;
 			virtual void CleanUpAllTasks() = 0;
 		};
 

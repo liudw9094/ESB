@@ -10,8 +10,6 @@
 class CThreadImp : public Utils::Thread::IThread
 {
 protected:
-
-protected:
 	static const UINT			MSG_INVOKE;
 	HANDLE						m_hThread;
 	unsigned int				m_nThreadID;
@@ -20,12 +18,14 @@ protected:
 	// Signal for m_hThread and m_nThreadID created.
 	HANDLE						m_hhThread;
 
-	//std::deque<SREF(Utils::Thread::IAsynTask)>	m_dqTasks;
-	//CCriticalSectionImp							m_csdqTasks;
-
 	SREF(Utils::Thread::IDispatcher)			m_spDispatcher;
 public:
+	struct Init_AttachCurrentThread
+	{
+	};
+public:
 	CThreadImp();
+	explicit CThreadImp(Init_AttachCurrentThread);
 	virtual ~CThreadImp();
 public:
 	//virtual bool CancleAWaitingTask(const CAsynTaskImp* task);
@@ -41,6 +41,16 @@ public:
 	virtual void Invoke(const std::function<void()> &func);
 	virtual SREF(Utils::Thread::IAsynTask) AsynInvoke(const std::function<void()> &func);
 	virtual void DoEvents();
+	virtual SREF(Utils::Thread::IDispatcher) GetDispatcher();
 	//virtual bool CancleTask(Utils::Thread::IAsynTask* task);
 	virtual void Dispose();
+};
+
+class CExpWMQuit : public std::exception
+{
+public:
+	virtual const char* what() const throw()
+	{
+		return "WM_QUIT Message.";
+	}
 };

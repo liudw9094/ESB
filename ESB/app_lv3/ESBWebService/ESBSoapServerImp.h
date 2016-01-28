@@ -18,8 +18,10 @@ private:
 
 	mutable SREF(Utils::Thread::ICriticalSection) m_plkMapAcceptSoap;
 	std::map<struct soap*, SREF(Utils::Thread::IThread)>m_mapAcceptSoap;
-	TInvokeFunc m_funcInvoke;
-	TAcceptFunc m_funcAccept;
+	TOnClientInvokeFunc m_funcOnInvoke;
+	TOnAcceptFunc m_funcOnAccept;
+	TOnStartFunc m_funcOnStarted;
+	TOnStopFunc m_funcOnStoped;
 public:
 	CESBSoapServerImp(void);
 	~CESBSoapServerImp(void);
@@ -30,8 +32,10 @@ public:
 	virtual BOOL IsStarted() const;
 	virtual int GetPort() const;
 	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
-	virtual BOOL SetCallback_Invoke(const TInvokeFunc& func);
-	virtual BOOL SetCallback_Accept(const TAcceptFunc& func);
+	virtual BOOL SetCallback_OnClientInvoke(const TOnClientInvokeFunc& func);
+	virtual BOOL SetCallback_OnAccept(const TOnAcceptFunc& func);
+	virtual BOOL SetCallback_OnStarted(const TOnStartFunc& func);
+	virtual BOOL SetCallback_OnStoped(const TOnStopFunc& func);
 	virtual void Dispose();
 
 	void SoapThread();

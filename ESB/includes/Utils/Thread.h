@@ -6,5 +6,6 @@
 #include "Thread/ScopeLock.h"
 #include "Thread/Dispatcher.h"
 #include "Thread/Thread.h"
+#include "Thread/Application.h"
 
 #endif //_INCLUDE_UITILS_THREAD_H_
