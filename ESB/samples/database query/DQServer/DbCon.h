@@ -18,7 +18,7 @@ public:
 	~CDbCon();
 	BOOL Connect(const SAppConfig::SDbConnection& config);
 	void Disconnect();
-	std::wstring&& Execute(const std::wstring& szCommand);
+	std::wstring Execute(const std::wstring& szCommand);
 	BOOL IsConnected() const { return m_bConnected; };
 private:
 	BOOL _Connect(const std::wstring& szConnectionString,

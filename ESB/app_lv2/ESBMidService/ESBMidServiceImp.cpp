@@ -8,11 +8,13 @@ using namespace ESBWebService;
 using namespace ESBDataSerialzer;
 using namespace ESBCommon;
 using namespace Utils::SafeCoding;
+using namespace Utils::Thread;
 using namespace ESBXMLParser;
 
 CESBMidServiceImp::CESBMidServiceImp() :
 	m_webService(CreateESBWebServiceServer()),
-	m_uMaxSessionNum(0)
+	m_uMaxSessionNum(0),
+	m_plkMapUsers(CreateCriticalSection())
 {
 }
 
@@ -96,8 +98,10 @@ int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
 {
 	int nRet = 0;
 	SLOCK(m_plkMapUsers);
-	if(nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, m_mapUsers.size()))
-		m_uMaxSessionNum = maximumSession;
+	if (0 == (nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, m_mapUsers.size())))
+	{
+		::InterlockedExchange((volatile long*)&m_uMaxSessionNum, maximumSession);
+	}
 	return nRet;
 }
 
@@ -106,7 +110,7 @@ int CESBMidServiceImp::GetPort(void) const
 	return m_webService->GetPort();
 }
 
-std::wstring&& CESBMidServiceImp::GetClientIP(const struct soap* pSoap) const
+std::wstring CESBMidServiceImp::GetClientIP(const struct soap* pSoap) const
 {
 	return m_webService->GetClientIP(pSoap);
 }
@@ -116,13 +120,22 @@ IESBServiceHubConnection* CESBMidServiceImp::GetHubConnection()
 	return &m_hubConnection;
 }
 
-BOOL CESBMidServiceImp::CheckClientSession(const std::wstring& wsSession)
+BOOL CESBMidServiceImp::IsClientSessionExisted(const std::wstring& wsSession) const
 {
 	SLOCK(m_plkMapUsers);
 	return m_mapUsers.find(wsSession) != m_mapUsers.end();
 }
 
-BOOL CESBMidServiceImp::CheckHubSession(const std::wstring& wsSession)
+BOOL CESBMidServiceImp::IsClientSessionValid(const std::wstring& wsSession) const
+{
+	SLOCK(m_plkMapUsers);
+	auto it = m_mapUsers.find(wsSession);
+	if (it == m_mapUsers.end())
+		return FALSE;
+	return it->second.bConfirmed;
+}
+
+BOOL CESBMidServiceImp::CheckHubSession(const std::wstring& wsSession) const
 {
 	return m_hubConnection.IsHubSessionValid(wsSession);
 }
@@ -163,23 +176,34 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 	ESBServiceRequest request;
 	if (!String2Data(request, _wsInputs))
 		return -1;
-	_wsSession = request.contents;
+	_wsInputs = request.contents;
 
 	if (request.idType == IDTYPE_ESBHub)
 		return _ProcessHubRequest(pthread, psoap, _wsSession, _wsInputs, _wsResults);
 	else if (request.idType == IDTYPE_ESBClient)
 	{
+		if (!IsClientSessionExisted(_wsSession))
+		{
+			// TODO: modify the error message.
+			_wsResults = L"No such session exists.";
+			return -102;
+		}
+
+		
 		ESBService_ServiceMethod_ClientRequest userRequest;
 		if (!String2Data(userRequest, _wsInputs))
 			return _ProcessClientRequest(pthread, psoap, _wsSession, _wsInputs, _wsResults);
 		else
 		{
-			if (!CheckClientSession(_wsSession))
+			if (!IsClientSessionValid(_wsSession))
+			{
+				// TODO: modify the error message.
+				_wsResults = L"Session Invalid.";
 				return -102;
-			// TODO: modify the error message.
-			_wsResults = L"Session Invalid.";
+			}
+
 			if (m_funcOnInvoke)
-				return m_funcOnInvoke(pthread, psoap, _wsSession, _wsInputs, _wsResults);
+				return m_funcOnInvoke(pthread, psoap, _wsSession, userRequest.wsContent, _wsResults);
 			else
 				return 0;
 		}
@@ -196,18 +220,10 @@ int CESBMidServiceImp::_ProcessHubRequest(SREF(Utils::Thread::IThread) pthread,
 										const std::wstring& wsInputs,
 										std::wstring& wsResults)
 {
-	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
-	SREF(IXMLNode) root = xmlDoc->LoadXML(wsInputs);
-	if (!root->IsValid())
-		return 0;
-	wstring nodeName = root->GetNodeName();
-	if (nodeName == ESBServiceToken::NAMES.ROOTNAME)
-	{
-		ESBServiceToken param;
-		if (!String2Data(param, wsInputs))
-			return -1;
+	ESBServiceToken param;
+	if (String2Data(param, wsInputs))
 		return _On_ESBService_ServiceMethod(wsSession, param, wsResults);
-	}
+
 	return -101;
 }
 
@@ -217,7 +233,44 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 											const std::wstring& wsInputs,
 											std::wstring& wsResults)
 {
-	// TODO: add operations.
+	{
+		ESBService_ServiceMethod_SessionConfirm sessionConfirm;
+		if (String2Data(sessionConfirm, wsInputs))
+		{
+			SLOCK(m_plkMapUsers);
+			CLIENTINFO& clientInfo = m_mapUsers[wsSession];
+			auto tmNow = chrono::steady_clock::now();
+			if (tmNow >= clientInfo.token.timeStamp &&
+				tmNow <= clientInfo.token.timeReplyDeadLine)
+			{
+				clientInfo.bConfirmed = TRUE;
+				ESBService_ReplyOK replyOK;
+				if (!Data2String(wsResults, replyOK))
+					return -101;
+			}
+			else
+			{
+				m_mapUsers.erase(wsSession);
+				return -205;
+			}
+			return 0;
+		}
+	}
+	{
+		ESBService_ServiceMethod_EndSession sessionEnd;
+		if (String2Data(sessionEnd, wsInputs))
+		{
+			{
+				SLOCK(m_plkMapUsers);
+				m_mapUsers.erase(wsSession);
+				m_hubConnection.UpdateLoadState(m_uMaxSessionNum, m_mapUsers.size());
+			}
+			ESBService_ReplyOK replyOK;
+			if (!Data2String(wsResults, replyOK))
+				return -101;
+			return 0;
+		}
+	}
 	return -101;
 }
 

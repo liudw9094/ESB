@@ -43,8 +43,11 @@ BOOL CESBSoapServerImp::Start(int iPort)
 	}
 	else
 	{
+		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bExitThread), FALSE);
 		m_thdSoap = CreateThread();
-		m_thdSoap->AsynInvoke([this]() {SoapThread();});
+		m_thdSoap->AsynInvoke([this]() {
+			SoapThread();
+		});
 		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), TRUE);
 		m_nPort = iPort;
 		if (m_funcOnStarted)
@@ -59,13 +62,13 @@ BOOL CESBSoapServerImp::Stop()
 		return FALSE;
 
 	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bExitThread), TRUE);
-	// Dispose the main soap thread object
-	m_thdSoap = NULL;
 
 	//soap_destroy(m_soap);
 	soap_end(m_soap);
 	soap_done(m_soap);
 
+	// Dispose the main soap thread object
+	m_thdSoap = NULL;
 	{
 		SLOCK(m_plkMapAcceptSoap);
 		if (!m_mapAcceptSoap.empty())
@@ -103,7 +106,7 @@ int CESBSoapServerImp::GetPort() const
 	return m_nPort;
 }
 
-wstring&& CESBSoapServerImp::GetClientIP(const struct soap* pSoap) const
+wstring CESBSoapServerImp::GetClientIP(const struct soap* pSoap) const
 {
 	wchar_t buf[256];
 	swprintf_s(buf, L"%d.%d.%d.%d:%d",
@@ -113,7 +116,7 @@ wstring&& CESBSoapServerImp::GetClientIP(const struct soap* pSoap) const
 		pSoap->ip & 0xFF,
 		pSoap->port);
 	wstring str(buf);
-	return move(str);
+	return str;
 }
 
 BOOL CESBSoapServerImp::SetCallback_OnClientInvoke(const IESBWebServiceServer::TOnClientInvokeFunc& func)

@@ -24,41 +24,57 @@ BOOL CDQServerApp::OnInitialization()
 {
 	InitCallbacks();
 
+	wcout << L"Loading configuration files..." << endl;
 	if(!m_appCfg.Load())
 	{
-		wcerr << L"Failed to load configuration file." << endl;
+		wcerr << L"Failed to load configuration file!" << endl;
 		//return FALSE;
 	}
 	SAppConfig config = m_appCfg.GetConfig();
 
+	wcout << L"Connecting to database..." << endl;
 	if (!m_dbConnection.Connect(config.dbConnection))
 	{
-		wcerr << L"Failed to connect to database." << endl;
-		return FALSE;
+		wcerr << L"Failed to connect to database!" << endl;
+		//return FALSE;
 	}
 
+	wcout << L"Opening port..." << endl;
 	if (!m_spService->Start(config.nPort))
 	{
-		wcerr << L"Failed to start service at port " << config.nPort << L"." << endl;
+		wcerr << L"Failed to start service at port " << config.nPort << L"!" << endl;
 		return FALSE;
 	}
 
-	if(FAILED(m_spService->RegisterToHub(config.hubConnection.szHubURL,
+	wcout << L"Registering the service..." << endl;
+	if(m_spService->RegisterToHub(config.hubConnection.szHubURL,
 		config.hubConnection.szServiceURL,
 		config.hubConnection.szServiceGUID,
 		config.hubConnection.szServiceName,
-		10)))
+		10) != 0)
 	{
-		wcerr << L"Failed to register the service on the hub." << endl;
+		wcerr << L"Failed to register the service on the hub!" << endl;
 		return FALSE;
 	}
-	return TRUE;
+	wcout << L"Successfully registered" << endl;
+
+	wstring command;
+	while (command != L"quit")
+	{
+		wcin >> command;
+		locale loc;
+		for (auto elem : command)
+			std::tolower(elem, loc);
+	}
+
+	return FALSE;
 }
 
 void CDQServerApp::OnFinalization()
 {
 	m_spService->Stop();
-	wcout << L"Press any key to finish." << endl;
+	wcout << L"Enter any string to finish." << endl;
+	getchar();
 }
 
 void CDQServerApp::InitCallbacks()

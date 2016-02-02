@@ -9,14 +9,19 @@ private:
 	struct CLIENTINFO
 	{
 		ESBCommon::ESBServiceToken token;
+		BOOL bConfirmed;
+		CLIENTINFO()
+			: bConfirmed(FALSE)
+		{
+		}
 	};
 	SREF(ESBWebService::IESBWebServiceServer) m_webService;
 	CESBServiceHubConnectionImp m_hubConnection;
 	TOnPreInvokeFunc m_funcOnPreInvoke;
 	TOnClientInvokeFunc m_funcOnInvoke;
-	SREF(Utils::Thread::ICriticalSection) m_plkMapUsers;
+	mutable SREF(Utils::Thread::ICriticalSection) m_plkMapUsers;
 	std::map<std::wstring, CLIENTINFO>	m_mapUsers;
-	UINT								m_uMaxSessionNum;
+	volatile UINT						m_uMaxSessionNum;
 
 public:
 	CESBMidServiceImp();
@@ -36,10 +41,11 @@ public:
 							const std::wstring& wsServiceName,
 							UINT maximumSessionn);
 	virtual int GetPort(void) const;
-	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
+	virtual std::wstring GetClientIP(const struct soap* pSoap) const;
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
-	virtual BOOL CheckClientSession(const std::wstring& wsSession);
-	virtual BOOL CheckHubSession(const std::wstring& wsSession);
+	virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const;
+	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
+	virtual BOOL CheckHubSession(const std::wstring& wsSession) const;
 	virtual void Dispose();
 private:
 	int _ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pthread,

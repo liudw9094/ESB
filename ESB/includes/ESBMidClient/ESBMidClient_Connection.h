@@ -17,9 +17,9 @@ namespace ESBMidClient
 		virtual int EndSession(void) = 0;
 		virtual BOOL IsSessionValid(void) const = 0;
 		virtual int Send(const std::wstring& wsContent, std::wstring& wsResult) = 0;
-		virtual std::wstring&& GetInitialURL() = 0;
-		virtual std::wstring&& GetCurrentURL() = 0;
-		virtual GUID&& GetServiceGUID() = 0;
+		virtual std::wstring GetInitialURL() = 0;
+		virtual std::wstring GetCurrentURL() = 0;
+		virtual GUID GetServiceGUID() = 0;
 	};
 
 	ESBMIDCONN_API IESBConnection* CreateESBConnection();

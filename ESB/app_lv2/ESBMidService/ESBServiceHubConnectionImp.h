@@ -32,6 +32,6 @@ public:
 	virtual int DecreaseSessionLoad();
 	*/
 public:
-	BOOL IsHubSessionValid(const std::wstring& wsSession);
+	BOOL IsHubSessionValid(const std::wstring& wsSession) const;
 };
 

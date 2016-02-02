@@ -15,9 +15,12 @@ thread_local IThread* g_pCurThread = NULL;
 
 const UINT CThreadImp::MSG_INVOKE(::RegisterWindowMessageW(L"CThreadImp::MSG_INVOKE"));
 
-CThreadImp::CThreadImp()
+CThreadImp::CThreadImp(const IThread::THREAD_CALLBACK& onInit/* = nullptr*/,
+	const IThread::THREAD_CALLBACK& onFinish /*= nullptr*/)
 	: m_hThread(NULL),
-	m_nThreadID(-1)
+	m_nThreadID(-1),
+	m_callback_OnInit(onInit),
+	m_callback_OnFinish(onFinish)
 {
 	// Use m_hThreadParamSig to ensure the thread would be running
 	// before this object deleted.
@@ -100,6 +103,9 @@ unsigned int CThreadImp::Run()
 	::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 	SetEvent(m_hThreadParamSig);
 
+	if (m_callback_OnInit)
+		m_callback_OnInit(this);
+
 	try
 	{
 		while (::GetMessage(&msg, NULL, 0, 0))
@@ -115,6 +121,9 @@ unsigned int CThreadImp::Run()
 	{
 		// Jumped out and do nothing.
 	}
+
+	if (m_callback_OnFinish)
+		m_callback_OnFinish(this);
 
 	m_spDispatcher = NULL;
 	//::CloseHandle(m_hThread);
@@ -202,9 +211,10 @@ void CThreadImp::Dispose()
 }
 
 
-UTILSRUNTIME_API IThread* Utils::Thread::CreateThread()
+UTILSRUNTIME_API IThread* Utils::Thread::CreateThread(const IThread::THREAD_CALLBACK& onInit/* = nullptr*/,
+	const IThread::THREAD_CALLBACK& onFinish /*= nullptr*/)
 {
-	return new CThreadImp;
+	return new CThreadImp(onInit, onFinish);
 }
 
 

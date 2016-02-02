@@ -20,9 +20,9 @@ public:
 	virtual int EndSession(void);
 	virtual BOOL IsSessionValid(void) const;
 	virtual int Send(const std::wstring& wsContent, std::wstring& wsResult);
-	virtual std::wstring&& GetInitialURL();
-	virtual std::wstring&& GetCurrentURL();
-	virtual GUID&& GetServiceGUID();
+	virtual std::wstring GetInitialURL();
+	virtual std::wstring GetCurrentURL();
+	virtual GUID GetServiceGUID();
 	virtual void Dispose();
 };
 

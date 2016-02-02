@@ -9,7 +9,7 @@ template<class CHARTYPE>
 class CBase64
 {
 public:
-	static std::basic_string<CHARTYPE>&& base64Encode(const void* buf, size_t len)
+	static std::basic_string<CHARTYPE> base64Encode(const void* buf, size_t len)
 	{
 		const static char encodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		const static char padCharacter = '=';
@@ -44,10 +44,10 @@ public:
 			encodedString.append(1, padCharacter);
 			break;
 		}
-		return move(encodedString);
+		return encodedString;
 	}
 
-	static std::vector<BYTE>&& base64Decode(const std::basic_string<CHARTYPE> input)
+	static std::vector<BYTE> base64Decode(const std::basic_string<CHARTYPE> input)
 	{
 		const static TCHAR padCharacter = TEXT('=');
 		if (input.length() % 4) //Sanity check
@@ -87,10 +87,10 @@ public:
 					case 1: //One pad character
 						decodedBytes.push_back((temp >> 16) & 0x000000FF);
 						decodedBytes.push_back((temp >> 8) & 0x000000FF);
-						return move(decodedBytes);
+						return decodedBytes;
 					case 2: //Two pad characters
 						decodedBytes.push_back((temp >> 10) & 0x000000FF);
-						return move(decodedBytes);
+						return decodedBytes;
 					default:
 						throw std::runtime_error("Invalid Padding in Base 64!");
 					}
@@ -103,48 +103,48 @@ public:
 			decodedBytes.push_back((temp >> 8) & 0x000000FF);
 			decodedBytes.push_back((temp)& 0x000000FF);
 		}
-		return move(decodedBytes);
+		return decodedBytes;
 	}
 };
 
 
 
-std::string&& ESBCommon::DataToBase64(const void* data, size_t len)
+std::string ESBCommon::DataToBase64(const void* data, size_t len)
 {
 	return CBase64<char>::base64Encode(data, len);
 }
 
-std::string&& ESBCommon::DataToBase64(const std::vector<BYTE>& data)
+std::string ESBCommon::DataToBase64(const std::vector<BYTE>& data)
 {
 	return DataToBase64(&data[0], data.size());
 }
 
-std::vector<BYTE>&& ESBCommon::Base64ToData(const char* szBase64)
+std::vector<BYTE> ESBCommon::Base64ToData(const char* szBase64)
 {
 	return Base64ToData(string(szBase64));
 }
 
-std::vector<BYTE>&& ESBCommon::Base64ToData(const std::string& szBase64)
+std::vector<BYTE> ESBCommon::Base64ToData(const std::string& szBase64)
 {
 	return CBase64<char>::base64Decode(szBase64);
 }
 
-std::wstring&& ESBCommon::DataToBase64W(const void* data, size_t len)
+std::wstring ESBCommon::DataToBase64W(const void* data, size_t len)
 {
 	return CBase64<wchar_t>::base64Encode(data, len);
 }
 
-std::wstring&& ESBCommon::DataToBase64W(const std::vector<BYTE>& data)
+std::wstring ESBCommon::DataToBase64W(const std::vector<BYTE>& data)
 {
 	return DataToBase64W(&data[0], data.size());
 }
 
-std::vector<BYTE>&& ESBCommon::Base64ToDataW(const wchar_t* szBase64)
+std::vector<BYTE> ESBCommon::Base64ToDataW(const wchar_t* szBase64)
 {
 	return Base64ToDataW(wstring(szBase64));
 }
 
-std::vector<BYTE>&& ESBCommon::Base64ToDataW(const std::wstring& szBase64)
+std::vector<BYTE> ESBCommon::Base64ToDataW(const std::wstring& szBase64)
 {
 	return CBase64<wchar_t>::base64Decode(szBase64);
 }

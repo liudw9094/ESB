@@ -31,8 +31,8 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ENUM_IDTYPE& data, IN const st
 		data = IDTYPE_ESBClient;
 	else if (string == L"IDTYPE_ESBService")
 		data = IDTYPE_ESBService;
-	else if (string == L"IDTYPE_ESBService")
-		data = IDTYPE_ESBService;
+	else if (string == L"IDTYPE_ESBHub")
+		data = IDTYPE_ESBHub;
 	else
 		data = IDTYPE_ESBUnknown;
 	return TRUE;
@@ -124,7 +124,7 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBClientToken& data, IN const
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
 	if (!root->IsValid() || root->GetNodeName() != ESBClientToken::NAMES.ROOTNAME)
 		return FALSE;
-	data.wsClientSession = root->GetAttributeStr(ESBClientToken::NAMES.TIMEREPLYDEADLINE);
+	data.wsClientSession = root->GetAttributeStr(ESBClientToken::NAMES.WSCLIENTSESSION);
 	wstring wsTimeStamp = root->GetAttributeStr(ESBClientToken::NAMES.TIMESTAMP);
 	wstring wsTimeReplyDeadline = root->GetAttributeStr(ESBClientToken::NAMES.TIMEREPLYDEADLINE);
 	String2Data(data.timeStamp, wsTimeStamp);
@@ -153,7 +153,7 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBServiceToken& data, IN cons
 	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
 	if (!root->IsValid() || root->GetNodeName() != ESBServiceToken::NAMES.ROOTNAME)
 		return FALSE;
-	data.wsClientSession = root->GetAttributeStr(ESBServiceToken::NAMES.TIMEREPLYDEADLINE);
+	data.wsClientSession = root->GetAttributeStr(ESBServiceToken::NAMES.WSCLIENTSESSION);
 	wstring wsTimeStamp = root->GetAttributeStr(ESBServiceToken::NAMES.TIMESTAMP);
 	wstring wsTimeReplyDeadline = root->GetAttributeStr(ESBServiceToken::NAMES.TIMEREPLYDEADLINE);
 	String2Data(data.timeStamp, wsTimeStamp);
@@ -227,6 +227,12 @@ BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon:
 	wstring wsMaximumSession;
 	Data2String(wsMaximumSession, data.maximumSession);
 	root->AddAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.MAXIMUMSESSION, wsMaximumSession);
+	wstring wsCurrentNum;
+	Data2String(wsCurrentNum, data.currentSessionNum);
+	root->AddAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.CURRENTSESSIONNUM, wsCurrentNum);
+	wstring wsTimestamp;
+	Data2String(wsTimestamp, data.timeStamp);
+	root->AddAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.TIMESTAMP, wsTimestamp);
 	string = root->ToXMLString();
 	return TRUE;
 }
@@ -239,6 +245,10 @@ BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBService_HubMethod_UpdateLoa
 		return FALSE;
 	wstring wsMaximumSession = root->GetAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.MAXIMUMSESSION);
 	String2Data(data.maximumSession, wsMaximumSession);
+	wstring wsCurrentNum = root->GetAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.CURRENTSESSIONNUM);
+	String2Data(data.currentSessionNum, wsCurrentNum);
+	wstring wsTimeStamp = root->GetAttributeStr(ESBService_HubMethod_UpdateLoadState::NAMES.TIMESTAMP);
+	String2Data(data.timeStamp, wsTimeStamp);
 	return TRUE;
 }
 

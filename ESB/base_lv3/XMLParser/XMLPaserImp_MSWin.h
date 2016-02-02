@@ -21,7 +21,7 @@ public:
 	virtual ~CyDoc();
 	CyNode Load(const std::wstring& lpFilename);
 	CyNode LoadXML(const std::wstring& lpContent);
-	std::wstring&&  GetXml();
+	std::wstring  GetXml();
 	CyNode CreateRootNode(const std::wstring& lpNodeName, bool bCreateHeadRow = false);
 	BOOL Save(const std::wstring& lpFilename);
 	void Unload();
@@ -43,26 +43,26 @@ public:
 	CyNode(MSXML2::IXMLDOMNodePtr& spThisNode);
 	virtual ~CyNode();
 	
-	std::wstring&& GetNodeName() const;
+	std::wstring GetNodeName() const;
 	CyNode CreateSubNode(const std::wstring& lpName);
 	CyNode CreateSubNode(CyNode& node);
 	BOOL CreateSubNode(const std::wstring& lpName, const std::wstring& lpValue);
 	void RemoveSubNode(const CyNode& node);
 	void ReplaceSubNode(const CyNode& dest, const CyNode& src);
 		
-	std::wstring&& GetNodeValueStr() const;
+	std::wstring GetNodeValueStr() const;
 	void	SetNodeValueStr(const std::wstring& lpValue);
 	
 	void	RemoveAttributeStr(const std::wstring& lpAttrName);
 
-	std::wstring&& GetAttributeStr(const std::wstring& lpAttrName) const;
+	std::wstring GetAttributeStr(const std::wstring& lpAttrName) const;
 	void	SetAttributeStr(const std::wstring& lpAttrName, const std::wstring& lpValue);
 	void	AddAttributeStr(const std::wstring& lpAttrName, const std::wstring& lpValue);
 	
-	std::wstring&&	ToXMLString() const;
+	std::wstring	ToXMLString() const;
 	
 	CyNode  GetSubNode(const std::wstring& lpNodeName) const;
-	std::wstring&& GetSubNodeValue(const std::wstring& lpNodeName) const;
+	std::wstring GetSubNodeValue(const std::wstring& lpNodeName) const;
 	BOOL	GetSubNodeValue(const std::wstring& lpNodeName, OUT std::wstring& strValue) const;
 
 	CyNodeList GetSubNodes() const;
@@ -71,7 +71,7 @@ public:
 	int GetSubNodesCountByTag(const std::wstring& lpName) const;
 
 	CyNode SelectSingleNode(const std::wstring& lpPath) const;
-	std::wstring&& GetSingleNodeValue(const std::wstring& lpPath) const;
+	std::wstring GetSingleNodeValue(const std::wstring& lpPath) const;
 	BOOL GetSingleNodeValue(const std::wstring& lpPath, OUT std::wstring& strValue) const;
 	CyNodeList SelectNodes(const std::wstring& lpPath) const;
 	

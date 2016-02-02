@@ -56,14 +56,14 @@ BOOL CDbCon::Connect(const SAppConfig::SDbConnection& config)
 	return _Connect(config.szConStr, m_szUsername, m_szPassword);
 }
 
-std::wstring&& CDbCon::Execute(const std::wstring& szCommand)
+std::wstring CDbCon::Execute(const std::wstring& szCommand)
 {
 	SLOCK(m_csDb);
 	wstring result, empty;
 	SAFE_COM_TRY_BEGIN
 	{
 		_CommandPtr pCommand;
-		FS_RETURN(pCommand.CreateInstance(__uuidof(Command)), move(empty));
+		FS_RETURN(pCommand.CreateInstance(__uuidof(Command)), empty);
 		pCommand->PutActiveConnection(m_pConnection.GetInterfacePtr());
 		pCommand->PutCommandText(_bstr_t(szCommand.c_str()));
 		pCommand->PutCommandType(adCmdUnspecified);
@@ -87,8 +87,8 @@ std::wstring&& CDbCon::Execute(const std::wstring& szCommand)
 
 		pRecordset->Close();
 	}
-	SAFE_COM_TRY_END(move(empty));
-	return move(result);
+	SAFE_COM_TRY_END(empty);
+	return result;
 }
 BOOL CDbCon::_Connect(const std::wstring& szConnectionString,
 	const std::wstring& szUsername,

@@ -16,9 +16,9 @@ public:
 
 	virtual void Dispose();
 
-	std::wstring&& GetURL() const;
-	std::wstring&& GetSession() const;
-	GUID&& GetServiceGUID() const;
+	std::wstring GetURL() const;
+	std::wstring GetSession() const;
+	GUID GetServiceGUID() const;
 	float GetCurrentCapacityUsageRate() const;
 
 	BOOL NewToken(ESBCommon::ESBClientToken& token);

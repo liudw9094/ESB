@@ -29,9 +29,10 @@ public:
 							const std::wstring& wsServiceName,
 							UINT maximumSession);
 	virtual int GetPort(void) const;
-	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
-	virtual BOOL CheckClientSession(const std::wstring& wsSession);
-	virtual BOOL CheckHubSession(const std::wstring& wsSession);
+	virtual std::wstring GetClientIP(const struct soap* pSoap) const;
+	virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const;
+	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
+	virtual BOOL CheckHubSession(const std::wstring& wsSession) const;
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	// Overriding Utils::SafeCoding::IDisposable
 	virtual void Dispose();
@@ -67,15 +68,6 @@ private:
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_UpdateLoadState& param,
 		std::wstring& results);
-	/*
-	// TODO: remove the codes later.
-	int _On_ESBService_HubMethod(const std::wstring& session,
-		const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& param,
-		std::wstring& results);
-	int _On_ESBService_HubMethod(const std::wstring& session,
-		const ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& param,
-		std::wstring& results);
-	*/
 	int _On_ESBService_HubMethod(const std::wstring& session,
 		const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,
 		std::wstring& results);

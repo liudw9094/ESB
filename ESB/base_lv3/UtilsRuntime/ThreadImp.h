@@ -19,12 +19,16 @@ protected:
 	HANDLE						m_hhThread;
 
 	SREF(Utils::Thread::IDispatcher)			m_spDispatcher;
+
+	THREAD_CALLBACK				m_callback_OnInit;
+	THREAD_CALLBACK				m_callback_OnFinish;
 public:
 	struct Init_AttachCurrentThread
 	{
 	};
 public:
-	CThreadImp();
+	CThreadImp(const IThread::THREAD_CALLBACK& onInit = nullptr,
+		const IThread::THREAD_CALLBACK& onFinish = nullptr);
 	explicit CThreadImp(Init_AttachCurrentThread);
 	virtual ~CThreadImp();
 public:

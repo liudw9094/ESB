@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "ESBMidConn.h"
 #include "ESBConnectionImp.h"
 
 using namespace std;
@@ -10,7 +11,7 @@ using namespace ESBWebService;
 
 CESBConnectionImp::CESBConnectionImp() :
 	m_webClient(CreateESBWebServiceClient()),
-	m_threadClient(CreateThread()),
+	m_threadClient(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
 	m_bValid(FALSE)
 {
 	memset(&m_guidService, 0, sizeof(m_guidService));
@@ -78,7 +79,8 @@ int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidS
 		ESBService_ServiceMethod_SessionConfirm sessionConfirm;
 		ESBServiceRequest rq2;
 		rq2.idType = IDTYPE_ESBClient;
-		if (!Data2String(rq2.contents, sessionConfirm))
+		if (!Data2String(rq2.contents, sessionConfirm) ||
+			!Data2String(wsRequest, rq2))
 		{
 			nRet = -6;
 			return;
@@ -204,7 +206,11 @@ int CESBConnectionImp::Send(const std::wstring& wsContent, std::wstring& wsResul
 		wstring wsReply;
 		nRet = m_webClient->Invoke(m_token.wsClientSession, wsRequest, wsReply);
 		if (nRet != 0)
+		{
+			wsResult = wsReply;
 			return;
+		}
+
 		ESBServiceReply rp;
 		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBService)
 		{
@@ -219,29 +225,29 @@ int CESBConnectionImp::Send(const std::wstring& wsContent, std::wstring& wsResul
 	return nRet;
 }
 
-std::wstring&& CESBConnectionImp::GetInitialURL()
+std::wstring CESBConnectionImp::GetInitialURL()
 {
-	wstring wsRet = 0;
+	wstring wsRet;
 
 	m_threadClient->Invoke([this, &wsRet]() {
 		wsRet = m_wsInitialURL;
 	});
 
-	return move(wsRet);
+	return wsRet;
 }
 
-std::wstring&& CESBConnectionImp::GetCurrentURL()
+std::wstring CESBConnectionImp::GetCurrentURL()
 {
-	wstring wsRet = 0;
+	wstring wsRet;
 
 	m_threadClient->Invoke([this, &wsRet]() {
 		wsRet = m_wsCurrentURL;
 	});
 
-	return move(wsRet);
+	return wsRet;
 }
 
-GUID&& CESBConnectionImp::GetServiceGUID()
+GUID CESBConnectionImp::GetServiceGUID()
 {
 	GUID guidRet = { 0 };
 
@@ -249,7 +255,7 @@ GUID&& CESBConnectionImp::GetServiceGUID()
 		guidRet = m_guidService;
 	});
 
-	return move(guidRet);
+	return guidRet;
 }
 
 void CESBConnectionImp::Dispose()
@@ -257,7 +263,7 @@ void CESBConnectionImp::Dispose()
 	delete this;
 }
 
-ESBMIDCONN_API IESBConnection* CreateESBConnection()
+ESBMIDCONN_API IESBConnection* ESBMidClient::CreateESBConnection()
 {
 	return new CESBConnectionImp;
 }

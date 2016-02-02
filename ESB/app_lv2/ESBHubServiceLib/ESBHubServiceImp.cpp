@@ -12,7 +12,7 @@ using namespace ESBXMLParser;
 
 CESBHubServiceImp::CESBHubServiceImp() :
 	m_service(CreateESBService()),
-	m_serviceThread(CreateThread())
+	m_serviceThread(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();}))
 {
 }
 
@@ -113,13 +113,13 @@ int CESBHubServiceImp::GetPort(void) const
 	return nRet;
 }
 
-std::wstring&& CESBHubServiceImp::GetClientIP(const struct soap* pSoap) const
+std::wstring CESBHubServiceImp::GetClientIP(const struct soap* pSoap) const
 {
 	wstring szRet = 0;
 	m_serviceThread->Invoke([this, &szRet, pSoap]() {
 		szRet = m_service->GetClientIP(pSoap);
 	});
-	return move(szRet);
+	return szRet;
 }
 
 ESBMidService::IESBServiceHubConnection* CESBHubServiceImp::GetHubConnection()
@@ -135,16 +135,25 @@ ESBMidService::IESBServiceHubConnection* CESBHubServiceImp::GetHubConnection()
 	*/
 }
 
-BOOL CESBHubServiceImp::CheckClientSession(const std::wstring& wsSession)
+BOOL CESBHubServiceImp::IsClientSessionExisted(const std::wstring& wsSession) const
 {
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
-		bRet = m_service->CheckClientSession(wsSession);
+		bRet = m_service->IsClientSessionExisted(wsSession);
 	});
 	return bRet;
 }
 
-BOOL CESBHubServiceImp::CheckHubSession(const std::wstring& wsSession)
+BOOL CESBHubServiceImp::IsClientSessionValid(const std::wstring& wsSession) const
+{
+	BOOL bRet = 0;
+	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
+		bRet = m_service->IsClientSessionValid(wsSession);
+	});
+	return bRet;
+}
+
+BOOL CESBHubServiceImp::CheckHubSession(const std::wstring& wsSession) const
 {
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
@@ -340,28 +349,27 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_UpdateLoadState& param,
 	std::wstring& results)
 {
-	// TODO: add implementation
-	return -1;
-}
+	int nRet = 0;
+	m_serviceThread->Invoke([this, &session, &param, &results, &nRet]() {
+		auto found = m_mapServices_session.find(session);
+		if (found == m_mapServices_session.end())
+		{
+			nRet = -101;
+			return;
+		}
 
-/*
-// TODO: remove the codes later.
-int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
-	const ESBCommon::ESBService_HubMethod_IncreaseSessionLoad& param,
-	std::wstring& results)
-{
-	// TODO: add implementation
-	return -1;
-}
+		// Update the loadstate information.
+		SREF(CRegisteredService) pService = found->second;
+		if (!pService->SetLoadState(param.maximumSession, param.currentSessionNum, param.timeStamp))
+		{
+			nRet = -301;
+			return;
+		}
 
-int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
-	const ESBCommon::ESBService_HubMethod_DecreaseSessionLoad& param,
-	std::wstring& results)
-{
-	// TODO: add implementation
-	return -1;
+		nRet = 0;
+	});
+	return nRet;
 }
-*/
 
 int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 	const ESBCommon::ESBService_HubMethod_ClientSessionEnd& param,
@@ -394,7 +402,7 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 		size_t nIndex = refVec.size() - 1;
 		SREF(CRegisteredService) pService = refVec[nIndex];
 		
-		// Ask to send new token to service and retrieve the token info.
+		// send new token to service and retrieve the token info.
 		ESBClientToken newToken;
 		if (!pService->NewToken(newToken))
 		{

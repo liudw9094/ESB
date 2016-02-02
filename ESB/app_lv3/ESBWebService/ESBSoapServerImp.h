@@ -31,7 +31,7 @@ public:
 	virtual BOOL Stop();
 	virtual BOOL IsStarted() const;
 	virtual int GetPort() const;
-	virtual std::wstring&& GetClientIP(const struct soap* pSoap) const;
+	virtual std::wstring GetClientIP(const struct soap* pSoap) const;
 	virtual BOOL SetCallback_OnClientInvoke(const TOnClientInvokeFunc& func);
 	virtual BOOL SetCallback_OnAccept(const TOnAcceptFunc& func);
 	virtual BOOL SetCallback_OnStarted(const TOnStartFunc& func);

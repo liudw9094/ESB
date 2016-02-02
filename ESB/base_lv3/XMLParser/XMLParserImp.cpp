@@ -22,16 +22,16 @@ CXMLDocImp::~CXMLDocImp()
 SREF(ESBXMLParser::IXMLNode) CXMLDocImp::Load(const std::wstring& lpFilename)
 {
 	SREF(ESBXMLParser::IXMLNode) ptrNode = new CXMLNodeImp(m_cyDoc.Load(lpFilename));
-	return move(ptrNode);
+	return ptrNode;
 }
 
 SREF(ESBXMLParser::IXMLNode) CXMLDocImp::LoadXML(const std::wstring& lpContent)
 {
 	SREF(ESBXMLParser::IXMLNode) ptrNode = new CXMLNodeImp(m_cyDoc.LoadXML(lpContent));
-	return move(ptrNode);
+	return ptrNode;
 }
 
-std::wstring&& CXMLDocImp::GetXml()
+std::wstring CXMLDocImp::GetXml()
 {
 	return m_cyDoc.GetXml();
 }
@@ -39,7 +39,7 @@ std::wstring&& CXMLDocImp::GetXml()
 SREF(ESBXMLParser::IXMLNode) CXMLDocImp::CreateRootNode(const std::wstring& lpNodeName, bool bCreateHeadRow /*= false*/)
 {
 	SREF(ESBXMLParser::IXMLNode) ptrNode = new CXMLNodeImp(m_cyDoc.CreateRootNode(lpNodeName, bCreateHeadRow));
-	return move(ptrNode);
+	return ptrNode;
 }
 
 BOOL CXMLDocImp::Save(const std::wstring& lpFilename)
@@ -80,7 +80,7 @@ CXMLNodeImp::~CXMLNodeImp()
 
 }
 
-std::wstring&& CXMLNodeImp::GetNodeName() const
+std::wstring CXMLNodeImp::GetNodeName() const
 {
 	return m_cyNode.GetNodeName();
 }
@@ -88,14 +88,14 @@ std::wstring&& CXMLNodeImp::GetNodeName() const
 SREF(IXMLNode) CXMLNodeImp::CreateSubNode(const std::wstring& lpName)
 {
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyNode.CreateSubNode(lpName));
-	return move(ptr);
+	return ptr;
 }
 
 SREF(IXMLNode) CXMLNodeImp::CreateSubNode(const IXMLNode* node)
 {
 	CXMLNodeImp* imp = const_cast<CXMLNodeImp*>(static_cast<const CXMLNodeImp*>(node));
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyNode.CreateSubNode(imp->m_cyNode));
-	return move(ptr);
+	return ptr;
 }
 
 BOOL CXMLNodeImp::CreateSubNode(const std::wstring& lpName, const std::wstring& lpValue)
@@ -116,7 +116,7 @@ void CXMLNodeImp::ReplaceSubNode(const IXMLNode* dest, const IXMLNode* src)
 	m_cyNode.ReplaceSubNode(impDst->m_cyNode, impSrc->m_cyNode);
 }
 
-std::wstring&& CXMLNodeImp::GetNodeValueStr() const
+std::wstring CXMLNodeImp::GetNodeValueStr() const
 {
 	return m_cyNode.GetNodeValueStr();
 }
@@ -131,7 +131,7 @@ void CXMLNodeImp::RemoveAttributeStr(const std::wstring& lpAttrName)
 	m_cyNode.RemoveAttributeStr(lpAttrName);
 }
 
-std::wstring&& CXMLNodeImp::GetAttributeStr(const std::wstring& lpAttrName) const
+std::wstring CXMLNodeImp::GetAttributeStr(const std::wstring& lpAttrName) const
 {
 	return m_cyNode.GetAttributeStr(lpAttrName);
 }
@@ -146,7 +146,7 @@ void CXMLNodeImp::AddAttributeStr(const std::wstring& lpAttrName, const std::wst
 	m_cyNode.AddAttributeStr(lpAttrName, lpValue);
 }
 
-std::wstring&& CXMLNodeImp::ToXMLString() const
+std::wstring CXMLNodeImp::ToXMLString() const
 {
 	return m_cyNode.ToXMLString();
 }
@@ -154,10 +154,10 @@ std::wstring&& CXMLNodeImp::ToXMLString() const
 SREF(IXMLNode) CXMLNodeImp::GetSubNode(const std::wstring& lpNodeName) const
 {
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyNode.GetSubNode(lpNodeName));
-	return move(ptr);
+	return ptr;
 }
 
-std::wstring&& CXMLNodeImp::GetSubNodeValue(const std::wstring& lpNodeName) const
+std::wstring CXMLNodeImp::GetSubNodeValue(const std::wstring& lpNodeName) const
 {
 	return m_cyNode.GetSubNodeValue(lpNodeName);
 }
@@ -170,13 +170,13 @@ BOOL CXMLNodeImp::GetSubNodeValue(const std::wstring& lpNodeName, OUT std::wstri
 SREF(IXMLNodeList) CXMLNodeImp::GetSubNodes() const
 {
 	SREF(IXMLNodeList) ptr = new CXMLNodeListImp(m_cyNode.GetSubNodes());
-	return move(ptr);
+	return ptr;
 }
 
 SREF(IXMLNodeList) CXMLNodeImp::GetSubNodesByTag(const std::wstring& lpName) const
 {
 	SREF(IXMLNodeList) ptr = new CXMLNodeListImp(m_cyNode.GetSubNodesByTag(lpName));
-	return move(ptr);
+	return ptr;
 }
 
 int CXMLNodeImp::GetSubNodesCount() const
@@ -192,10 +192,10 @@ int CXMLNodeImp::GetSubNodesCountByTag(const std::wstring& lpName) const
 SREF(IXMLNode) CXMLNodeImp::SelectSingleNode(const std::wstring& lpPath) const
 {
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyNode.SelectSingleNode(lpPath));
-	return move(ptr);
+	return ptr;
 }
 
-std::wstring&& CXMLNodeImp::GetSingleNodeValue(const std::wstring& lpPath) const
+std::wstring CXMLNodeImp::GetSingleNodeValue(const std::wstring& lpPath) const
 {
 	return m_cyNode.GetSingleNodeValue(lpPath);
 }
@@ -208,7 +208,7 @@ BOOL CXMLNodeImp::GetSingleNodeValue(const std::wstring& lpPath, OUT std::wstrin
 SREF(IXMLNodeList) CXMLNodeImp::SelectNodes(const std::wstring& lpPath) const
 {
 	SREF(IXMLNodeList) ptr = new CXMLNodeListImp(m_cyNode.SelectNodes(lpPath));
-	return move(ptr);
+	return ptr;
 }
 
 BOOL CXMLNodeImp::HasAttribute(const std::wstring& lpName) const
@@ -219,7 +219,7 @@ BOOL CXMLNodeImp::HasAttribute(const std::wstring& lpName) const
 SREF(IXMLNode) CXMLNodeImp::CloneSubNode(const std::wstring& nodeName) const
 {
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyNode.CloneSubNode(nodeName));
-	return move(ptr);
+	return ptr;
 }
 
 BOOL CXMLNodeImp::IsValid() const
@@ -249,7 +249,7 @@ LONG CXMLNodeListImp::GetCount()
 SREF(IXMLNode) CXMLNodeListImp::Next() const
 {
 	SREF(IXMLNode) ptr = new CXMLNodeImp(m_cyList.Next());
-	return move(ptr);
+	return ptr;
 }
 
 void CXMLNodeListImp::Reset()

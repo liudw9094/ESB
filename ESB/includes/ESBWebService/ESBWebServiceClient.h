@@ -16,7 +16,7 @@ namespace ESBWebService
 	{
 	public:
 		virtual void SetURL(const std::wstring& wsURL) = 0;
-		virtual std::wstring&& GetURL() = 0;
+		virtual std::wstring GetURL() = 0;
 		virtual int Invoke(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults) = 0;
 	};
 	ESBWEBSERVICE_API int InstantClientInvoke(const std::wstring& wsURL, const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults);

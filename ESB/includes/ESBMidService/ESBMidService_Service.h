@@ -40,8 +40,9 @@ namespace ESBMidService
 								const std::wstring& wsServiceName,
 								UINT maximumSession) = 0;
 		virtual IESBServiceHubConnection* GetHubConnection() = 0;
-		virtual BOOL CheckClientSession(const std::wstring& wsSession) = 0;
-		virtual BOOL CheckHubSession(const std::wstring& wsSession) = 0;
+		virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const = 0;
+		virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const = 0;
+		virtual BOOL CheckHubSession(const std::wstring& wsSession) const = 0;
 	};
 
 	ESBMIDSERVICE_API IESBService* CreateESBService();

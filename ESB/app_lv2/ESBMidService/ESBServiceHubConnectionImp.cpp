@@ -9,7 +9,7 @@ using namespace ESBWebService;
 
 CESBServiceHubConnectionImp::CESBServiceHubConnectionImp() :
 	m_webClient(CreateESBWebServiceClient()),
-	m_threadClient(CreateThread()),
+	m_threadClient(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
 	m_bValid(FALSE)
 {
 }
@@ -28,7 +28,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 {
 	int nRet = 0;
 	ESBService_HubMethod_RegisterToHub reg;
-	reg.wsServiceName = wsServiceURL;
+	reg.wsServiceURL = wsServiceURL;
 	reg.guidService = guidService;
 	reg.wsServiceName = wsServiceName;
 	reg.maximumSession = maximumSession;
@@ -91,7 +91,7 @@ int CESBServiceHubConnectionImp::Unregister()
 		}
 
 		wstring wsReply;
-		nRet = m_webClient->Invoke(L"", wsRequest, wsReply);
+		nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
@@ -106,7 +106,7 @@ int CESBServiceHubConnectionImp::Unregister()
 			nRet = -4;
 			return;
 		}
-
+		m_wsHubSession = ESBServiceSessionReply();
 		m_bValid = FALSE;
 		nRet = 0;
 	});
@@ -150,7 +150,7 @@ int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT cu
 		}
 
 		wstring wsReply;
-		nRet = m_webClient->Invoke(L"", wsRequest, wsReply);
+		nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
@@ -260,7 +260,7 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 
 */
 
-BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession)
+BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession) const
 {
 	BOOL bValid = FALSE;
 	m_threadClient->Invoke([this, &bValid, &wsSession]() {

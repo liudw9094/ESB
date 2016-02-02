@@ -31,7 +31,7 @@ namespace ESBWebService
 		virtual BOOL Stop() = 0;
 		virtual BOOL IsStarted() const = 0;
 		virtual int GetPort() const = 0;
-		virtual std::wstring&& GetClientIP(const struct soap* pSoap) const = 0;
+		virtual std::wstring GetClientIP(const struct soap* pSoap) const = 0;
 		// the Invoke function would be called assynchronically.
 		virtual BOOL SetCallback_OnClientInvoke(const TOnClientInvokeFunc& func) = 0;
 		virtual BOOL SetCallback_OnAccept(const TOnAcceptFunc& func) = 0;

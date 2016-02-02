@@ -11,9 +11,15 @@
 #include <tchar.h>
 #include <windows.h>
 #include <iostream>
+#include <locale> 
 
 // ADO Database
+#if defined _M_IX86
 #import "dll/win32/msado15.dll" no_namespace rename ("EOF", "adoEOF")
+#elif defined _M_X64
+#import "dll/x64/msado15.dll" no_namespace rename ("EOF", "adoEOF")
+#endif
+
 // ADO C++ Extensions
 #include <icrsint.h>
 

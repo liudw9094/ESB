@@ -29,31 +29,31 @@ void CRegisteredService::Dispose()
 	delete this;
 }
 
-std::wstring&& CRegisteredService::GetURL() const
+std::wstring CRegisteredService::GetURL() const
 {
 	wstring wsURL;
 	m_threadCommu->Invoke([this, &wsURL]() {
 		wsURL = m_serviceInfo.wsServiceURL;
 	});
-	return move(wsURL);
+	return wsURL;
 }
 
-std::wstring&& CRegisteredService::GetSession() const
+std::wstring CRegisteredService::GetSession() const
 {
 	wstring wsSession = m_wsSession;
 	m_threadCommu->Invoke([this, &wsSession]() {
 		wsSession = m_wsSession;
 	});
-	return move(wsSession);
+	return wsSession;
 }
 
-GUID&& CRegisteredService::GetServiceGUID() const
+GUID CRegisteredService::GetServiceGUID() const
 {
 	GUID guidService = { 0 };
 	m_threadCommu->Invoke([this, &guidService]() {
 		guidService = m_serviceInfo.guidService;
 	});
-	return move(guidService);
+	return guidService;
 }
 
 float CRegisteredService::GetCurrentCapacityUsageRate() const
@@ -75,14 +75,15 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 		ESBCommon::ESBClientToken newToken_Client;
 		ESBCommon::ESBServiceToken newToken_Service;
 		newToken_Service.wsClientSession = newToken_Client.wsClientSession = CreateGuid();
-		newToken_Service.timeStamp = newToken_Client.timeStamp = time(NULL);
-		newToken_Service.timeReplyDeadLine = newToken_Client.timeReplyDeadLine = newToken_Client.timeStamp + 120;
+		newToken_Service.timeStamp = newToken_Client.timeStamp = chrono::steady_clock::now();
+		newToken_Service.timeReplyDeadLine = newToken_Client.timeReplyDeadLine = newToken_Client.timeStamp + chrono::seconds(120);
 		newToken_Client.wsURLRedirection = m_serviceInfo.wsServiceURL;
 
 		ESBServiceRequest request;
 		request.idType = IDTYPE_ESBHub;
 		Data2String(request.contents, newToken_Service);
 		wstring wsRequest, wsReply;
+		Data2String(wsRequest, request);
 		if (m_commu->Invoke(m_wsSession, wsRequest, wsReply) != 0)
 			return;
 
@@ -98,6 +99,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 		m_serviceInfo.maximumSession = replyContent.maximumSession;
 		m_serviceInfo.currentSessionNum = replyContent.currentSessionNum;
 
+		token = newToken_Client;
 		bRet = TRUE;
 		return;
 	});

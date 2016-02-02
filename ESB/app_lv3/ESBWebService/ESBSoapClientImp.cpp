@@ -10,6 +10,9 @@ using namespace ESBWebService;
 CESBSoapClientImp::CESBSoapClientImp(void)
 {
 	//soap_init( &soapClient );
+	m_soapClient.send_timeout = 10; // 10 seconds 
+	m_soapClient.recv_timeout = 10; // 10 seconds 
+	m_soapClient.connect_timeout = 10;
 	soap_set_mode(&m_soapClient, SOAP_C_UTFSTRING);
 }
 
@@ -19,16 +22,12 @@ CESBSoapClientImp::~CESBSoapClientImp(void)
 
 void CESBSoapClientImp::SetURL(const std::wstring& wsURL)
 {
-	std::string url;
-	wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t> convUTF8UTF16;
 	m_wsURL = wsURL;
-	url = convUTF8UTF16.to_bytes(wsURL);
-	strcpy_s(m_soapClient.endpoint, url.c_str());
 }
 
-std::wstring&& CESBSoapClientImp::GetURL()
+std::wstring CESBSoapClientImp::GetURL()
 {
-	return move(m_wsURL);
+	return m_wsURL;
 }
 
 int CESBSoapClientImp::Invoke(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)
@@ -37,9 +36,15 @@ int CESBSoapClientImp::Invoke(const std::wstring& wsSession, const std::wstring&
 	std::string url, session, inputs, results;
 	session = convUTF8UTF16.to_bytes(wsSession);
 	inputs = convUTF8UTF16.to_bytes(wsInputs);
-
-	int iResult = m_soapClient.ESBOperation(session, inputs, results);
-	wsResults = convUTF8UTF16.from_bytes(results);
+	url = convUTF8UTF16.to_bytes(m_wsURL);
+	int iResult = m_soapClient.ESBOperation(url.c_str(), NULL, session, inputs, results);
+	if (iResult)
+	{
+		if(m_soapClient.labbuf)
+			wsResults = convUTF8UTF16.from_bytes(string(m_soapClient.labbuf));
+	}
+	else
+		wsResults = convUTF8UTF16.from_bytes(results);
 	return iResult;
 }
 

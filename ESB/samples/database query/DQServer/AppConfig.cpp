@@ -57,7 +57,7 @@ BOOL CAppConfig::Load()
 
 BOOL CAppConfig::Save()
 {
-	return FALSE;
+	throw logic_error("Unimplemented method: CAppConfig::Save()");
 	/*
 	SREF(IXMLDoc) pXmlDoc = CreateXMLDoc();
 	auto pXmlRoot = pXmlDoc->CreateRootNode(L"ESBRoot", true);

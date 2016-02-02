@@ -87,7 +87,7 @@ CyNode CyDoc::LoadXML(const std::wstring& lpContent)
 	return CyNode(spDoc);
 }
 
-wstring&&  CyDoc::GetXml()
+wstring CyDoc::GetXml()
 {
 	wstring strRet = L"";
 	try{
@@ -97,7 +97,7 @@ wstring&&  CyDoc::GetXml()
 		}
 	}catch(...){
 	}
-	return move(strRet);
+	return strRet;
 }
 
 bool CyDoc::GetUTF8Str(std::string& str)
@@ -267,13 +267,13 @@ CyNode::~CyNode()
 {
 }
 
-std::wstring&& CyNode::GetNodeName() const
+std::wstring CyNode::GetNodeName() const
 {
 	wstring sRet;
 	if(m_spNode){
 		sRet = (const wchar_t *)m_spNode->nodeName;
 	}
-	return move(sRet);
+	return sRet;
 }
 
 CyNode CyNode::CreateSubNode(CyNode& clonenode)
@@ -338,13 +338,13 @@ void CyNode::ReplaceSubNode(const CyNode& dest, const CyNode& src)
 	}
 }
 
-wstring&& CyNode::GetNodeValueStr() const
+wstring CyNode::GetNodeValueStr() const
 {
 	wstring sRet;
 	if(m_spNode){
 		sRet = (const wchar_t *)m_spNode->text;
 	}
-	return move(sRet);
+	return sRet;
 }
 
 void CyNode::SetNodeValueStr(const std::wstring& lpValue)
@@ -355,7 +355,7 @@ void CyNode::SetNodeValueStr(const std::wstring& lpValue)
 	}
 }
 
-wstring&& CyNode::GetAttributeStr(const std::wstring& lpAttrName) const
+wstring CyNode::GetAttributeStr(const std::wstring& lpAttrName) const
 {
 	wstring sRet;
 	if(HasAttribute(lpAttrName)){
@@ -364,7 +364,7 @@ wstring&& CyNode::GetAttributeStr(const std::wstring& lpAttrName) const
 			sRet = (const wchar_t *) spAttribute->text;
 		}
 	}
-	return move(sRet);
+	return sRet;
 }
 
 void	CyNode::SetAttributeStr(const std::wstring& lpAttrName, const std::wstring& lpValue)
@@ -382,7 +382,7 @@ void	CyNode::SetAttributeStr(const std::wstring& lpAttrName, const std::wstring&
 	}
 }
 
-void	CyNode::AddAttributeStr(const std::wstring& lpAttrName, const std::wstring& lpValue)
+void CyNode::AddAttributeStr(const std::wstring& lpAttrName, const std::wstring& lpValue)
 {
 	if(m_spDocument!=NULL && m_spNode!=NULL){
 		if(!HasAttribute(lpAttrName)){
@@ -397,20 +397,20 @@ void	CyNode::AddAttributeStr(const std::wstring& lpAttrName, const std::wstring&
 	}
 }
 
-void	CyNode::RemoveAttributeStr(const std::wstring& lpAttrName)
+void CyNode::RemoveAttributeStr(const std::wstring& lpAttrName)
 {
 	if(m_spNode){	
 		m_spNode->attributes->removeNamedItem(lpAttrName.c_str());
 	}
 }
 
-wstring&& CyNode::ToXMLString() const
+wstring CyNode::ToXMLString() const
 {
 	wstring sRet;
 	if(m_spNode){
 		sRet = (const wchar_t*)m_spNode->xml;
 	}
-	return move(sRet);
+	return sRet;
 }
 
 
@@ -429,11 +429,11 @@ CyNode CyNode::GetSubNode(const std::wstring& lpNodeName) const
 	return CyNode(spChild);
 }
 
-wstring&& CyNode::GetSubNodeValue(const std::wstring& lpNodeName) const
+wstring CyNode::GetSubNodeValue(const std::wstring& lpNodeName) const
 {
 	CyNode cNode = GetSubNode(lpNodeName);
 	if ( !cNode.IsValid() )
-		return move(wstring(L""));
+		return wstring(L"");
 	return cNode.GetNodeValueStr();
 }
 
@@ -472,11 +472,11 @@ CyNode CyNode::SelectSingleNode(const std::wstring& lpPath) const
 	return ret;
 }
 
-wstring&& CyNode::GetSingleNodeValue(const std::wstring& lpPath) const
+wstring CyNode::GetSingleNodeValue(const std::wstring& lpPath) const
 {
 	CyNode cNode = SelectSingleNode(lpPath);
 	if ( !cNode.IsValid() )
-		return move(wstring(L""));
+		return wstring(L"");
 	return cNode.GetNodeValueStr();
 }
 
