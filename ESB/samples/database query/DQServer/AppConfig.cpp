@@ -96,19 +96,19 @@ void CAppConfig::_LoadHubConnection(const ESBXMLParser::IXMLNode *node)
 	}
 	if (node->HasAttribute(L"ServiceURL"))
 	{
-		wstring value = node->GetAttributeStr(L"HubURL");
+		wstring value = node->GetAttributeStr(L"ServiceURL");
 		if (value != L"")
 			m_cfg.hubConnection.szServiceURL = value;
 	}
 	if (node->HasAttribute(L"ServiceGUID"))
 	{
-		wstring value = node->GetAttributeStr(L"HubURL");
+		wstring value = node->GetAttributeStr(L"ServiceGUID");
 		if (value != L"")
 			String2Data(m_cfg.hubConnection.szServiceGUID, value);
 	}
 	if (node->HasAttribute(L"ServiceName"))
 	{
-		wstring value = node->GetAttributeStr(L"HubURL");
+		wstring value = node->GetAttributeStr(L"ServiceName");
 		if (value != L"")
 			m_cfg.hubConnection.szServiceName = value;
 	}

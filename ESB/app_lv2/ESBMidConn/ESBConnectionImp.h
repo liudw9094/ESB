@@ -24,5 +24,9 @@ public:
 	virtual std::wstring GetCurrentURL();
 	virtual GUID GetServiceGUID();
 	virtual void Dispose();
+
+private:
+	void _InitializeClientThread();
+	void _UninitializeClientThread();
 };
 

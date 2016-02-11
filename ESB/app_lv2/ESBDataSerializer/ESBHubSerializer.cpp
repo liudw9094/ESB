@@ -6,17 +6,35 @@ using namespace std;
 using namespace ESBCommon;
 using namespace ESBDataSerialzer;
 
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ESBHeartBeat& data)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->CreateRootNode(ESBHeartBeat::NAMES.ROOTNAME);
+	string = root->ToXMLString();
+	return TRUE;
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ESBHeartBeat& data, IN const std::wstring& string)
+{
+	SREF(IXMLDoc) xmlDoc = CreateXMLDoc();
+	SREF(IXMLNode) root = xmlDoc->LoadXML(string);
+	if (!root->IsValid() || root->GetNodeName() != ESBHeartBeat::NAMES.ROOTNAME)
+		return FALSE;
+	return TRUE;
+}
+
 BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon::ENUM_IDTYPE& data)
 {
 	switch (data)
 	{
-	case IDTYPE_ESBClient:
+	case ENUM_IDTYPE::IDTYPE_ESBClient:
 		string = L"IDTYPE_ESBClient";
 		break;
-	case IDTYPE_ESBService:
+	case ENUM_IDTYPE::IDTYPE_ESBService:
 		string = L"IDTYPE_ESBService";
 		break;
-	case IDTYPE_ESBHub:
+	case ENUM_IDTYPE::IDTYPE_ESBHub:
 		string = L"IDTYPE_ESBHub";
 		break;
 	default:
@@ -28,13 +46,13 @@ BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const ESBCommon:
 BOOL ESBDataSerialzer::String2Data(OUT ESBCommon::ENUM_IDTYPE& data, IN const std::wstring& string)
 {
 	if (string == L"IDTYPE_ESBClient")
-		data = IDTYPE_ESBClient;
+		data = ENUM_IDTYPE::IDTYPE_ESBClient;
 	else if (string == L"IDTYPE_ESBService")
-		data = IDTYPE_ESBService;
+		data = ENUM_IDTYPE::IDTYPE_ESBService;
 	else if (string == L"IDTYPE_ESBHub")
-		data = IDTYPE_ESBHub;
+		data = ENUM_IDTYPE::IDTYPE_ESBHub;
 	else
-		data = IDTYPE_ESBUnknown;
+		data = ENUM_IDTYPE::IDTYPE_ESBUnknown;
 	return TRUE;
 }
 

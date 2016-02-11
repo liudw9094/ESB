@@ -2,6 +2,7 @@
 
 namespace ESBCommon
 {
+	ESBHeartBeat::_TAGNAME											ESBHeartBeat::NAMES;
 	ESBServiceRequest::_TAGNAME										ESBServiceRequest::NAMES;
 	ESBServiceReply::_TAGNAME										ESBServiceReply::NAMES;
 	ESBService_ReplyOK::_TAGNAME									ESBService_ReplyOK::NAMES;

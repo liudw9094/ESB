@@ -9,14 +9,15 @@ using namespace ESBWebService;
 
 CESBServiceHubConnectionImp::CESBServiceHubConnectionImp() :
 	m_webClient(CreateESBWebServiceClient()),
-	m_threadClient(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
 	m_bValid(FALSE)
 {
+	m_threadClient = CreateThread([this](IThread*) {_InitializeClientThread();}, [this](IThread*) {_UninitializeClientThread();});
 }
 
 
 CESBServiceHubConnectionImp::~CESBServiceHubConnectionImp()
 {
+	m_threadClient = NULL;
 }
 
 int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
@@ -35,14 +36,14 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	reg.currentSessionNum = currentSessionNum;
 	reg.timeStamp = chrono::steady_clock::now();
 	ESBServiceRequest rq;
-	rq.idType = IDTYPE_ESBService;
+	rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
 	if (!Data2String(rq.contents, reg))
 		return -2;
 	wstring wsRequest;
 	if (!Data2String(wsRequest, rq))
 		return -3;
 
-	m_threadClient->Invoke([this, &wsHubURL, &wsRequest, &nRet]() {
+	m_threadClient->Invoke([this, &wsHubURL, wsRequest, &nRet]() {
 		if (IsValid())
 		{
 			nRet = -1;
@@ -55,7 +56,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
 		{
 			nRet = -4;
 			return;
@@ -65,6 +66,8 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 			nRet = -5;
 			return;
 		}
+
+		m_timerHeartBeat->Enable(true);
 		m_bValid = TRUE;
 		nRet = 0;
 	});
@@ -74,16 +77,27 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 int CESBServiceHubConnectionImp::Unregister()
 {
 	int nRet = 0;
-	ESBService_HubMethod_Unregister command;
-	ESBServiceRequest rq;
-	rq.idType = IDTYPE_ESBService;
-	if (!Data2String(rq.contents, command))
-		return -2;
-	wstring wsRequest;
-	if (!Data2String(wsRequest, rq))
-		return -3;
 
-	m_threadClient->Invoke([this, &wsRequest, &nRet]() {
+	m_threadClient->Invoke([this, &nRet]() {
+		m_timerHeartBeat->Enable(false);
+		m_wsHubSession = ESBServiceSessionReply();
+		m_bValid = FALSE;
+
+		ESBService_HubMethod_Unregister command;
+		ESBServiceRequest rq;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
+		if (!Data2String(rq.contents, command))
+		{
+			nRet = -2;
+			return;
+		}
+		wstring wsRequest;
+		if (!Data2String(wsRequest, rq))
+		{
+			nRet = -3;
+			return;
+		}
+
 		if (!IsValid())
 		{
 			nRet = -1;
@@ -95,7 +109,7 @@ int CESBServiceHubConnectionImp::Unregister()
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -106,8 +120,6 @@ int CESBServiceHubConnectionImp::Unregister()
 			nRet = -4;
 			return;
 		}
-		m_wsHubSession = ESBServiceSessionReply();
-		m_bValid = FALSE;
 		nRet = 0;
 	});
 	return nRet;
@@ -130,19 +142,28 @@ int CESBServiceHubConnectionImp::ModifySessionLimitation(UINT maximumSessionNum)
 int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT currentSessionNum)
 {
 	int nRet = 0;
-	ESBService_HubMethod_UpdateLoadState command;
-	command.maximumSession = maximumSessionNum;
-	command.currentSessionNum = currentSessionNum;
-	command.timeStamp = chrono::steady_clock::now();
-	ESBServiceRequest rq;
-	rq.idType = IDTYPE_ESBService;
-	if (!Data2String(rq.contents, command))
-		return -2;
-	wstring wsRequest;
-	if (!Data2String(wsRequest, rq))
-		return -3;
 
-	m_threadClient->Invoke([this, &wsRequest, &nRet]() {
+	m_threadClient->Invoke([this, &maximumSessionNum, &currentSessionNum, &nRet]() {
+
+		ESBService_HubMethod_UpdateLoadState command;
+		command.maximumSession = maximumSessionNum;
+		command.currentSessionNum = currentSessionNum;
+		command.timeStamp = chrono::steady_clock::now();
+		ESBServiceRequest rq;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
+		if (!Data2String(rq.contents, command))
+		{
+			nRet = -2;
+			return;
+		}
+		wstring wsRequest;
+		if (!Data2String(wsRequest, rq))
+		{
+			nRet = -3;
+			return;
+		}
+
+
 		if (!IsValid())
 		{
 			nRet = -1;
@@ -154,7 +175,7 @@ int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT cu
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
 		{
 			nRet = -3;
 			return;
@@ -166,10 +187,58 @@ int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT cu
 			return;
 		}
 
-		m_bValid = FALSE;
 		nRet = 0;
 	});
 	return nRet;
+}
+
+void CESBServiceHubConnectionImp::_InitializeClientThread()
+{
+	::CoInitialize(NULL);
+	m_timerHeartBeat = CreateTimer(SERVICE_SESSION_HEARTBEAT_TIME_INTERVAL * 1000, false);
+	m_timerHeartBeat->AddFunc(bind(&CESBServiceHubConnectionImp::_OnHeartBeatTimer, this));
+}
+
+void CESBServiceHubConnectionImp::_UninitializeClientThread()
+{
+	m_timerHeartBeat = NULL;
+	::CoUninitialize();
+}
+
+void CESBServiceHubConnectionImp::_OnHeartBeatTimer()
+{
+	m_threadClient->Invoke([this]() {
+		if (!IsValid())
+		{
+			m_timerHeartBeat->Enable(false);
+			Unregister();
+			return;
+		}
+
+		ESBHeartBeat command;
+		ESBServiceRequest rq;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
+		if (!Data2String(rq.contents, command))
+			throw std::logic_error("Unexpected behavior.");
+
+		wstring wsRequest;
+		if (!Data2String(wsRequest, rq))
+			throw std::logic_error("Unexpected behavior.");
+
+		wstring wsReply;
+		int nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
+		ESBServiceReply rp;
+		ESBService_ReplyOK replyContent;
+		if (nRet != 0 ||
+			!String2Data(rp, wsReply) ||
+			rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub ||
+			!String2Data(replyContent, rp.contents))
+		{
+			m_timerHeartBeat->Enable(false);
+			Unregister();
+		}
+
+	});
 }
 
 /*
@@ -210,7 +279,6 @@ int CESBServiceHubConnectionImp::IncreaseSessionLoad()
 			return;
 		}
 
-		m_bValid = FALSE;
 		nRet = 0;
 	});
 	return nRet;
@@ -252,13 +320,12 @@ int CESBServiceHubConnectionImp::DecreaseSessionLoad()
 			return;
 		}
 
-		m_bValid = FALSE;
 		nRet = 0;
 	});
 	return nRet;
 }
 
-*/
+
 
 BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession) const
 {
@@ -269,3 +336,4 @@ BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession) co
 	return bValid;
 }
 
+*/

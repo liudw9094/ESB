@@ -38,12 +38,11 @@ BOOL CAppConfig::Load()
 			m_cfg.szHubURL = szHubURL;
 	}
 
-
-	if (pXmlAppNode->HasAttribute(L"URL"))
+	if (pXmlAppNode->HasAttribute(L"ServiceGUID"))
 	{
-		wstring szHubURL = pXmlAppNode->GetAttributeStr(L"URL");
-		if (szHubURL != L"")
-			m_cfg.szHubURL = szHubURL;
+		wstring szServiceGUID = pXmlAppNode->GetAttributeStr(L"ServiceGUID");
+		if (szServiceGUID != L"")
+			String2Data(m_cfg.szServiceGUID, szServiceGUID);
 	}
 
 

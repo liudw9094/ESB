@@ -44,7 +44,7 @@ BOOL CDQClientApp::OnInitialization()
 	wstring commandOrig;
 	for (;;)
 	{
-		wcin >> commandOrig;
+		std::getline(std::wcin, commandOrig);
 		command = commandOrig;
 		locale loc;
 		for (auto elem : command)
@@ -57,7 +57,12 @@ BOOL CDQClientApp::OnInitialization()
 			wstring result;
 			int error = 0;
 			if ((error = m_spConnection->Send(commandOrig, result)) == 0)
+			{
+				result =	L"===================================\n" +
+							result +
+							L"\n===================================";
 				wcout << result << endl;
+			}
 			else
 			{
 				wcerr << L"Error occured: " << error << endl;

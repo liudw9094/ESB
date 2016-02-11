@@ -11,12 +11,13 @@ using namespace ESBXMLParser;
 
 CRegisteredService::CRegisteredService(const std::wstring& session,
 	const ESBService_HubMethod_RegisterToHub& info)
-	: m_threadCommu(CreateThread()),
+	: m_threadCommu(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
 	m_commu(CreateESBWebServiceClient()),
 	m_serviceInfo(info),
 	m_wsSession(session)
 {
 	m_commu->SetURL(info.wsServiceURL);
+	UpdateHeartBeat();
 }
 
 CRegisteredService::~CRegisteredService()
@@ -80,7 +81,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 		newToken_Client.wsURLRedirection = m_serviceInfo.wsServiceURL;
 
 		ESBServiceRequest request;
-		request.idType = IDTYPE_ESBHub;
+		request.idType = ENUM_IDTYPE::IDTYPE_ESBHub;
 		Data2String(request.contents, newToken_Service);
 		wstring wsRequest, wsReply;
 		Data2String(wsRequest, request);
@@ -88,7 +89,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 			return;
 
 		ESBServiceReply reply;
-		if (!String2Data(reply, wsReply) || reply.idType != IDTYPE_ESBService)
+		if (!String2Data(reply, wsReply) || reply.idType != ENUM_IDTYPE::IDTYPE_ESBService)
 			return;
 
 		ESBService_ServiceReply_LoadStateUpdate replyContent;
@@ -132,4 +133,21 @@ BOOL CRegisteredService::UpdateServiceInfo(const ESBCommon::ESBService_HubMethod
 		}
 	});
 	return nRet;
+}
+
+void CRegisteredService::UpdateHeartBeat()
+{
+	m_threadCommu->Invoke([this]() {
+		m_tmLastHeartBeat = chrono::steady_clock::now();
+	});
+}
+
+BOOL CRegisteredService::IsDead()
+{
+	BOOL bRet = FALSE;
+	m_threadCommu->Invoke([this, &bRet]() {
+		long long sec = (chrono::steady_clock::now() - m_tmLastHeartBeat).count() / 1000000000;
+		bRet = sec > SERVICE_SESSION_TIMEOUT;
+	});
+	return bRet;
 }

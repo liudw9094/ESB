@@ -173,8 +173,6 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Co
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\includes\Utils\Thread.h" />
-    <ClInclude Include="..\..\includes\Utils\Utils.h" />
     <ClInclude Include="AppplicationImp.h" />
     <ClInclude Include="AsynTaskImp.h" />
     <ClInclude Include="CriticalSectionImp.h" />
@@ -183,6 +181,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Co
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ThreadImp.h" />
+    <ClInclude Include="TimerImp.h" />
     <ClInclude Include="UtilsRuntime.h" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +212,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Co
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ThreadImp.cpp" />
+    <ClCompile Include="TimerImp.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

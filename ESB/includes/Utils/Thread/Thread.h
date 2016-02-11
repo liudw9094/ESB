@@ -15,6 +15,7 @@
 #include "../SafeCoding/SmtPtr.h"
 #include "AsynTask.h"
 #include "Dispatcher.h"
+#include "Timer.h"
 
 #ifndef UTILSRUNTIME_API
 #define UTILSRUNTIME_API
@@ -33,6 +34,7 @@ namespace Utils
 			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func) = 0;
 			virtual void DoEvents() = 0;
 			virtual SREF(IDispatcher) GetDispatcher() = 0;
+			virtual ITimer* NewTimer(unsigned long millisec_interval, bool bEnable = true) = 0;
 		};
 
 		UTILSRUNTIME_API IThread* CreateThread(const IThread::THREAD_CALLBACK& onInit = nullptr,

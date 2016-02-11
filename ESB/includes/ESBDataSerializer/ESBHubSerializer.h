@@ -8,6 +8,9 @@
 
 namespace ESBDataSerialzer
 {
+	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ESBHeartBeat& data);
+	BOOL String2Data(OUT ESBCommon::ESBHeartBeat& data, IN const std::wstring& string);
+
 	BOOL Data2String(OUT std::wstring& string, IN const ESBCommon::ENUM_IDTYPE& data);
 	BOOL String2Data(OUT ESBCommon::ENUM_IDTYPE& data, IN const std::wstring& string);
 

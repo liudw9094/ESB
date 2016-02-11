@@ -8,8 +8,9 @@ class CESBServiceHubConnectionImp : public ESBMidService::IESBServiceHubConnecti
 private:
 	SREF(ESBWebService::IESBWebServiceClient) m_webClient;
 	mutable SREF(Utils::Thread::IThread)	m_threadClient;
-	BOOL m_bValid;
+	BOOL									m_bValid;
 	ESBCommon::ESBServiceSessionReply		m_wsHubSession;
+	SREF(Utils::Thread::ITimer)				m_timerHeartBeat;
 public:
 	CESBServiceHubConnectionImp();
 	~CESBServiceHubConnectionImp();
@@ -26,12 +27,19 @@ public:
 	virtual BOOL IsValid() const;
 	virtual int ModifySessionLimitation(UINT maximumSessionNum);
 	virtual int UpdateLoadState(UINT maximumSessionNum, UINT currentSessionNum);
+
+private:
+	void _InitializeClientThread();
+	void _UninitializeClientThread();
+	void _OnHeartBeatTimer();
+
 	/*
 	// TODO: remove the codes later.
 	virtual int IncreaseSessionLoad();
 	virtual int DecreaseSessionLoad();
-	*/
+
 public:
 	BOOL IsHubSessionValid(const std::wstring& wsSession) const;
+	*/
 };
 

@@ -10,6 +10,8 @@ private:
 
 	ESBCommon::ESBService_HubMethod_RegisterToHub	m_serviceInfo;
 	std::wstring									m_wsSession;
+
+	std::chrono::steady_clock::time_point			m_tmLastHeartBeat;
 public:
 	CRegisteredService(const std::wstring& session, const ESBCommon::ESBService_HubMethod_RegisterToHub& info);
 	~CRegisteredService();
@@ -24,5 +26,8 @@ public:
 	BOOL NewToken(ESBCommon::ESBClientToken& token);
 	BOOL SetLoadState(UINT maxSessions, UINT currentSession, const std::chrono::steady_clock::time_point& timeStamp);
 	BOOL UpdateServiceInfo(const ESBCommon::ESBService_HubMethod_RegisterToHub& info, BOOL cmpTimestamp = TRUE);
+
+	void UpdateHeartBeat();
+	BOOL IsDead();
 };
 

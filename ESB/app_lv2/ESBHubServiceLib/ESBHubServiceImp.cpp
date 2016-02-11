@@ -11,14 +11,25 @@ using namespace ESBDataSerialzer;
 using namespace ESBXMLParser;
 
 CESBHubServiceImp::CESBHubServiceImp() :
-	m_service(CreateESBService()),
-	m_serviceThread(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();}))
+	m_service(CreateESBService())
 {
+	m_serviceThread =
+	CreateThread(
+		[this](IThread*) {
+			::CoInitialize(NULL);
+			m_timerHeartBeatMonitor = ::CreateTimer(SERVICE_SESSION_HEARTBEAT_TIME_INTERVAL * 1000, false);
+			m_timerHeartBeatMonitor->AddFunc(bind(&CESBHubServiceImp::_OnTimer_HeartBeatMonitor, this));
+		},
+		[this](IThread*) {
+			m_timerHeartBeatMonitor = NULL;
+			::CoUninitialize();
+		});
 }
 
 
 CESBHubServiceImp::~CESBHubServiceImp()
 {
+	m_serviceThread = NULL;
 }
 
 BOOL CESBHubServiceImp::Start(int nPort)
@@ -29,6 +40,7 @@ BOOL CESBHubServiceImp::Start(int nPort)
 		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
 		m_service->SetCallback_OnPreInvoke(func);
 		nRet = m_service->Start(nPort);
+		m_timerHeartBeatMonitor->Enable(true);
 	});
 	return nRet;
 }
@@ -37,6 +49,7 @@ BOOL CESBHubServiceImp::Stop(void)
 {
 	BOOL nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
+		m_timerHeartBeatMonitor->Enable(false);
 		nRet = m_service->Stop();
 	});
 	return nRet;
@@ -52,6 +65,36 @@ BOOL CESBHubServiceImp::IsStarted(void) const
 }
 
 BOOL CESBHubServiceImp::SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func)
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnNewClientSession(const TOnNewClientSessionFunc &func)
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnClientSessionEnd(const TOnClientSessionEndFunc &func)
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnRegisteredOnHub(const TOnRegisteredOnHubFunc &func)
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnUnregisteredFromHub(const TOnUnregisteredFromHubFunc &func)
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+BOOL CESBHubServiceImp::SetCallback_OnHubSessionLost(const TOnHubSessionLostFunc &func)
 {
 	throw logic_error("Invalid method.");
 	return FALSE;
@@ -153,18 +196,57 @@ BOOL CESBHubServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	return bRet;
 }
 
-BOOL CESBHubServiceImp::CheckHubSession(const std::wstring& wsSession) const
+BOOL CESBHubServiceImp::CheckHubSession() const
 {
-	BOOL bRet = 0;
-	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
-		bRet = m_service->CheckHubSession(wsSession);
-	});
-	return bRet;
+	throw logic_error("Invalid method.");
+	return FALSE;
 }
 
 void CESBHubServiceImp::Dispose()
 {
 	delete this;
+}
+
+void CESBHubServiceImp::_OnTimer_HeartBeatMonitor()
+{
+	for (auto iter = m_mapServices_session.begin(); iter != m_mapServices_session.end(); )
+	{
+		SREF(CRegisteredService) pService = iter->second;
+		if (pService->IsDead())
+		{
+			// Remove registered service
+			wstring session = pService->GetSession();
+			if (iter != m_mapServices_session.begin())
+			{
+				auto tmpIter = iter;
+				--tmpIter;
+				m_mapServices_session.erase(iter->first);
+				iter = tmpIter;
+			}
+			else
+			{
+				m_mapServices_session.erase(iter->first);
+				iter = m_mapServices_session.begin();
+			}
+
+			GUID serviceGUID = pService->GetServiceGUID();
+			wstring wsGuidService = GUID2String(serviceGUID);
+			std::vector <SREF(CRegisteredService)> &refVec = m_mapServices_guid[wsGuidService];
+			for (size_t i = 0; i < refVec.size(); ++i)
+			{
+				SREF(CRegisteredService) pService = refVec[i];
+				if (pService->GetSession() == session)
+				{
+					refVec.erase(refVec.begin() + i);
+					break;
+				}
+			}
+			if (refVec.empty())
+				m_mapServices_guid.erase(wsGuidService);
+			continue;
+		}
+		++iter;
+	}
 }
 
 int CESBHubServiceImp::_PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
@@ -175,14 +257,14 @@ int CESBHubServiceImp::_PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
 										std::wstring& wsResults,
 										ESBCommon::ENUM_IDTYPE &idType)
 {
-	idType = IDTYPE_ESBHub;
+	idType = ENUM_IDTYPE::IDTYPE_ESBHub;
 	ESBServiceRequest request;
 	if (!String2Data(request, wsInputs))
 		return -1;
 
-	if (request.idType == IDTYPE_ESBService)
+	if (request.idType == ENUM_IDTYPE::IDTYPE_ESBService)
 		return _ProcessServiceRequest(pthread, psoap, wsSession, request.contents, bNoFuthureProcess, wsResults);
-	else if (request.idType == IDTYPE_ESBClient)
+	else if (request.idType == ENUM_IDTYPE::IDTYPE_ESBClient)
 		return _ProcessClientRequest(pthread, psoap, wsSession, request.contents, bNoFuthureProcess, wsResults);
 	else
 		return 0;
@@ -218,6 +300,13 @@ int CESBHubServiceImp::_ProcessServiceRequest(SREF(Utils::Thread::IThread) pthre
 	else if (nodeName == ESBService_HubMethod_UpdateLoadState::NAMES.ROOTNAME)
 	{
 		ESBService_HubMethod_UpdateLoadState param;
+		if (!String2Data(param, wsInputs))
+			return -1;
+		return _On_ESBService_HubMethod(wsSession, param, wsResults);
+	}
+	else if (nodeName == ESBHeartBeat::NAMES.ROOTNAME)
+	{
+		ESBHeartBeat param;
 		if (!String2Data(param, wsInputs))
 			return -1;
 		return _On_ESBService_HubMethod(wsSession, param, wsResults);
@@ -365,6 +454,47 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 			nRet = -301;
 			return;
 		}
+		pService->UpdateHeartBeat();
+
+		// Reorder
+		wstring wsGuidService = GUID2String(pService->GetServiceGUID());
+		std::vector <SREF(CRegisteredService)> &refVec = m_mapServices_guid[wsGuidService];
+		_Reorder(refVec);
+
+		// Reply
+		ESBService_ReplyOK replyOK;
+		if (!Data2String(results, replyOK))
+		{
+			nRet = -100;
+			return;
+		}
+
+		nRet = 0;
+	});
+	return nRet;
+}
+int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
+	const ESBCommon::ESBHeartBeat& param,
+	std::wstring& results)
+{
+	int nRet = 0;
+	m_serviceThread->Invoke([this, &session, &param, &results, &nRet]() {
+		auto found = m_mapServices_session.find(session);
+		if (found == m_mapServices_session.end())
+		{
+			nRet = -101;
+			return;
+		}
+
+		SREF(CRegisteredService) pService = found->second;
+		pService->UpdateHeartBeat();
+
+		ESBService_ReplyOK replyOK;
+		if (!Data2String(results, replyOK))
+		{
+			nRet = -100;
+			return;
+		}
 
 		nRet = 0;
 	});
@@ -411,19 +541,27 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 		}
 
 		// Reoreder
+		_Reorder(refVec);
+		/*
 		if (nIndex > 0)
 		{
 			SREF(CRegisteredService) pServicePrev = refVec[nIndex - 1];
 			if (pServicePrev->GetCurrentCapacityUsageRate() < pService->GetCurrentCapacityUsageRate())
 				swap(refVec[nIndex], refVec[nIndex - 1]);
-		}
+			
+		}*/
 		// reply client with the token
 		Data2String(results, newToken);
 	});
 	return nRet;
 }
 
-
+void CESBHubServiceImp::_Reorder(std::vector <SREF(CRegisteredService)> &refVec)
+{
+	std::sort(refVec.begin(), refVec.end(), [](SREF(CRegisteredService) spsev1, SREF(CRegisteredService) spsev2) {
+		return spsev1->GetCurrentCapacityUsageRate() < spsev2->GetCurrentCapacityUsageRate();
+	});
+}
 
 ESBHUBSERVICELIB_API IESBHubService* ESBHubService::CreateESBHubService()
 {

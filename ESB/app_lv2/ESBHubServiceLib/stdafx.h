@@ -13,6 +13,7 @@
 #include <map>
 #include <list>
 #include <time.h>
+#include <algorithm>
 
 
 #include <ESBWebService/ESBWebService.h>

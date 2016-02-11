@@ -38,6 +38,9 @@ BOOL CESBMidServiceImp::Stop(void)
 {
 	if (IsStarted())
 	{
+		if (m_hubConnection.IsValid())
+			m_hubConnection.Unregister();
+
 		int nRet = m_webService->Stop();
 		m_webService->SetCallback_OnClientInvoke([](
 			SREF(Utils::Thread::IThread) pthread,
@@ -64,6 +67,46 @@ BOOL CESBMidServiceImp::SetCallback_OnPreInvoke(const IESBService::TOnPreInvokeF
 	if (IsStarted())
 		return FALSE;
 	m_funcOnPreInvoke = func;
+	return TRUE;
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnNewClientSession(const TOnNewClientSessionFunc &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcOnNewClientSession = func;
+	return TRUE;
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnClientSessionEnd(const TOnClientSessionEndFunc &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcOnClientSessionEnd = func;
+	return TRUE;
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnRegisteredOnHub(const TOnRegisteredOnHubFunc &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcOnRegisteredOnHub = func;
+	return TRUE;
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnUnregisteredFromHub(const TOnUnregisteredFromHubFunc &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcOnUnregisteredFromHub = func;
+	return TRUE;
+}
+
+BOOL CESBMidServiceImp::SetCallback_OnHubSessionLost(const TOnHubSessionLostFunc &func)
+{
+	if (IsStarted())
+		return FALSE;
+	m_funcOnHubSessionLost = func;
 	return TRUE;
 }
 
@@ -135,9 +178,9 @@ BOOL CESBMidServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	return it->second.bConfirmed;
 }
 
-BOOL CESBMidServiceImp::CheckHubSession(const std::wstring& wsSession) const
+BOOL CESBMidServiceImp::CheckHubSession() const
 {
-	return m_hubConnection.IsHubSessionValid(wsSession);
+	return m_hubConnection.IsValid();
 }
 
 void CESBMidServiceImp::Dispose()
@@ -155,7 +198,7 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 	wstring _wsSession = wsSession;
 	wstring _wsInputs = wsInputs;
 	wstring _wsResults;
-	ENUM_IDTYPE idType = IDTYPE_ESBService;
+	ENUM_IDTYPE idType = ENUM_IDTYPE::IDTYPE_ESBService;
 	CFinalize final1([&wsResults, &_wsResults, &idType]() {
 		ESBServiceReply rp;
 		rp.idType = idType;
@@ -178,9 +221,9 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 		return -1;
 	_wsInputs = request.contents;
 
-	if (request.idType == IDTYPE_ESBHub)
+	if (request.idType == ENUM_IDTYPE::IDTYPE_ESBHub)
 		return _ProcessHubRequest(pthread, psoap, _wsSession, _wsInputs, _wsResults);
-	else if (request.idType == IDTYPE_ESBClient)
+	else if (request.idType == ENUM_IDTYPE::IDTYPE_ESBClient)
 	{
 		if (!IsClientSessionExisted(_wsSession))
 		{

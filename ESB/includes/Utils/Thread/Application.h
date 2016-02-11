@@ -27,6 +27,7 @@ namespace Utils
 			virtual SREF(IAsynTask) AsynInvoke(const std::function<void()> &func);
 			virtual void DoEvents();
 			virtual SREF(IDispatcher) GetDispatcher();
+			virtual Utils::Thread::ITimer* NewTimer(unsigned long millisec_interval, bool bEnable = true);
 			virtual void Dispose();
 		protected:
 			virtual void OnMessage();

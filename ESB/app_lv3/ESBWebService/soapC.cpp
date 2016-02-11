@@ -11,7 +11,7 @@ A commercial use license is available from Genivia Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
 
-#include "stdafx.h"
+//#include "stdafx.h"
 
 #if defined(__BORLANDC__)
 #pragma option push -w-8060

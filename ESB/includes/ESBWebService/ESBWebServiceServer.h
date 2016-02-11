@@ -23,7 +23,7 @@ namespace ESBWebService
 			const std::wstring& wsSession,
 			const std::wstring& wsInputs,
 			std::wstring& wsResults)> TOnClientInvokeFunc;
-		typedef std::function <BOOL(const struct soap* sSoap)> TOnAcceptFunc;
+		typedef std::function <BOOL(struct soap* sSoap)> TOnAcceptFunc;
 		typedef std::function <void(IESBWebServiceServer* sender)> TOnStartFunc;
 		typedef std::function <void(IESBWebServiceServer* sender)> TOnStopFunc;
 

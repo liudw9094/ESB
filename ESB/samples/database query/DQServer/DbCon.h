@@ -9,9 +9,6 @@ private:
 	//_CommandPtr								m_pCommand;
 	//_RecordsetPtr							m_pRecordset;
 	volatile BOOL							m_bConnected;
-	std::wstring							m_szDbConnectionString,
-											m_szUsername,
-											m_szPassword;
 	SREF(Utils::Thread::ICriticalSection)	m_csDb;
 public:
 	CDbCon();

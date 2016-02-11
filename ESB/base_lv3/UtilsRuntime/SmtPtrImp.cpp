@@ -42,7 +42,7 @@ namespace Utils
 					m_plkRefCountOp->Dispose();
 				}
 			};
-			POINTREF *m_pPtrRef;
+			volatile POINTREF *m_pPtrRef;
 		public:
 			CSmtPtrImp(void *ptr, void(*freer)(void*));
 			CSmtPtrImp(CSmtPtrImp &src);
@@ -65,7 +65,7 @@ using namespace Utils::SafeCoding;
 
 CSmtPtrImpShell::CSmtPtrImpShell(void *ptr, void(*freer)(void*))
 {
-	pImp = new CSmtPtrImp(ptr, freer);
+	::InterlockedExchangePointer((volatile PVOID*)&pImp, new CSmtPtrImp(ptr, freer));
 	if (pImp == NULL)
 	{
 		// TODO: throw
@@ -74,7 +74,7 @@ CSmtPtrImpShell::CSmtPtrImpShell(void *ptr, void(*freer)(void*))
 
 CSmtPtrImpShell::CSmtPtrImpShell(const CSmtPtrImpShell& src)
 {
-	pImp = new CSmtPtrImp(*const_cast<CSmtPtrImp*>(src.pImp));
+	::InterlockedExchangePointer((volatile PVOID*)&pImp, new CSmtPtrImp(*const_cast<CSmtPtrImp*>(src.pImp)));
 	if (pImp == NULL)
 	{
 		// TODO: throw
@@ -88,42 +88,42 @@ CSmtPtrImpShell::~CSmtPtrImpShell()
 
 void CSmtPtrImpShell::AddRef()
 {
-	pImp->AddRef();
+	const_cast<CSmtPtrImp*>(pImp)->AddRef();
 }
 
 void CSmtPtrImpShell::ReleaseRef()
 {
-	pImp->ReleaseRef();
+	const_cast<CSmtPtrImp*>(pImp)->ReleaseRef();
 }
 
 DWORD CSmtPtrImpShell::GetStrongRefCount() const
 {
-	return pImp->GetStrongRefCount();
+	return const_cast<CSmtPtrImp*>(pImp)->GetStrongRefCount();
 }
 
 DWORD CSmtPtrImpShell::GetWeakRefCount() const
 {
-	return pImp->GetWeakRefCount();
+	return const_cast<CSmtPtrImp*>(pImp)->GetWeakRefCount();
 }
 
 void* CSmtPtrImpShell::GetPointer()
 {
-	return pImp->GetPointer();
+	return const_cast<CSmtPtrImp*>(pImp)->GetPointer();
 }
 
 void*& CSmtPtrImpShell::GetPointerRef()
 {
-	return pImp->GetPointerRef();
+	return const_cast<CSmtPtrImp*>(pImp)->GetPointerRef();
 }
 
 void CSmtPtrImpShell::ResetPointer(void *ptr, void(*freer)(void*))
 {
-	pImp->ResetPointer(ptr, freer);
+	const_cast<CSmtPtrImp*>(pImp)->ResetPointer(ptr, freer);
 }
 
 void CSmtPtrImpShell::ResetImp(const CSmtPtrImpShell& src)
 {
-	pImp->ResetImp(src.pImp);
+	const_cast<CSmtPtrImp*>(pImp)->ResetImp(const_cast<CSmtPtrImp*>(src.pImp));
 }
 // CSmtPtrImp
 
@@ -203,7 +203,7 @@ void* CSmtPtrImp::GetPointer()
 
 void*& CSmtPtrImp::GetPointerRef()
 {
-	return m_pPtrRef->m_pPointer;
+	return const_cast<POINTREF*>(m_pPtrRef)->m_pPointer;
 }
 
 void CSmtPtrImp::ResetPointer(void *ptr, void(*freer)(void*))
@@ -211,7 +211,7 @@ void CSmtPtrImp::ResetPointer(void *ptr, void(*freer)(void*))
 	ReleaseRef();
 	if(ptr)
 	{
-		m_pPtrRef = new POINTREF(ptr, freer);
+		::InterlockedExchangePointer((volatile PVOID*)&m_pPtrRef, new POINTREF(ptr, freer));
 		if (m_pPtrRef == NULL)
 		{
 			// TODO: throw
@@ -228,6 +228,6 @@ void CSmtPtrImp::ResetImp(const CSmtPtrImp* src)
 		return;
 	}
 	ReleaseRef();
-	m_pPtrRef = src->m_pPtrRef;
+	::InterlockedExchangePointer((volatile PVOID*)&m_pPtrRef, const_cast<POINTREF*>(src->m_pPtrRef));
 	AddRef();
 }

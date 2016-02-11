@@ -7,6 +7,8 @@
 #include "CriticalSectionImp.h"
 #include "AsynTaskImp.h"
 
+class CTimerImp;
+
 class CThreadImp : public Utils::Thread::IThread
 {
 protected:
@@ -17,8 +19,9 @@ protected:
 	HANDLE						m_hThreadParamSig;
 	// Signal for m_hThread and m_nThreadID created.
 	HANDLE						m_hhThread;
-
 	SREF(Utils::Thread::IDispatcher)			m_spDispatcher;
+	std::map<const CTimerImp*, UINT_PTR>		m_mapTimer2ID;
+	std::map<UINT_PTR, CTimerImp*>		m_mapID2Timer;
 
 	THREAD_CALLBACK				m_callback_OnInit;
 	THREAD_CALLBACK				m_callback_OnFinish;
@@ -33,11 +36,16 @@ public:
 	virtual ~CThreadImp();
 public:
 	//virtual bool CancleAWaitingTask(const CAsynTaskImp* task);
+	BOOL SetTimer(CTimerImp* pTimer, UINT millisec_interval);
+	BOOL RemoveTimer(CTimerImp* pTimer);
+	CTimerImp* GetTimerByID(UINT_PTR id);
 protected:
 	// overwrites
 	virtual unsigned int Run();
+	virtual void TimerCall(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 	virtual void DispatchInvoke(WPARAM wparam, LPARAM lparam);
 protected:
+	static VOID CALLBACK _TimerCall(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 	static unsigned int _stdcall _Run(CThreadImp* This);
 	//void CleanUpTasks();
 public:
@@ -46,6 +54,7 @@ public:
 	virtual SREF(Utils::Thread::IAsynTask) AsynInvoke(const std::function<void()> &func);
 	virtual void DoEvents();
 	virtual SREF(Utils::Thread::IDispatcher) GetDispatcher();
+	virtual Utils::Thread::ITimer* NewTimer(unsigned long millisec_interval, bool bEnable = true);
 	//virtual bool CancleTask(Utils::Thread::IAsynTask* task);
 	virtual void Dispose();
 };

@@ -123,6 +123,11 @@ SREF(IDispatcher) CApplication::GetDispatcher()
 	return m_pClassImp->GetDispatcher();
 }
 
+Utils::Thread::ITimer* CApplication::NewTimer(unsigned long millisec_interval, bool bEnable/* = true*/)
+{
+	return m_pClassImp->NewTimer(millisec_interval, bEnable);
+}
+
 void CApplication::Dispose()
 {
 	delete this;

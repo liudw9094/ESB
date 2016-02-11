@@ -44,7 +44,7 @@ BOOL CESBSoapServerImp::Start(int iPort)
 	else
 	{
 		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bExitThread), FALSE);
-		m_thdSoap = CreateThread();
+		m_thdSoap = CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();});
 		m_thdSoap->AsynInvoke([this]() {
 			SoapThread();
 		});
@@ -222,7 +222,7 @@ void CESBSoapServerImp::SoapThread()
 				continue;
 		}
 
-		SREF(IThread) threadRequest = CreateThread();
+		SREF(IThread) threadRequest = CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();});
 		{
 			SLOCK(m_plkMapAcceptSoap);
 			m_mapAcceptSoap[pCloneSoap] = threadRequest;

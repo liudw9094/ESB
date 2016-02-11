@@ -11,7 +11,7 @@ using namespace ESBWebService;
 
 CESBConnectionImp::CESBConnectionImp() :
 	m_webClient(CreateESBWebServiceClient()),
-	m_threadClient(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
+	m_threadClient(CreateThread([this](IThread*) {_InitializeClientThread();}, [this](IThread*) {_UninitializeClientThread();})),
 	m_bValid(FALSE)
 {
 	memset(&m_guidService, 0, sizeof(m_guidService));
@@ -39,7 +39,7 @@ int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidS
 		ESBService_HubMethod_StartSession reg;
 		reg.guidService = guidService;
 		ESBServiceRequest rq;
-		rq.idType = IDTYPE_ESBClient;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBClient;
 		if (!Data2String(rq.contents, reg))
 		{
 			nRet = -2;
@@ -61,7 +61,7 @@ int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidS
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
 		{
 			nRet = -4;
 			return;
@@ -78,7 +78,7 @@ int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidS
 
 		ESBService_ServiceMethod_SessionConfirm sessionConfirm;
 		ESBServiceRequest rq2;
-		rq2.idType = IDTYPE_ESBClient;
+		rq2.idType = ENUM_IDTYPE::IDTYPE_ESBClient;
 		if (!Data2String(rq2.contents, sessionConfirm) ||
 			!Data2String(wsRequest, rq2))
 		{
@@ -88,7 +88,7 @@ int CESBConnectionImp::StartSession(const std::wstring& wsURL, const GUID& guidS
 		nRet = m_webClient->Invoke(token.wsClientSession, wsRequest, wsReply);
 		if (nRet != 0)
 			return;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBService)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBService)
 		{
 			nRet = -7;
 			return;
@@ -124,7 +124,7 @@ int CESBConnectionImp::EndSession(void)
 
 		ESBService_ServiceMethod_EndSession reg;
 		ESBServiceRequest rq;
-		rq.idType = IDTYPE_ESBClient;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBClient;
 		if (!Data2String(rq.contents, reg))
 		{
 			nRet = -2;
@@ -142,7 +142,7 @@ int CESBConnectionImp::EndSession(void)
 		if (nRet != 0)
 			return;
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBService)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBService)
 		{
 			nRet = -4;
 			return;
@@ -190,7 +190,7 @@ int CESBConnectionImp::Send(const std::wstring& wsContent, std::wstring& wsResul
 		ESBService_ServiceMethod_ClientRequest clientreq;
 		clientreq.wsContent = wsContent;
 		ESBServiceRequest rq;
-		rq.idType = IDTYPE_ESBClient;
+		rq.idType = ENUM_IDTYPE::IDTYPE_ESBClient;
 		if (!Data2String(rq.contents, clientreq))
 		{
 			nRet = -2;
@@ -212,7 +212,7 @@ int CESBConnectionImp::Send(const std::wstring& wsContent, std::wstring& wsResul
 		}
 
 		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBService)
+		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBService)
 		{
 			nRet = -4;
 			return;
@@ -261,6 +261,16 @@ GUID CESBConnectionImp::GetServiceGUID()
 void CESBConnectionImp::Dispose()
 {
 	delete this;
+}
+
+void CESBConnectionImp::_InitializeClientThread()
+{
+	::CoInitialize(NULL);
+}
+
+void CESBConnectionImp::_UninitializeClientThread()
+{
+	::CoUninitialize();
 }
 
 ESBMIDCONN_API IESBConnection* ESBMidClient::CreateESBConnection()

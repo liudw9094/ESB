@@ -22,6 +22,8 @@ CDQServerApp::~CDQServerApp()
 
 BOOL CDQServerApp::OnInitialization()
 {
+	::CoInitialize(NULL);
+
 	InitCallbacks();
 
 	wcout << L"Loading configuration files..." << endl;
@@ -61,7 +63,7 @@ BOOL CDQServerApp::OnInitialization()
 	wstring command;
 	while (command != L"quit")
 	{
-		wcin >> command;
+		std::getline(std::wcin, command);
 		locale loc;
 		for (auto elem : command)
 			std::tolower(elem, loc);
@@ -73,8 +75,13 @@ BOOL CDQServerApp::OnInitialization()
 void CDQServerApp::OnFinalization()
 {
 	m_spService->Stop();
-	wcout << L"Enter any string to finish." << endl;
+	if(m_dbConnection.IsConnected())
+		m_dbConnection.Disconnect();
+	wcout << L"Press <Enter> to finish." << endl;
 	getchar();
+
+
+	::CoUninitialize();
 }
 
 void CDQServerApp::InitCallbacks()

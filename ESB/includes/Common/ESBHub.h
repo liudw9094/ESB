@@ -6,7 +6,18 @@
 
 namespace ESBCommon
 {
-	enum ENUM_IDTYPE
+	const int SERVICE_SESSION_HEARTBEAT_TIME_INTERVAL = 10; // 10 seconds
+	const int SERVICE_SESSION_TIMEOUT = 30; // 30 seconds
+
+	struct ESBHeartBeat
+	{
+		static struct _TAGNAME
+		{
+			const wchar_t * const ROOTNAME = L"ESBHeartBeat";
+		} NAMES;
+	};
+
+	enum class ENUM_IDTYPE
 	{
 		IDTYPE_ESBClient,
 		IDTYPE_ESBService,

@@ -69,7 +69,7 @@ namespace Utils
 		class UTILSRUNTIME_API CSmtPtrImpShell
 		{
 		private:
-			CSmtPtrImp *pImp;
+			volatile CSmtPtrImp *pImp;
 		public:
 			CSmtPtrImpShell(void *ptr, void(*freer)(void*));
 			CSmtPtrImpShell(const CSmtPtrImpShell& src);

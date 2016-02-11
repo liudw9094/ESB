@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "UtilsRuntime.h"
+#include "TimerImp.h"
 #include "ThreadImp.h"
 
 using namespace std;
@@ -78,6 +79,62 @@ CThreadImp::~CThreadImp()
 //	return false;
 //}
 
+
+BOOL CThreadImp::SetTimer(CTimerImp* pTimer, UINT millisec_interval)
+{
+	BOOL bRet = FALSE;
+	Invoke([this, &bRet, millisec_interval, pTimer] {
+		if (m_mapTimer2ID.find(pTimer) != m_mapTimer2ID.end())
+		{
+			bRet = FALSE;
+			return;
+		}
+		UINT_PTR id = ::SetTimer(NULL, -1, millisec_interval, _TimerCall);
+		if(id == 0)
+		{
+			bRet = FALSE;
+			return;
+		}
+		m_mapTimer2ID[pTimer] = id;
+		m_mapID2Timer[id] = pTimer;
+		bRet = TRUE;
+	});
+	return bRet;
+}
+
+BOOL CThreadImp::RemoveTimer(CTimerImp* pTimer)
+{
+	BOOL bRet = FALSE;
+	Invoke([this, &bRet, pTimer] {
+		auto found = m_mapTimer2ID.find(pTimer);
+		if (found == m_mapTimer2ID.end())
+		{
+			bRet = FALSE;
+			return;
+		}
+		auto id = found->second;
+		bRet = ::KillTimer(NULL, id);
+		m_mapTimer2ID.erase(pTimer);
+		m_mapID2Timer.erase(id);
+	});
+	return bRet;
+}
+
+CTimerImp* CThreadImp::GetTimerByID(UINT_PTR id)
+{
+	CTimerImp *pTimer = NULL;
+	Invoke([this, &pTimer, id] {
+		auto found = m_mapID2Timer.find(id);
+		if (found == m_mapID2Timer.end())
+		{
+			pTimer = NULL;
+			return;
+		}
+		pTimer = found->second;
+	});
+	return pTimer;
+}
+
 unsigned int CThreadImp::Run()
 {
 	// Add thread information.
@@ -136,9 +193,21 @@ unsigned int CThreadImp::Run()
 	return 0;
 }
 
+void CThreadImp::TimerCall(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	CTimerImp* pTimer = GetTimerByID(idEvent);
+	pTimer->ExecuteAll();
+}
+
 void CThreadImp::DispatchInvoke(WPARAM wparam, LPARAM lparam)
 {
 	m_spDispatcher->OnMessage();
+}
+
+VOID CThreadImp::_TimerCall(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	CThreadImp* pThis = static_cast<CThreadImp*>(Utils::Thread::GetCurrentThread());
+	pThis->TimerCall(hwnd, uMsg, idEvent, dwTime);
 }
 
 unsigned int _stdcall CThreadImp::_Run(CThreadImp* This)
@@ -188,6 +257,15 @@ void CThreadImp::DoEvents()
 SREF(Utils::Thread::IDispatcher) CThreadImp::GetDispatcher()
 {
 	return m_spDispatcher;
+}
+
+ITimer* CThreadImp::NewTimer(unsigned long millisec_interval, bool bEnable/* = true*/)
+{
+	CTimerImp *pTimer = new CTimerImp(this, millisec_interval);
+	if (pTimer == NULL)
+		return FALSE;
+	pTimer->Enable(bEnable);
+	return pTimer;
 }
 
 void CThreadImp::Dispose()

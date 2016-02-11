@@ -17,7 +17,8 @@ CAsynTaskImp::CAsynTaskImp(const std::function<void()> &func, CDispatcherImp *pD
 	m_evtComplete = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (m_evtComplete == NULL)
 	{
-		// TODO: throw an excepetion
+		// TODO: throw an specified excepetion
+		throw std::runtime_error("Cannot create required resource.");
 	}
 }
 
@@ -28,7 +29,8 @@ CAsynTaskImp::~CAsynTaskImp()
 	{
 		if (IsRunning())
 		{
-			// TODO: throw an excepetion
+			// TODO: throw an specified excepetion
+			//throw std::runtime_error("Cannot destroy the task while it is still running.");
 		}
 		try
 		{
