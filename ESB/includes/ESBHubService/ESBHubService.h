@@ -19,12 +19,6 @@ namespace ESBHubService
 	class IESBHubService : public ESBMidService::IESBService
 	{
 	public:
-		enum HUBMESSAGE
-		{
-
-		};
-	public:
-		//virtual BOOL SetCallback(const std::function<int(HUBMESSAGE, WPARAM, LPARAM)> &func) = 0;
 	};
 
 	ESBHUBSERVICELIB_API IESBHubService* CreateESBHubService();

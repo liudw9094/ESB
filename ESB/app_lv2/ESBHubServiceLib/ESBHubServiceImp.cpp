@@ -70,7 +70,7 @@ BOOL CESBHubServiceImp::SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func)
 	return FALSE;
 }
 
-BOOL CESBHubServiceImp::SetCallback_OnNewClientSession(const TOnNewClientSessionFunc &func)
+BOOL CESBHubServiceImp::SetCallback_OnClientSessionConfirmed(const TOnClientSessionConfirmedFunc &func)
 {
 	throw logic_error("Invalid method.");
 	return FALSE;
@@ -192,6 +192,15 @@ BOOL CESBHubServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	BOOL bRet = 0;
 	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
 		bRet = m_service->IsClientSessionValid(wsSession);
+	});
+	return bRet;
+}
+
+BOOL CESBHubServiceImp::RemoveClientSession(const std::wstring& wsSession)
+{
+	BOOL bRet = 0;
+	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
+		bRet = m_service->RemoveClientSession(wsSession);
 	});
 	return bRet;
 }

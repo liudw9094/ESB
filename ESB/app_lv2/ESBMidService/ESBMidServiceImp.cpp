@@ -13,6 +13,7 @@ using namespace ESBXMLParser;
 
 CESBMidServiceImp::CESBMidServiceImp() :
 	m_webService(CreateESBWebServiceServer()),
+	m_hubConnection(this),
 	m_uMaxSessionNum(0),
 	m_plkMapUsers(CreateCriticalSection())
 {
@@ -70,11 +71,11 @@ BOOL CESBMidServiceImp::SetCallback_OnPreInvoke(const IESBService::TOnPreInvokeF
 	return TRUE;
 }
 
-BOOL CESBMidServiceImp::SetCallback_OnNewClientSession(const TOnNewClientSessionFunc &func)
+BOOL CESBMidServiceImp::SetCallback_OnClientSessionConfirmed(const TOnClientSessionConfirmedFunc &func)
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcOnNewClientSession = func;
+	m_funcOnClientSessionConfirmed = func;
 	return TRUE;
 }
 
@@ -90,7 +91,7 @@ BOOL CESBMidServiceImp::SetCallback_OnRegisteredOnHub(const TOnRegisteredOnHubFu
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcOnRegisteredOnHub = func;
+	m_hubConnection.SetCallback_OnRegisteredOnHub(func);
 	return TRUE;
 }
 
@@ -98,7 +99,7 @@ BOOL CESBMidServiceImp::SetCallback_OnUnregisteredFromHub(const TOnUnregisteredF
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcOnUnregisteredFromHub = func;
+	m_hubConnection.SetCallback_OnUnregisteredFromHub(func);
 	return TRUE;
 }
 
@@ -106,7 +107,7 @@ BOOL CESBMidServiceImp::SetCallback_OnHubSessionLost(const TOnHubSessionLostFunc
 {
 	if (IsStarted())
 		return FALSE;
-	m_funcOnHubSessionLost = func;
+	m_hubConnection.SetCallback_OnHubSessionLost(func);
 	return TRUE;
 }
 
@@ -176,6 +177,16 @@ BOOL CESBMidServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	if (it == m_mapUsers.end())
 		return FALSE;
 	return it->second.bConfirmed;
+}
+
+BOOL CESBMidServiceImp::RemoveClientSession(const std::wstring& wsSession)
+{
+	SLOCK(m_plkMapUsers);
+	auto it = m_mapUsers.find(wsSession);
+	if (it == m_mapUsers.end())
+		return FALSE;
+	m_mapUsers.erase(it);
+	return TRUE;
 }
 
 BOOL CESBMidServiceImp::CheckHubSession() const
@@ -296,6 +307,10 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 				m_mapUsers.erase(wsSession);
 				return -205;
 			}
+
+			if (m_funcOnClientSessionConfirmed)
+				m_funcOnClientSessionConfirmed(this, wsSession);
+
 			return 0;
 		}
 	}
@@ -311,6 +326,11 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 			ESBService_ReplyOK replyOK;
 			if (!Data2String(wsResults, replyOK))
 				return -101;
+
+
+			if (m_funcOnClientSessionEnd)
+				m_funcOnClientSessionEnd(this, wsSession);
+
 			return 0;
 		}
 	}
@@ -333,6 +353,8 @@ int  CESBMidServiceImp::_On_ESBService_ServiceMethod(const std::wstring& session
 	reply.maximumSession = m_uMaxSessionNum;
 
 	Data2String(results, reply);
+
+
 	return 0;
 }
 

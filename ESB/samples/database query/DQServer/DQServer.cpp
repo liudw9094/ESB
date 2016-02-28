@@ -58,7 +58,6 @@ BOOL CDQServerApp::OnInitialization()
 		wcerr << L"Failed to register the service on the hub!" << endl;
 		return FALSE;
 	}
-	wcout << L"Successfully registered" << endl;
 
 	wstring command;
 	while (command != L"quit")
@@ -92,6 +91,27 @@ void CDQServerApp::InitCallbacks()
 
 	m_spService->SetCallback_OnStoped([](IESBWebServiceServer *sender) {
 		wcout << L"Service stoped." << endl;
+	});
+
+	m_spService->SetCallback_OnClientSessionConfirmed([](IESBWebServiceServer *sender, const wstring& session) {
+		wcout << L"Session " << session << " confirmed." << endl;
+	});
+
+	m_spService->SetCallback_OnClientSessionEnd([](IESBWebServiceServer *sender, const wstring& session) {
+		wcout << L"Session " << session << " end." << endl;
+	});
+
+	m_spService->SetCallback_OnRegisteredOnHub([](IESBWebServiceServer *sender) {
+		wcout << L"Successfully registered on the hub." << endl;
+	});
+
+	m_spService->SetCallback_OnUnregisteredFromHub([](IESBWebServiceServer *sender) {
+		wcout << L"Unregistered from the hub." << endl;
+	});
+
+
+	m_spService->SetCallback_OnHubSessionLost([](IESBWebServiceServer *sender) {
+		wcout << L"Lost connection from the hub." << endl;
 	});
 
 	m_spService->SetCallback_OnClientInvoke([this](SREF(Utils::Thread::IThread) pthread,

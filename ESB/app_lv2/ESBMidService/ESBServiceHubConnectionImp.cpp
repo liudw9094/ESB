@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ESBServiceHubConnectionImp.h"
+#include "ESBMidServiceImp.h"
 
 using namespace std;
 using namespace ESBCommon;
@@ -7,10 +8,14 @@ using namespace Utils::Thread;
 using namespace ESBDataSerialzer;
 using namespace ESBWebService;
 
-CESBServiceHubConnectionImp::CESBServiceHubConnectionImp() :
+CESBServiceHubConnectionImp::CESBServiceHubConnectionImp(CESBMidServiceImp* pESBMidServiceImp) :
+	m_pESBMidServiceImp(pESBMidServiceImp),
 	m_webClient(CreateESBWebServiceClient()),
-	m_bValid(FALSE)
+	m_bValid(FALSE),
+	m_uMaximumSessionNum(0),
+	m_currentSessionNum(0)
 {
+	ASSERT((m_pESBMidServiceImp != nullptr));
 	m_threadClient = CreateThread([this](IThread*) {_InitializeClientThread();}, [this](IThread*) {_UninitializeClientThread();});
 }
 
@@ -69,6 +74,9 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 
 		m_timerHeartBeat->Enable(true);
 		m_bValid = TRUE;
+
+		if(m_funcOnRegisteredOnHub)
+			m_funcOnRegisteredOnHub(m_pESBMidServiceImp);
 		nRet = 0;
 	});
 	return nRet;
@@ -79,48 +87,55 @@ int CESBServiceHubConnectionImp::Unregister()
 	int nRet = 0;
 
 	m_threadClient->Invoke([this, &nRet]() {
-		m_timerHeartBeat->Enable(false);
-		m_wsHubSession = ESBServiceSessionReply();
-		m_bValid = FALSE;
+		if(m_bValid)
+		{
+			_ClearState();
+		
+			Utils::SafeCoding::CFinalize finCall([this]() {
+				if (m_funcOnUnregisteredFromHub)
+					m_funcOnUnregisteredFromHub(m_pESBMidServiceImp);
+			});
 
-		ESBService_HubMethod_Unregister command;
-		ESBServiceRequest rq;
-		rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
-		if (!Data2String(rq.contents, command))
-		{
-			nRet = -2;
-			return;
-		}
-		wstring wsRequest;
-		if (!Data2String(wsRequest, rq))
-		{
-			nRet = -3;
-			return;
-		}
+			ESBService_HubMethod_Unregister command;
+			ESBServiceRequest rq;
+			rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
+			if (!Data2String(rq.contents, command))
+			{
+				nRet = -2;
+				return;
+			}
+			wstring wsRequest;
+			if (!Data2String(wsRequest, rq))
+			{
+				nRet = -3;
+				return;
+			}
 
-		if (!IsValid())
-		{
-			nRet = -1;
-			return;
-		}
+			if (!IsValid())
+			{
+				nRet = -1;
+				return;
+			}
 
-		wstring wsReply;
-		nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
-		if (nRet != 0)
-			return;
-		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
-		{
-			nRet = -3;
-			return;
+			wstring wsReply;
+			nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
+			if (nRet != 0)
+				return;
+			ESBServiceReply rp;
+			if (!String2Data(rp, wsReply) || rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub)
+			{
+				nRet = -3;
+				return;
+			}
+			ESBService_ReplyOK replyContent;
+			if (!String2Data(replyContent, rp.contents))
+			{
+				nRet = -4;
+				return;
+			}
+
+			nRet = 0;
 		}
-		ESBService_ReplyOK replyContent;
-		if (!String2Data(replyContent, rp.contents))
-		{
-			nRet = -4;
-			return;
-		}
-		nRet = 0;
 	});
 	return nRet;
 }
@@ -132,6 +147,16 @@ BOOL CESBServiceHubConnectionImp::IsValid() const
 		bValid = m_bValid;
 	});
 	return bValid;
+}
+
+UINT CESBServiceHubConnectionImp::GetMaximumSessionNum() const
+{
+	return m_uMaximumSessionNum;
+}
+
+UINT CESBServiceHubConnectionImp::GetCurrentSessionNum() const
+{
+	return m_currentSessionNum;
 }
 
 int CESBServiceHubConnectionImp::ModifySessionLimitation(UINT maximumSessionNum)
@@ -146,8 +171,8 @@ int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT cu
 	m_threadClient->Invoke([this, &maximumSessionNum, &currentSessionNum, &nRet]() {
 
 		ESBService_HubMethod_UpdateLoadState command;
-		command.maximumSession = maximumSessionNum;
-		command.currentSessionNum = currentSessionNum;
+		command.maximumSession = m_uMaximumSessionNum = maximumSessionNum;
+		command.currentSessionNum = m_currentSessionNum = currentSessionNum;
 		command.timeStamp = chrono::steady_clock::now();
 		ESBServiceRequest rq;
 		rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
@@ -234,106 +259,41 @@ void CESBServiceHubConnectionImp::_OnHeartBeatTimer()
 			rp.idType != ENUM_IDTYPE::IDTYPE_ESBHub ||
 			!String2Data(replyContent, rp.contents))
 		{
-			m_timerHeartBeat->Enable(false);
-			Unregister();
+			// Specified unregister operations.
+			_ClearState();
+
+			if (m_funcOnHubSessionLost)
+				m_funcOnHubSessionLost(m_pESBMidServiceImp);
+			// If the registeration is resumed by m_funcOnHubSessionLost, we will not call m_funcOnUnregisteredFromHub.
+			if (!m_bValid)
+			{
+				if (m_funcOnUnregisteredFromHub)
+					m_funcOnUnregisteredFromHub(m_pESBMidServiceImp);
+			}
 		}
 
 	});
 }
 
-/*
-// TODO: remove the codes later.
-int CESBServiceHubConnectionImp::IncreaseSessionLoad()
+void CESBServiceHubConnectionImp::_ClearState()
 {
-	int nRet = 0;
-	ESBService_HubMethod_IncreaseSessionLoad command;
-	ESBServiceRequest rq;
-	rq.idType = IDTYPE_ESBService;
-	if (!Data2String(rq.contents, command))
-		return -2;
-	wstring wsRequest;
-	if (!Data2String(wsRequest, rq))
-		return -3;
-
-	m_threadClient->Invoke([this, &wsRequest, &nRet]() {
-		if (!IsValid())
-		{
-			nRet = -1;
-			return;
-		}
-
-		wstring wsReply;
-		nRet = m_webClient->Invoke(L"", wsRequest, wsReply);
-		if (nRet != 0)
-			return;
-		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
-		{
-			nRet = -3;
-			return;
-		}
-		ESBService_ReplyOK replyContent;
-		if (!String2Data(replyContent, rp.contents))
-		{
-			nRet = -4;
-			return;
-		}
-
-		nRet = 0;
-	});
-	return nRet;
+	m_timerHeartBeat->Enable(false);
+	m_wsHubSession = ESBServiceSessionReply();
+	m_bValid = FALSE;
+	m_uMaximumSessionNum = m_currentSessionNum = 0;
 }
 
-int CESBServiceHubConnectionImp::DecreaseSessionLoad()
+void CESBServiceHubConnectionImp::SetCallback_OnRegisteredOnHub(const ESBMidService::IESBService::TOnRegisteredOnHubFunc &func)
 {
-	int nRet = 0;
-	ESBService_HubMethod_DecreaseSessionLoad command;
-	ESBServiceRequest rq;
-	rq.idType = IDTYPE_ESBService;
-	if (!Data2String(rq.contents, command))
-		return -2;
-	wstring wsRequest;
-	if (!Data2String(wsRequest, rq))
-		return -3;
-
-	m_threadClient->Invoke([this, &wsRequest, &nRet]() {
-		if (!IsValid())
-		{
-			nRet = -1;
-			return;
-		}
-
-		wstring wsReply;
-		nRet = m_webClient->Invoke(L"", wsRequest, wsReply);
-		if (nRet != 0)
-			return;
-		ESBServiceReply rp;
-		if (!String2Data(rp, wsReply) || rp.idType != IDTYPE_ESBHub)
-		{
-			nRet = -3;
-			return;
-		}
-		ESBService_ReplyOK replyContent;
-		if (!String2Data(replyContent, rp.contents))
-		{
-			nRet = -4;
-			return;
-		}
-
-		nRet = 0;
-	});
-	return nRet;
+	m_funcOnRegisteredOnHub = func;
 }
 
-
-
-BOOL CESBServiceHubConnectionImp::IsHubSessionValid(const wstring& wsSession) const
+void CESBServiceHubConnectionImp::SetCallback_OnUnregisteredFromHub(const ESBMidService::IESBService::TOnUnregisteredFromHubFunc &func)
 {
-	BOOL bValid = FALSE;
-	m_threadClient->Invoke([this, &bValid, &wsSession]() {
-		bValid = (wsSession == m_wsHubSession.wsServiceSession);
-	});
-	return bValid;
+	m_funcOnUnregisteredFromHub = func;
 }
 
-*/
+void CESBServiceHubConnectionImp::SetCallback_OnHubSessionLost(const ESBMidService::IESBService::TOnHubSessionLostFunc &func)
+{
+	m_funcOnHubSessionLost = func;
+}

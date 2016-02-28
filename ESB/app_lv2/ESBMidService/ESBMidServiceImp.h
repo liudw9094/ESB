@@ -18,11 +18,8 @@ private:
 	SREF(ESBWebService::IESBWebServiceServer)		m_webService;
 	CESBServiceHubConnectionImp						m_hubConnection;
 	TOnPreInvokeFunc								m_funcOnPreInvoke;
-	TOnNewClientSessionFunc							m_funcOnNewClientSession;
+	TOnClientSessionConfirmedFunc					m_funcOnClientSessionConfirmed;
 	TOnClientSessionEndFunc							m_funcOnClientSessionEnd;
-	TOnRegisteredOnHubFunc							m_funcOnRegisteredOnHub;
-	TOnUnregisteredFromHubFunc						m_funcOnUnregisteredFromHub;
-	TOnHubSessionLostFunc							m_funcOnHubSessionLost;
 	TOnClientInvokeFunc								m_funcOnInvoke;
 	mutable SREF(Utils::Thread::ICriticalSection)	m_plkMapUsers;
 	std::map<std::wstring, CLIENTINFO>				m_mapUsers;
@@ -37,7 +34,7 @@ public:
 	virtual BOOL IsStarted(void) const;
 
 	virtual BOOL SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func);
-	virtual BOOL SetCallback_OnNewClientSession(const TOnNewClientSessionFunc &func);
+	virtual BOOL SetCallback_OnClientSessionConfirmed(const TOnClientSessionConfirmedFunc &func);
 	virtual BOOL SetCallback_OnClientSessionEnd(const TOnClientSessionEndFunc &func);
 	virtual BOOL SetCallback_OnRegisteredOnHub(const TOnRegisteredOnHubFunc &func);
 	virtual BOOL SetCallback_OnUnregisteredFromHub(const TOnUnregisteredFromHubFunc &func);
@@ -58,6 +55,7 @@ public:
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const;
 	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
+	virtual BOOL RemoveClientSession(const std::wstring& wsSession);
 	virtual BOOL CheckHubSession() const;
 	virtual void Dispose();
 private:
