@@ -85,7 +85,6 @@ std::wstring CDbCon::Execute(const std::wstring& szCommand)
 			});
 
 			long lFieldCount = pRecordset->Fields->GetCount();
-			result = result + to_wstring(pRecordset->GetMaxRecords()) + L" results.\n";
 
 			for (long i = 0; i < lFieldCount; ++i)
 			{
@@ -97,7 +96,8 @@ std::wstring CDbCon::Execute(const std::wstring& szCommand)
 				result = result + L"\t" + field;
 			}
 			result = result + L"\n";
-			for (;VARIANT_FALSE == pRecordset->adoEOF; pRecordset->MoveNext())
+			long long resultCount = 0;
+			for (;VARIANT_FALSE == pRecordset->adoEOF; pRecordset->MoveNext(), ++resultCount)
 			{
 				_variant_t var;
 				for (long i = 0; i < lFieldCount; ++i)
@@ -110,6 +110,8 @@ std::wstring CDbCon::Execute(const std::wstring& szCommand)
 				}
 				result = result + L"\n";
 			}
+
+			result = result + to_wstring(resultCount) + L" results.\n";
 		}
 	}
 	catch(_com_error &e)

@@ -91,7 +91,7 @@ BOOL CESBMidServiceImp::SetCallback_OnRegisteredOnHub(const TOnRegisteredOnHubFu
 {
 	if (IsStarted())
 		return FALSE;
-	m_hubConnection.SetCallback_OnRegisteredOnHub(func);
+	m_funcOnRegisteredOnHub = func;
 	return TRUE;
 }
 
@@ -141,10 +141,16 @@ int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
 									UINT maximumSession)
 {
 	int nRet = 0;
-	SLOCK(m_plkMapUsers);
-	if (0 == (nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, m_mapUsers.size())))
+	UINT curNum = 0;
+	{
+		SLOCK(m_plkMapUsers);
+		curNum = m_mapUsers.size();
+	}
+	if (0 == (nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, curNum)))
 	{
 		::InterlockedExchange((volatile long*)&m_uMaxSessionNum, maximumSession);
+		if (m_funcOnRegisteredOnHub)
+			m_funcOnRegisteredOnHub(this);
 	}
 	return nRet;
 }
@@ -192,6 +198,17 @@ BOOL CESBMidServiceImp::RemoveClientSession(const std::wstring& wsSession)
 BOOL CESBMidServiceImp::CheckHubSession() const
 {
 	return m_hubConnection.IsValid();
+}
+
+UINT CESBMidServiceImp::GetMaximumSessionNum() const
+{
+	return m_uMaxSessionNum;
+}
+
+UINT CESBMidServiceImp::GetCurrentSessionNum() const
+{
+	SLOCK(m_plkMapUsers);
+	return m_mapUsers.size();
 }
 
 void CESBMidServiceImp::Dispose()

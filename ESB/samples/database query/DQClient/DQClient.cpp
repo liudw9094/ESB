@@ -77,7 +77,7 @@ BOOL CDQClientApp::OnInitialization()
 void CDQClientApp::OnFinalization()
 {
 	m_spConnection->EndSession();
-	wcout << L"Enter any string to finish." << endl;
+	wcout << L"Press <Enter> to finish." << endl;
 	getchar();
 }
 

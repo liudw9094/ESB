@@ -18,8 +18,6 @@ namespace ESBMidService
 		*/
 		virtual int Unregister() = 0;
 		virtual BOOL IsValid() const = 0;
-		virtual UINT GetMaximumSessionNum() const = 0;
-		virtual UINT GetCurrentSessionNum() const = 0;
 		/*
 		// TODO: remove the codes later.
 		virtual int ModifySessionLimitation(int nLimitation) = 0;

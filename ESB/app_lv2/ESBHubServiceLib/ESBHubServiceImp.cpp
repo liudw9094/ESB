@@ -211,6 +211,18 @@ BOOL CESBHubServiceImp::CheckHubSession() const
 	return FALSE;
 }
 
+UINT CESBHubServiceImp::GetMaximumSessionNum() const
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
+UINT CESBHubServiceImp::GetCurrentSessionNum() const
+{
+	throw logic_error("Invalid method.");
+	return FALSE;
+}
+
 void CESBHubServiceImp::Dispose()
 {
 	delete this;
@@ -567,8 +579,8 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 
 void CESBHubServiceImp::_Reorder(std::vector <SREF(CRegisteredService)> &refVec)
 {
-	std::sort(refVec.begin(), refVec.end(), [](SREF(CRegisteredService) spsev1, SREF(CRegisteredService) spsev2) {
-		return spsev1->GetCurrentCapacityUsageRate() < spsev2->GetCurrentCapacityUsageRate();
+	std::sort(refVec.begin(), refVec.end(), [](SREF(CRegisteredService)& spsev1, SREF(CRegisteredService)& spsev2) {
+		return spsev1->GetCurrentCapacityUsageRate() > spsev2->GetCurrentCapacityUsageRate();
 	});
 }
 

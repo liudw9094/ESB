@@ -37,8 +37,8 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	reg.wsServiceURL = wsServiceURL;
 	reg.guidService = guidService;
 	reg.wsServiceName = wsServiceName;
-	reg.maximumSession = maximumSession;
-	reg.currentSessionNum = currentSessionNum;
+	reg.maximumSession = m_uMaximumSessionNum = maximumSession;
+	reg.currentSessionNum = m_currentSessionNum = currentSessionNum;
 	reg.timeStamp = chrono::steady_clock::now();
 	ESBServiceRequest rq;
 	rq.idType = ENUM_IDTYPE::IDTYPE_ESBService;
@@ -75,8 +75,7 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 		m_timerHeartBeat->Enable(true);
 		m_bValid = TRUE;
 
-		if(m_funcOnRegisteredOnHub)
-			m_funcOnRegisteredOnHub(m_pESBMidServiceImp);
+
 		nRet = 0;
 	});
 	return nRet;
@@ -89,6 +88,8 @@ int CESBServiceHubConnectionImp::Unregister()
 	m_threadClient->Invoke([this, &nRet]() {
 		if(m_bValid)
 		{
+			wstring wSession = m_wsHubSession.wsServiceSession;
+
 			_ClearState();
 		
 			Utils::SafeCoding::CFinalize finCall([this]() {
@@ -111,14 +112,8 @@ int CESBServiceHubConnectionImp::Unregister()
 				return;
 			}
 
-			if (!IsValid())
-			{
-				nRet = -1;
-				return;
-			}
-
 			wstring wsReply;
-			nRet = m_webClient->Invoke(m_wsHubSession.wsServiceSession, wsRequest, wsReply);
+			nRet = m_webClient->Invoke(wSession, wsRequest, wsReply);
 			if (nRet != 0)
 				return;
 			ESBServiceReply rp;
@@ -136,6 +131,11 @@ int CESBServiceHubConnectionImp::Unregister()
 
 			nRet = 0;
 		}
+		else
+		{
+			nRet = -1;
+			return;
+		}
 	});
 	return nRet;
 }
@@ -147,16 +147,6 @@ BOOL CESBServiceHubConnectionImp::IsValid() const
 		bValid = m_bValid;
 	});
 	return bValid;
-}
-
-UINT CESBServiceHubConnectionImp::GetMaximumSessionNum() const
-{
-	return m_uMaximumSessionNum;
-}
-
-UINT CESBServiceHubConnectionImp::GetCurrentSessionNum() const
-{
-	return m_currentSessionNum;
 }
 
 int CESBServiceHubConnectionImp::ModifySessionLimitation(UINT maximumSessionNum)
@@ -281,11 +271,6 @@ void CESBServiceHubConnectionImp::_ClearState()
 	m_wsHubSession = ESBServiceSessionReply();
 	m_bValid = FALSE;
 	m_uMaximumSessionNum = m_currentSessionNum = 0;
-}
-
-void CESBServiceHubConnectionImp::SetCallback_OnRegisteredOnHub(const ESBMidService::IESBService::TOnRegisteredOnHubFunc &func)
-{
-	m_funcOnRegisteredOnHub = func;
 }
 
 void CESBServiceHubConnectionImp::SetCallback_OnUnregisteredFromHub(const ESBMidService::IESBService::TOnUnregisteredFromHubFunc &func)

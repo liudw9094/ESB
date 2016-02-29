@@ -55,6 +55,8 @@ namespace ESBMidService
 		virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const = 0;
 		virtual BOOL RemoveClientSession(const std::wstring& wsSession) = 0;
 		virtual BOOL CheckHubSession() const = 0;
+		virtual UINT GetMaximumSessionNum() const = 0;
+		virtual UINT GetCurrentSessionNum() const = 0;
 	};
 
 	ESBMIDSERVICE_API IESBService* CreateESBService();

@@ -20,6 +20,7 @@ private:
 	TOnPreInvokeFunc								m_funcOnPreInvoke;
 	TOnClientSessionConfirmedFunc					m_funcOnClientSessionConfirmed;
 	TOnClientSessionEndFunc							m_funcOnClientSessionEnd;
+	TOnRegisteredOnHubFunc							m_funcOnRegisteredOnHub;
 	TOnClientInvokeFunc								m_funcOnInvoke;
 	mutable SREF(Utils::Thread::ICriticalSection)	m_plkMapUsers;
 	std::map<std::wstring, CLIENTINFO>				m_mapUsers;
@@ -57,6 +58,8 @@ public:
 	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
 	virtual BOOL RemoveClientSession(const std::wstring& wsSession);
 	virtual BOOL CheckHubSession() const;
+	virtual UINT GetMaximumSessionNum() const;
+	virtual UINT GetCurrentSessionNum() const;
 	virtual void Dispose();
 private:
 	int _ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pthread,

@@ -21,7 +21,7 @@ BOOL CAppConfig::Load()
 {
 	SREF(IXMLDoc) pXmlDoc = CreateXMLDoc();
 	auto pXmlRoot = pXmlDoc->Load(m_szFilePath);
-	if (!pXmlRoot->IsValid() || pXmlRoot->GetNodeName() != L"ESBRoot")
+	if (!pXmlRoot->IsValid() || pXmlRoot->GetNodeName() != L"Root")
 		return FALSE;
 	auto pXmlAppNode = pXmlRoot->GetSubNode(L"ESBHubService");
 	if (!pXmlAppNode->IsValid())
@@ -38,7 +38,7 @@ BOOL CAppConfig::Load()
 BOOL CAppConfig::Save()
 {
 	SREF(IXMLDoc) pXmlDoc = CreateXMLDoc();
-	auto pXmlRoot = pXmlDoc->CreateRootNode(L"ESBRoot", true);
+	auto pXmlRoot = pXmlDoc->CreateRootNode(L"Root", true);
 	if (!pXmlRoot->IsValid())
 		return FALSE;
 	auto pXmlAppNode = pXmlRoot->CreateSubNode(L"ESBHubService");

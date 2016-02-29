@@ -53,7 +53,7 @@ BOOL CDQServerApp::OnInitialization()
 		config.hubConnection.szServiceURL,
 		config.hubConnection.szServiceGUID,
 		config.hubConnection.szServiceName,
-		10) != 0)
+		config.hubConnection.nMaximumSession) != 0)
 	{
 		wcerr << L"Failed to register the service on the hub!" << endl;
 		return FALSE;
@@ -85,6 +85,12 @@ void CDQServerApp::OnFinalization()
 
 void CDQServerApp::InitCallbacks()
 {
+	auto f_ShowState = [this]() {
+		UINT curNum = m_spService->GetCurrentSessionNum();
+		UINT maxNum = m_spService->GetMaximumSessionNum();
+		wcout << L"Current connection state: " << curNum << "/" << maxNum << endl;
+	};
+
 	m_spService->SetCallback_OnStarted([](IESBWebServiceServer *sender) {
 		wcout << L"Service started." << endl;
 	});
@@ -93,16 +99,19 @@ void CDQServerApp::InitCallbacks()
 		wcout << L"Service stoped." << endl;
 	});
 
-	m_spService->SetCallback_OnClientSessionConfirmed([](IESBWebServiceServer *sender, const wstring& session) {
+	m_spService->SetCallback_OnClientSessionConfirmed([f_ShowState](IESBWebServiceServer *sender, const wstring& session) {
 		wcout << L"Session " << session << " confirmed." << endl;
+		f_ShowState();
 	});
 
-	m_spService->SetCallback_OnClientSessionEnd([](IESBWebServiceServer *sender, const wstring& session) {
+	m_spService->SetCallback_OnClientSessionEnd([f_ShowState](IESBWebServiceServer *sender, const wstring& session) {
 		wcout << L"Session " << session << " end." << endl;
+		f_ShowState();
 	});
 
-	m_spService->SetCallback_OnRegisteredOnHub([](IESBWebServiceServer *sender) {
+	m_spService->SetCallback_OnRegisteredOnHub([f_ShowState](IESBWebServiceServer *sender) {
 		wcout << L"Successfully registered on the hub." << endl;
+		f_ShowState();
 	});
 
 	m_spService->SetCallback_OnUnregisteredFromHub([](IESBWebServiceServer *sender) {

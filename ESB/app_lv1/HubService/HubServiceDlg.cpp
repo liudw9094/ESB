@@ -61,6 +61,7 @@ CHubServiceDlg::CHubServiceDlg(CWnd* pParent /*=NULL*/)
 	m_appCfg(L".\\HubService.xml")
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_appCfg.Load();
 }
 
 void CHubServiceDlg::DoDataExchange(CDataExchange* pDX)

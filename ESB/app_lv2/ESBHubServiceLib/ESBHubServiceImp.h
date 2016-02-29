@@ -42,6 +42,8 @@ public:
 	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
 	virtual BOOL RemoveClientSession(const std::wstring& wsSession);
 	virtual BOOL CheckHubSession() const;
+	virtual UINT GetMaximumSessionNum() const;
+	virtual UINT GetCurrentSessionNum() const;
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	// Overriding Utils::SafeCoding::IDisposable
 	virtual void Dispose();

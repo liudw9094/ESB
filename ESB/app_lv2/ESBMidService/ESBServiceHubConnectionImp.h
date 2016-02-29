@@ -18,7 +18,6 @@ private:
 	UINT									m_uMaximumSessionNum, m_currentSessionNum;
 
 
-	ESBMidService::IESBService::TOnRegisteredOnHubFunc		m_funcOnRegisteredOnHub;
 	ESBMidService::IESBService::TOnUnregisteredFromHubFunc	m_funcOnUnregisteredFromHub;
 	ESBMidService::IESBService::TOnHubSessionLostFunc		m_funcOnHubSessionLost;
 public:
@@ -33,8 +32,6 @@ public:
 		UINT currentSessionNum);
 	virtual int Unregister();
 	virtual BOOL IsValid() const;
-	virtual UINT GetMaximumSessionNum() const;
-	virtual UINT GetCurrentSessionNum() const;
 
 	virtual int ModifySessionLimitation(UINT maximumSessionNum);
 	virtual int UpdateLoadState(UINT maximumSessionNum, UINT currentSessionNum);
@@ -45,7 +42,6 @@ private:
 	void _OnHeartBeatTimer();
 	void _ClearState();
 public:
-	void SetCallback_OnRegisteredOnHub(const ESBMidService::IESBService::TOnRegisteredOnHubFunc &func);
 	void SetCallback_OnUnregisteredFromHub(const ESBMidService::IESBService::TOnUnregisteredFromHubFunc &func);
 	void SetCallback_OnHubSessionLost(const ESBMidService::IESBService::TOnHubSessionLostFunc &func);
 };
