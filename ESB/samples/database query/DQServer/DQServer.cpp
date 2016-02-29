@@ -120,6 +120,7 @@ void CDQServerApp::InitCallbacks()
 		const std::wstring& wsInputs,
 		std::wstring& wsResults) -> int
 	{
+		wcout << L"Session " << wsSession << L":" << wsInputs << endl;
 		if (!m_dbConnection.IsConnected())
 		{
 			wsResults = L"Database invalid.";
