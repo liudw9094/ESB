@@ -24,11 +24,11 @@ void CTimerImp::ExecuteAll()
 {
 	for (auto func : m_lstCallFuncs)
 	{
-		func();
+		func(this);
 	}
 }
 
-void CTimerImp::AddFunc(std::function<void()> func)
+void CTimerImp::AddFunc(std::function<void(ITimer*)> func)
 {
 	m_lstCallFuncs.push_back(func);
 }
@@ -57,9 +57,14 @@ void CTimerImp::Enable(bool bEnable)
 	}
 }
 
-bool CTimerImp::IsEnabled()
+bool CTimerImp::IsEnabled() const
 {
 	return m_bEnabled;
+}
+
+Utils::Thread::IThread* CTimerImp::GetOwnerThread()
+{
+	return m_pThread;
 }
 
 void CTimerImp::Dispose()

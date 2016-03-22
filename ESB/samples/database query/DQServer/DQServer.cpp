@@ -104,8 +104,8 @@ void CDQServerApp::InitCallbacks()
 		f_ShowState();
 	});
 
-	m_spService->SetCallback_OnClientSessionEnd([f_ShowState](IESBWebServiceServer *sender, const wstring& session) {
-		wcout << L"Session " << session << " end." << endl;
+	m_spService->SetCallback_OnClientSessionEnd([f_ShowState](IESBWebServiceServer *sender, const wstring& session, EMSessionEndReason reason) {
+		wcout << L"Session " << session << " end. Reason code: " << (int)reason << endl;
 		f_ShowState();
 	});
 
@@ -129,7 +129,7 @@ void CDQServerApp::InitCallbacks()
 		const std::wstring& wsInputs,
 		std::wstring& wsResults) -> int
 	{
-		wcout << L"Session " << wsSession << L":" << wsInputs << endl;
+		wcout << L"Session " << wsSession << L": " << wsInputs << endl;
 		if (!m_dbConnection.IsConnected())
 		{
 			wsResults = L"Database invalid.";

@@ -3,6 +3,7 @@
 #include "ESBHubServiceImp.h"
 
 using namespace std;
+using namespace std::placeholders;
 using namespace ESBMidService;
 using namespace Utils::Thread;
 using namespace ESBHubService;
@@ -18,7 +19,7 @@ CESBHubServiceImp::CESBHubServiceImp() :
 		[this](IThread*) {
 			::CoInitialize(NULL);
 			m_timerHeartBeatMonitor = ::CreateTimer(SERVICE_SESSION_HEARTBEAT_TIME_INTERVAL * 1000, false);
-			m_timerHeartBeatMonitor->AddFunc(bind(&CESBHubServiceImp::_OnTimer_HeartBeatMonitor, this));
+			m_timerHeartBeatMonitor->AddFunc(bind(&CESBHubServiceImp::_OnTimer_HeartBeatMonitor, this, _1));
 		},
 		[this](IThread*) {
 			m_timerHeartBeatMonitor = NULL;
@@ -196,11 +197,11 @@ BOOL CESBHubServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	return bRet;
 }
 
-BOOL CESBHubServiceImp::RemoveClientSession(const std::wstring& wsSession)
+BOOL CESBHubServiceImp::RemoveClientSession(const std::wstring& wsSession, EMSessionEndReason reason/* = EMSessionEndReason::SERVER_MANIPULATE*/)
 {
 	BOOL bRet = 0;
-	m_serviceThread->Invoke([this, &bRet, &wsSession]() {
-		bRet = m_service->RemoveClientSession(wsSession);
+	m_serviceThread->Invoke([this, &bRet, &wsSession, reason]() {
+		bRet = m_service->RemoveClientSession(wsSession, reason);
 	});
 	return bRet;
 }
@@ -228,7 +229,7 @@ void CESBHubServiceImp::Dispose()
 	delete this;
 }
 
-void CESBHubServiceImp::_OnTimer_HeartBeatMonitor()
+void CESBHubServiceImp::_OnTimer_HeartBeatMonitor(Utils::Thread::ITimer*)
 {
 	for (auto iter = m_mapServices_session.begin(); iter != m_mapServices_session.end(); )
 	{
@@ -397,6 +398,7 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 			{
 				wsSession = pService->GetSession();
 				pService->UpdateServiceInfo(param);
+				pService->UpdateHeartBeat();
 				bExists = TRUE;
 				break;
 			}
@@ -407,7 +409,9 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 			SREF(CRegisteredService) newRegService = new CRegisteredService(wsSession, param);
 			refVec.push_back(newRegService);
 			m_mapServices_session[wsSession] = newRegService;
+			newRegService->UpdateHeartBeat();
 		}
+
 
 		// Send the reply.
 		ESBServiceSessionReply sessionReply;
@@ -553,6 +557,8 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 		size_t nIndex = refVec.size() - 1;
 		SREF(CRegisteredService) pService = refVec[nIndex];
 		
+		pService->UpdateHeartBeat();
+
 		// send new token to service and retrieve the token info.
 		ESBClientToken newToken;
 		if (!pService->NewToken(newToken))

@@ -8,7 +8,7 @@ class CTimerImp : public Utils::Thread::ITimer
 {
 private:
 	CThreadImp *m_pThread;
-	std::list<std::function<void()>> m_lstCallFuncs;
+	std::list<std::function<void(ITimer*)>> m_lstCallFuncs;
 	bool m_bEnabled;
 	UINT m_uMillisecInterval;
 public:
@@ -17,9 +17,10 @@ public:
 
 	void ExecuteAll();
 public:
-	virtual void AddFunc(std::function<void()> func);
+	virtual void AddFunc(std::function<void(ITimer*)> func);
 	virtual void Enable(bool bEnable);
-	virtual bool IsEnabled();
+	virtual bool IsEnabled() const;
+	virtual Utils::Thread::IThread* GetOwnerThread();
 	virtual void Dispose();
 };
 

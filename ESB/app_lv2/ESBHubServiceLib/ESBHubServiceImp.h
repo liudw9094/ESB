@@ -40,7 +40,7 @@ public:
 	virtual std::wstring GetClientIP(const struct soap* pSoap) const;
 	virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const;
 	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
-	virtual BOOL RemoveClientSession(const std::wstring& wsSession);
+	virtual BOOL RemoveClientSession(const std::wstring& wsSession, ESBMidService::EMSessionEndReason reason = ESBMidService::EMSessionEndReason::SERVER_MANIPULATE);
 	virtual BOOL CheckHubSession() const;
 	virtual UINT GetMaximumSessionNum() const;
 	virtual UINT GetCurrentSessionNum() const;
@@ -49,7 +49,7 @@ public:
 	virtual void Dispose();
 	
 private:
-	void _OnTimer_HeartBeatMonitor();
+	void _OnTimer_HeartBeatMonitor(Utils::Thread::ITimer*);
 
 	int _PreProcessInvoke(SREF(Utils::Thread::IThread) pthread,
 						struct soap* psoap,

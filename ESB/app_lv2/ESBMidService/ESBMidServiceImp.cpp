@@ -3,6 +3,7 @@
 #include "ESBMidServiceImp.h"
 
 using namespace std;
+using namespace std::placeholders;
 using namespace ESBMidService;
 using namespace ESBWebService;
 using namespace ESBDataSerialzer;
@@ -11,12 +12,24 @@ using namespace Utils::SafeCoding;
 using namespace Utils::Thread;
 using namespace ESBXMLParser;
 
-CESBMidServiceImp::CESBMidServiceImp() :
+CESBMidServiceImp::CESBMidServiceImp(UINT uSessionTimeoutSecs) :
+	m_uSessionTimeoutSecs(uSessionTimeoutSecs),
 	m_webService(CreateESBWebServiceServer()),
 	m_hubConnection(this),
 	m_uMaxSessionNum(0),
 	m_plkMapUsers(CreateCriticalSection())
 {
+	auto initSessionMgr = [this]() {
+		if (m_uSessionTimeoutSecs != 0)
+		{
+			m_timerSessionMgr = CreateTimer(m_uSessionTimeoutSecs * 1000 / 2 + 1, false);
+			m_timerSessionMgr->AddFunc(bind(&CESBMidServiceImp::_OnTimer_SessionMgr, this, _1));
+		}
+	};
+	auto endSessionMgr = [this]() {
+		m_timerSessionMgr = NULL;
+	};
+	m_threadSessionMgr = CreateThread([initSessionMgr](IThread*) {initSessionMgr();}, [endSessionMgr](IThread*) {endSessionMgr();});
 }
 
 
@@ -32,13 +45,24 @@ BOOL CESBMidServiceImp::Start(int nPort)
 	auto func = std::bind(&CESBMidServiceImp::_ProcessWebServiceInvoke, this, _1, _2, _3, _4, _5);
 	if (!m_webService->SetCallback_OnClientInvoke(func))
 		return FALSE;
-	return m_webService->Start(nPort);
+	if (m_webService->Start(nPort))
+	{
+		m_timerSessionMgr->GetOwnerThread()->Invoke([this]() {
+			m_timerSessionMgr->Enable(true);
+		});
+		return TRUE;
+	}
+	return FALSE;
 }
 
 BOOL CESBMidServiceImp::Stop(void)
 {
 	if (IsStarted())
 	{
+		m_timerSessionMgr->GetOwnerThread()->Invoke([this]() {
+			m_timerSessionMgr->Enable(false);
+		});
+
 		if (m_hubConnection.IsValid())
 			m_hubConnection.Unregister();
 
@@ -185,13 +209,16 @@ BOOL CESBMidServiceImp::IsClientSessionValid(const std::wstring& wsSession) cons
 	return it->second.bConfirmed;
 }
 
-BOOL CESBMidServiceImp::RemoveClientSession(const std::wstring& wsSession)
+BOOL CESBMidServiceImp::RemoveClientSession(const std::wstring& wsSession, EMSessionEndReason reason /*= EMSessionEndReason::SERVER_MANIPULATE*/)
 {
 	SLOCK(m_plkMapUsers);
 	auto it = m_mapUsers.find(wsSession);
 	if (it == m_mapUsers.end())
 		return FALSE;
 	m_mapUsers.erase(it);
+
+	if (m_funcOnClientSessionEnd)
+		m_funcOnClientSessionEnd(this, wsSession, reason);
 	return TRUE;
 }
 
@@ -214,6 +241,47 @@ UINT CESBMidServiceImp::GetCurrentSessionNum() const
 void CESBMidServiceImp::Dispose()
 {
 	delete this;
+}
+
+void CESBMidServiceImp::_UpdateClientSessionTimePoint(const wstring& wsSession)
+{
+	SLOCK(m_plkMapUsers);
+	auto it = m_mapUsers.find(wsSession);
+	if (it == m_mapUsers.end())
+		return;
+	it->second.tpSession = chrono::steady_clock::now();
+}
+
+void CESBMidServiceImp::_OnTimer_SessionMgr(Utils::Thread::ITimer *)
+{
+	SLOCK(m_plkMapUsers);
+	for (auto iter = m_mapUsers.begin(); iter != m_mapUsers.end(); )
+	{
+		CLIENTINFO& userInfo = iter->second;
+		if (userInfo.tpSession + chrono::seconds(m_uSessionTimeoutSecs) < chrono::steady_clock::now())
+		{
+			// Remove registered service
+			wstring session = iter->first;
+			if (iter != m_mapUsers.begin())
+			{
+				auto tmpIter = iter;
+				--tmpIter;
+				m_mapUsers.erase(iter->first);
+				iter = tmpIter;
+			}
+			else
+			{
+				m_mapUsers.erase(iter->first);
+				iter = m_mapUsers.begin();
+			}
+
+			if (m_funcOnClientSessionEnd)
+				m_funcOnClientSessionEnd(this, session, EMSessionEndReason::SESSION_EXPIRED);
+
+			continue;
+		}
+		++iter;
+	}
 }
 
 
@@ -260,6 +328,7 @@ int CESBMidServiceImp::_ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pth
 			return -102;
 		}
 
+		_UpdateClientSessionTimePoint(_wsSession);
 		
 		ESBService_ServiceMethod_ClientRequest userRequest;
 		if (!String2Data(userRequest, _wsInputs))
@@ -346,7 +415,7 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 
 
 			if (m_funcOnClientSessionEnd)
-				m_funcOnClientSessionEnd(this, wsSession);
+				m_funcOnClientSessionEnd(this, wsSession, EMSessionEndReason::CLIENT_REQUEST);
 
 			return 0;
 		}
@@ -375,7 +444,7 @@ int  CESBMidServiceImp::_On_ESBService_ServiceMethod(const std::wstring& session
 	return 0;
 }
 
-ESBMIDSERVICE_API IESBService* ESBMidService::CreateESBService()
+ESBMIDSERVICE_API IESBService* ESBMidService::CreateESBService(UINT uSessionTimeoutSecs /*= 600*/)
 {
-	return new CESBMidServiceImp;
+	return new CESBMidServiceImp(uSessionTimeoutSecs);
 }

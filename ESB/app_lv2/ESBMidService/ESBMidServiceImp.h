@@ -10,11 +10,17 @@ private:
 	{
 		ESBCommon::ESBServiceToken token;
 		BOOL bConfirmed;
+		std::chrono::steady_clock::time_point tpSession;
 		CLIENTINFO()
-			: bConfirmed(FALSE)
+			: bConfirmed(FALSE),
+			tpSession(std::chrono::steady_clock::now())
 		{
 		}
 	};
+	UINT											m_uSessionTimeoutSecs;
+	mutable SREF(Utils::Thread::IThread)			m_threadSessionMgr;
+	SREF(Utils::Thread::ITimer)						m_timerSessionMgr;
+
 	SREF(ESBWebService::IESBWebServiceServer)		m_webService;
 	CESBServiceHubConnectionImp						m_hubConnection;
 	TOnPreInvokeFunc								m_funcOnPreInvoke;
@@ -27,7 +33,7 @@ private:
 	volatile UINT									m_uMaxSessionNum;
 
 public:
-	CESBMidServiceImp();
+	explicit CESBMidServiceImp(UINT uSessionTimeoutSecs);
 	~CESBMidServiceImp();
 
 	virtual BOOL Start(int nPort);
@@ -56,12 +62,15 @@ public:
 	virtual ESBMidService::IESBServiceHubConnection* GetHubConnection();
 	virtual BOOL IsClientSessionExisted(const std::wstring& wsSession) const;
 	virtual BOOL IsClientSessionValid(const std::wstring& wsSession) const;
-	virtual BOOL RemoveClientSession(const std::wstring& wsSession);
+	virtual BOOL RemoveClientSession(const std::wstring& wsSession, ESBMidService::EMSessionEndReason reason = ESBMidService::EMSessionEndReason::SERVER_MANIPULATE);
 	virtual BOOL CheckHubSession() const;
 	virtual UINT GetMaximumSessionNum() const;
 	virtual UINT GetCurrentSessionNum() const;
 	virtual void Dispose();
 private:
+	void _UpdateClientSessionTimePoint(const std::wstring& wsSession);
+	void _OnTimer_SessionMgr(Utils::Thread::ITimer*);
+
 	int _ProcessWebServiceInvoke(SREF(Utils::Thread::IThread) pthread,
 								struct soap* psoap,
 								const std::wstring& wsSession,

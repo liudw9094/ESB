@@ -261,6 +261,8 @@ SREF(Utils::Thread::IDispatcher) CThreadImp::GetDispatcher()
 
 ITimer* CThreadImp::NewTimer(unsigned long millisec_interval, bool bEnable/* = true*/)
 {
+	if (millisec_interval == 0)
+		throw std::runtime_error("invalid value 'zero' of millisec_interval.");
 	CTimerImp *pTimer = new CTimerImp(this, millisec_interval);
 	if (pTimer == NULL)
 		return FALSE;
