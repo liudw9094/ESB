@@ -12,7 +12,7 @@ private:
 	soap *m_soap;
 	volatile BOOL	m_bIsStarted;
 	int m_nPort;
-
+	ESBWebService::SAuthentication *m_pAuthentication;
 	SREF(Utils::Thread::IThread) m_thdSoap;
 	volatile BOOL	m_bExitThread;
 
@@ -27,7 +27,7 @@ public:
 	~CESBSoapServerImp(void);
 
 public:
-	virtual BOOL Start(int nPort);
+	virtual BOOL Start(int nPort, const ESBWebService::SAuthentication *pAuthentication = NULL);
 	virtual BOOL Stop();
 	virtual BOOL IsStarted() const;
 	virtual int GetPort() const;

@@ -36,7 +36,7 @@ public:
 	explicit CESBMidServiceImp(UINT uSessionTimeoutSecs);
 	~CESBMidServiceImp();
 
-	virtual BOOL Start(int nPort);
+	virtual BOOL Start(int nPort, const ESBWebService::SAuthentication *pAuthentication = NULL);
 	virtual BOOL Stop(void);
 	virtual BOOL IsStarted(void) const;
 

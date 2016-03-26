@@ -6,10 +6,30 @@
 
 using namespace std;
 using namespace ESBWebService;
+using namespace ESBCommon;
+using namespace Utils::SafeCoding;
 
-CESBSoapClientImp::CESBSoapClientImp(void)
+CESBSoapClientImp::CESBSoapClientImp(const SAuthentication* pAuthentication /*= NULL*/)
+	: m_pAuthentication(NULL)
 {
-	//soap_init( &soapClient );
+	//soap_init( &m_soapClient );
+
+#if defined(WITH_OPENSSL) || defined(WITH_GNUTLS)
+	if (pAuthentication != NULL)
+	{
+		m_pAuthentication = new SAuthentication(*pAuthentication);
+		ASSERT((0 == soap_ssl_client_context(&m_soapClient,
+			/* SOAP_SSL_NO_AUTHENTICATION, */ /* for encryption w/o authentication */
+											  /* SOAP_SSL_DEFAULT | SOAP_SSL_SKIP_HOST_CHECK, */	/* if we don't want the host name checks since these will change from machine to machine */
+			SOAP_SSL_DEFAULT,	/* use SOAP_SSL_DEFAULT in production code */
+			WStrToUtf8(m_pAuthentication->keyfile).c_str(), 	/* keyfile (cert+key): required only when client must authenticate to server (see SSL docs to create this file) */
+			WStrToUtf8(m_pAuthentication->password).c_str(), 	/* password to read the keyfile */
+			WStrToUtf8(m_pAuthentication->cafile).c_str(),		/* optional cacert file to store trusted certificates, use cacerts.pem for all public certificates issued by common CAs */
+			WStrToUtf8(m_pAuthentication->capath).c_str(),		/* optional capath to directory with trusted certificates */
+			WStrToUtf8(m_pAuthentication->randomfile).c_str()	/* if randfile!=NULL: use a file with random data to seed randomness */
+			)));
+	}
+#endif
 	m_soapClient.send_timeout = 10; // 10 seconds 
 	m_soapClient.recv_timeout = 10; // 10 seconds 
 	m_soapClient.connect_timeout = 10;
@@ -18,6 +38,8 @@ CESBSoapClientImp::CESBSoapClientImp(void)
 
 CESBSoapClientImp::~CESBSoapClientImp(void)
 {
+	SafeDelete(m_pAuthentication);
+	m_soapClient.destroy();
 }
 
 void CESBSoapClientImp::SetURL(const std::wstring& wsURL)
@@ -32,19 +54,18 @@ std::wstring CESBSoapClientImp::GetURL()
 
 int CESBSoapClientImp::Invoke(const std::wstring& wsSession, const std::wstring& wsInputs, std::wstring& wsResults)
 {
-	wstring_convert<codecvt_utf8_utf16<wchar_t>, wchar_t> convUTF8UTF16;
 	std::string url, session, inputs, results;
-	session = convUTF8UTF16.to_bytes(wsSession);
-	inputs = convUTF8UTF16.to_bytes(wsInputs);
-	url = convUTF8UTF16.to_bytes(m_wsURL);
+	session = WStrToUtf8(wsSession);
+	inputs = WStrToUtf8(wsInputs);
+	url = WStrToUtf8(m_wsURL);
 	int iResult = m_soapClient.ESBOperation(url.c_str(), NULL, session, inputs, results);
 	if (iResult)
 	{
 		if(m_soapClient.labbuf)
-			wsResults = convUTF8UTF16.from_bytes(string(m_soapClient.labbuf));
+			wsResults = Utf8ToWStr(string(m_soapClient.labbuf));
 	}
 	else
-		wsResults = convUTF8UTF16.from_bytes(results);
+		wsResults = Utf8ToWStr(results);
 	return iResult;
 }
 
@@ -60,7 +81,7 @@ ESBWEBSERVICE_API int ESBWebService::InstantClientInvoke(const std::wstring& wsU
 	return client.Invoke(wsSession, wsInputs, wsResults);
 }
 
-ESBWEBSERVICE_API IESBWebServiceClient* ESBWebService::CreateESBWebServiceClient()
+ESBWEBSERVICE_API IESBWebServiceClient* ESBWebService::CreateESBWebServiceClient(SAuthentication *pAuthentication/* = NULL*/)
 {
 	return new CESBSoapClientImp;
 }

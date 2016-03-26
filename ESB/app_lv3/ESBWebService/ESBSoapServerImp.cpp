@@ -4,29 +4,51 @@
 #include "ESBServiceSoap.nsmap"
 
 using namespace Utils::Thread;
+using namespace Utils::SafeCoding;
 using namespace ESBWebService;
+using namespace ESBCommon;
 using namespace std;
 
 CESBSoapServerImp::CESBSoapServerImp(void) :
 	m_bIsStarted(FALSE),
 	m_bExitThread(FALSE),
 	m_plkMapAcceptSoap(CreateCriticalSection()),
-	m_nPort(-1)
+	m_nPort(-1),
+	m_pAuthentication(NULL)
 {
 	m_soap = soap_new();
 }
 
 CESBSoapServerImp::~CESBSoapServerImp(void)
 {
+	Stop();
 	soap_free(m_soap);
 }
 
-BOOL CESBSoapServerImp::Start(int iPort)
+BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication /*= NULL*/)
 {
 	if (m_bIsStarted)
 		Stop();
 
 	soap_init(m_soap);
+#if defined(WITH_OPENSSL) || defined(WITH_GNUTLS)
+	if(pAuthentication != NULL)
+	{
+		if (soap_ssl_server_context(m_soap,
+			SOAP_SSL_NO_AUTHENTICATION,
+			WStrToUtf8(pAuthentication->keyfile).c_str(),	// keyfile: required when server must authenticate to clients
+			WStrToUtf8(pAuthentication->password).c_str(),	// password to read the key file
+			WStrToUtf8(pAuthentication->cafile).c_str(),	// optional cacert file to store trusted certificates
+			WStrToUtf8(pAuthentication->capath).c_str(),	// optional capath to directory with trusted certificates
+			WStrToUtf8(pAuthentication->dhfile).c_str(),	// DH file name or DH key len bits 
+			WStrToUtf8(pAuthentication->randomfile).c_str(), // if randfile!=NULL: use a file with random data
+			WStrToUtf8(pAuthentication->sid).c_str())) {
+			return FALSE;
+		}
+
+		m_pAuthentication = new SAuthentication(*pAuthentication);
+	}
+#endif
 	m_soap->send_timeout = 10; // 10 seconds 
 	m_soap->recv_timeout = 10; // 10 seconds 
 	//m_soap.accept_timeout = 3600; // server stops after 1 hour of inactivity 
@@ -36,7 +58,7 @@ BOOL CESBSoapServerImp::Start(int iPort)
 	soap_set_mode(m_soap, SOAP_C_UTFSTRING);
 
 	char* pURI = NULL;
-	if (!soap_valid_socket(soap_bind(m_soap, NULL, iPort, 100)))
+	if (!soap_valid_socket(soap_bind(m_soap, NULL, nPort, 100)))
 	{
 		soap_print_fault(m_soap, stderr);
 		return FALSE;
@@ -49,7 +71,7 @@ BOOL CESBSoapServerImp::Start(int iPort)
 			SoapThread();
 		});
 		::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), TRUE);
-		m_nPort = iPort;
+		m_nPort = nPort;
 		if (m_funcOnStarted)
 			m_funcOnStarted(this);
 		return TRUE;
@@ -88,8 +110,10 @@ BOOL CESBSoapServerImp::Stop()
 		}
 	}
 
-	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), FALSE);
+	SafeDelete(m_pAuthentication);
+
 	m_nPort = -1;
+	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), FALSE);
 
 	if (m_funcOnStoped)
 		m_funcOnStoped(this);
@@ -183,14 +207,16 @@ void CESBSoapServerImp::Dispose()
 
 UINT CESBSoapServerImp::ProcessRequestThread(struct soap* pSoap)
 {
-	ASSERT(pSoap);
-
-	soap_serve(pSoap);
-
-	soap_destroy(pSoap); // dealloc C++ data
-	soap_end(pSoap); // dealloc data and clean up
-	soap_done(pSoap); // detach soap struct
-	soap_free(pSoap);
+	{
+		ASSERT(pSoap);
+		CFinalize fin([pSoap]() {
+			soap_destroy(pSoap); // dealloc C++ data
+			soap_end(pSoap); // dealloc data and clean up
+			soap_done(pSoap); // detach soap struct
+			soap_free(pSoap);
+		});
+		soap_serve(pSoap);
+	}
 
 	{
 		SLOCK(m_plkMapAcceptSoap);
@@ -205,38 +231,50 @@ void CESBSoapServerImp::SoapThread()
 	struct soap* pCloneSoap = NULL;
 	while (!m_bExitThread)
 	{
-		pCloneSoap = soap_copy(m_soap); // make a safe copy
-
-		int s = (int)soap_accept(pCloneSoap); // master and slave sockets
-
-		if (s < 0)
+		SOAP_SOCKET  s = soap_accept(m_soap); // master and slave sockets
+		if (!soap_valid_socket(s))
 		{
-			//soap_print_fault(pCloneSoap, stderr);
-			soap_print_fault(m_soap, stderr);
+			if (m_soap->errnum)
+				soap_print_fault(m_soap, stderr);
+			else
+				cerr<<"Server timed out (timeout set to "<<m_soap->accept_timeout << " seconds"<< endl;
 			break;
 		}
 
 		if (m_funcOnAccept)
 		{
-			if (!m_funcOnAccept(pCloneSoap))
+			if (!m_funcOnAccept(m_soap))
 				continue;
 		}
 
+		pCloneSoap = soap_copy(m_soap); // make a safe copy
+
+		if (pCloneSoap == NULL)
+		{
+			soap_closesock(m_soap);
+			continue;
+		}
+
 		SREF(IThread) threadRequest = CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();});
+		
 		{
 			SLOCK(m_plkMapAcceptSoap);
 			m_mapAcceptSoap[pCloneSoap] = threadRequest;
 		}
-		threadRequest->AsynInvoke([this, threadRequest, pCloneSoap]() { ProcessRequestThread(pCloneSoap); });
+
+		threadRequest->AsynInvoke([this, threadRequest, pCloneSoap]() {
+			ProcessRequestThread(pCloneSoap);
+		});
+
 		pCloneSoap = NULL;
 	}
 
-	if (pCloneSoap)
+	if (m_soap)
 	{
-		soap_destroy(pCloneSoap); // dealloc C++ data
-		soap_end(pCloneSoap); // dealloc data and clean up
-		soap_done(pCloneSoap); // detach soap struct
-		soap_free(pCloneSoap);
+		soap_destroy(m_soap); // dealloc C++ data
+		soap_end(m_soap); // dealloc data and clean up
+		soap_done(m_soap); // detach soap struct
+		//soap_free(m_soap);
 	}
 }
 

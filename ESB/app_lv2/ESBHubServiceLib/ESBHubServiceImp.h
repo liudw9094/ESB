@@ -16,7 +16,7 @@ public:
 	~CESBHubServiceImp();
 
 	// Overriding ESBMidService::IESBService
-	virtual BOOL Start(int nPort);
+	virtual BOOL Start(int nPort, const ESBWebService::SAuthentication *pAuthentication = NULL);
 	virtual BOOL Stop(void);
 	virtual BOOL IsStarted(void) const;
 	virtual BOOL SetCallback_OnPreInvoke(const TOnPreInvokeFunc &func);

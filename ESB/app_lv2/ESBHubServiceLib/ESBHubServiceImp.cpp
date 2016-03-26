@@ -33,14 +33,14 @@ CESBHubServiceImp::~CESBHubServiceImp()
 	m_serviceThread = NULL;
 }
 
-BOOL CESBHubServiceImp::Start(int nPort)
+BOOL CESBHubServiceImp::Start(int nPort, const ESBWebService::SAuthentication *pAuthentication/* = NULL*/)
 {
 	BOOL nRet = FALSE;
-	m_serviceThread->Invoke([this, nPort, &nRet]() {
+	m_serviceThread->Invoke([this, nPort, pAuthentication, &nRet]() {
 		using namespace std::placeholders;
 		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
 		m_service->SetCallback_OnPreInvoke(func);
-		nRet = m_service->Start(nPort);
+		nRet = m_service->Start(nPort, pAuthentication);
 		m_timerHeartBeatMonitor->Enable(true);
 	});
 	return nRet;

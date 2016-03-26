@@ -24,6 +24,7 @@
     <ClInclude Include="Common\ESBHub.h" />
     <ClInclude Include="Common\GUID.h" />
     <ClInclude Include="Common\InOut.h" />
+    <ClInclude Include="Common\StringConvert.h" />
     <ClInclude Include="ESBDataSerializer\ESBHubSerializer.h" />
     <ClInclude Include="ESBDataSerializer\StdSerializer.h" />
     <ClInclude Include="ESBDataSerializer\Serializer.h" />

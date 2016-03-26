@@ -8,8 +8,9 @@ class CESBSoapClientImp : public ESBWebService::IESBWebServiceClient
 private:
 	ESBServiceSoapProxy m_soapClient;
 	std::wstring m_wsURL;
+	ESBWebService::SAuthentication *m_pAuthentication;
 public:
-	CESBSoapClientImp(void);
+	explicit CESBSoapClientImp(const ESBWebService::SAuthentication* pAuthentication = NULL);
 	~CESBSoapClientImp(void);
 
 	virtual void SetURL(const std::wstring& wsURL);

@@ -118,7 +118,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\executable\</Com
       <AdditionalLibraryDirectories>$(SolutionDir)bin\winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\lib\
+      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)bin\winx64\lib\
 copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\dll\
 copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Command>
     </PostBuildEvent>
@@ -164,7 +164,7 @@ copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\win32\executable\</Com
       <AdditionalLibraryDirectories>$(SolutionDir)bin\winx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\lib\
+      <Command>copy $(OutDir)$(TargetName).lib $(SolutionDir)bin\winx64\lib\
 copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\dll\
 copy $(OutDir)$(TargetName)$(TargetExt) $(SolutionDir)bin\winx64\executable\</Command>
     </PostBuildEvent>

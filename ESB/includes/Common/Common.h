@@ -5,5 +5,6 @@
 #include "ESBHub.h"
 #include "GUID.h"
 #include "Base64.h"
+#include "StringConvert.h"
 
 #endif

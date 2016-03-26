@@ -16,6 +16,8 @@
 #include <fstream>
 #include <vector>
 
+#include <Utils/Utils.h>
+
 #import "msxml3.dll" named_guids
 
 #ifdef _DEBUG

@@ -15,11 +15,18 @@
 #include <codecvt>
 #include <string>
 #include <Utils/Utils.h>
+#include <Common/Common.h>
 
 #ifdef _DEBUG
 #pragma comment (lib, "UtilsRuntimeD")
+#pragma comment (lib, "ESBCommonLibD")
+#pragma comment (lib, "libeay32MTd")
+#pragma comment (lib, "ssleay32MTd")
 #else
 #pragma comment (lib, "UtilsRuntime")
+#pragma comment (lib, "ESBCommonLib")
+#pragma comment (lib, "libeay32MT")
+#pragma comment (lib, "ssleay32MT")
 #endif
 
 #define WITH_PURE_VIRTUAL

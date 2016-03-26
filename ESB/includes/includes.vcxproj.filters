@@ -156,5 +156,8 @@
     <ClInclude Include="Utils\Thread\Event.h">
       <Filter>includes\Utils\Thread</Filter>
     </ClInclude>
+    <ClInclude Include="Common\StringConvert.h">
+      <Filter>includes\Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

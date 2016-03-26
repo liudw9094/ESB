@@ -35,9 +35,11 @@ CESBMidServiceImp::CESBMidServiceImp(UINT uSessionTimeoutSecs) :
 
 CESBMidServiceImp::~CESBMidServiceImp()
 {
+	Stop();
+	m_threadSessionMgr = NULL;
 }
 
-BOOL CESBMidServiceImp::Start(int nPort)
+BOOL CESBMidServiceImp::Start(int nPort, const ESBWebService::SAuthentication *pAuthentication/* = NULL*/)
 {
 	if (IsStarted())
 		return FALSE;
@@ -45,7 +47,7 @@ BOOL CESBMidServiceImp::Start(int nPort)
 	auto func = std::bind(&CESBMidServiceImp::_ProcessWebServiceInvoke, this, _1, _2, _3, _4, _5);
 	if (!m_webService->SetCallback_OnClientInvoke(func))
 		return FALSE;
-	if (m_webService->Start(nPort))
+	if (m_webService->Start(nPort, pAuthentication))
 	{
 		m_timerSessionMgr->GetOwnerThread()->Invoke([this]() {
 			m_timerSessionMgr->Enable(true);

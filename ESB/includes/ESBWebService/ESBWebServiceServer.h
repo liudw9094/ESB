@@ -5,6 +5,7 @@
 #include <functional>
 #include "../Utils/Thread.h"
 #include "../Utils/SafeCoding/IDisposable.h"
+#include "Authenticate.h"
 
 #ifndef ESBWEBSERVICE_API
 #define ESBWEBSERVICE_API
@@ -14,6 +15,7 @@ struct soap;
 
 namespace ESBWebService
 {
+
 	class IESBWebServiceServer : public Utils::SafeCoding::IDisposable
 	{
 	public:
@@ -27,7 +29,7 @@ namespace ESBWebService
 		typedef std::function <void(IESBWebServiceServer* sender)> TOnStartFunc;
 		typedef std::function <void(IESBWebServiceServer* sender)> TOnStopFunc;
 
-		virtual BOOL Start(int nPort) = 0;
+		virtual BOOL Start(int nPort, const SAuthentication *pAuthentication = NULL) = 0;
 		virtual BOOL Stop() = 0;
 		virtual BOOL IsStarted() const = 0;
 		virtual int GetPort() const = 0;
