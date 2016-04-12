@@ -13,7 +13,7 @@ private:
 	std::wstring							m_wsInitialURL;
 	std::wstring							m_wsCurrentURL;
 public:
-	CESBConnectionImp();
+	explicit CESBConnectionImp(const ESBWebService::SAuthentication *pAuthentication);
 	~CESBConnectionImp();
 
 	virtual int StartSession(const std::wstring& wsURL, const GUID& guidService);

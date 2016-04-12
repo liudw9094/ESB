@@ -193,7 +193,12 @@ void CHubServiceDlg::OnClickedBtStartOrStop()
 	if (!m_spHubService->IsStarted())
 	{
 		SAppConfig cfg = m_appCfg.GetConfig();
-		if (!m_spHubService->Start(cfg.nPort))
+		bool bStarted = false;
+		if (cfg.bAuthentication)
+			bStarted = m_spHubService->Start(cfg.nPort, &cfg.authentication);
+		else
+			bStarted = m_spHubService->Start(cfg.nPort);
+		if (!bStarted)
 			AfxMessageBox(_T("Error: Cannot start ESB Hub Service."));
 	}
 	else

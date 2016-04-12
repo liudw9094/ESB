@@ -3,8 +3,11 @@
 struct SAppConfig
 {
 	int nPort;
+	bool bAuthentication;
+	ESBWebService::SAuthentication authentication;
 	SAppConfig() :
-		nPort(13000)
+		nPort(13000),
+		bAuthentication(false)
 	{
 	}
 };

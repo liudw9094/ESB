@@ -35,7 +35,7 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 	if(pAuthentication != NULL)
 	{
 		if (soap_ssl_server_context(m_soap,
-			SOAP_SSL_NO_AUTHENTICATION,
+			SOAP_SSL_DEFAULT,
 			WStrToUtf8(pAuthentication->keyfile).c_str(),	// keyfile: required when server must authenticate to clients
 			WStrToUtf8(pAuthentication->password).c_str(),	// password to read the key file
 			WStrToUtf8(pAuthentication->cafile).c_str(),	// optional cacert file to store trusted certificates
@@ -60,7 +60,7 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 	char* pURI = NULL;
 	if (!soap_valid_socket(soap_bind(m_soap, NULL, nPort, 100)))
 	{
-		soap_print_fault(m_soap, stderr);
+		//soap_print_fault(m_soap, stderr);
 		return FALSE;
 	}
 	else
@@ -234,10 +234,10 @@ void CESBSoapServerImp::SoapThread()
 		SOAP_SOCKET  s = soap_accept(m_soap); // master and slave sockets
 		if (!soap_valid_socket(s))
 		{
-			if (m_soap->errnum)
-				soap_print_fault(m_soap, stderr);
-			else
-				cerr<<"Server timed out (timeout set to "<<m_soap->accept_timeout << " seconds"<< endl;
+			//if (m_soap->errnum)
+			//	soap_print_fault(m_soap, stderr);
+			//else
+			//	cerr<<"Server timed out (timeout set to "<<m_soap->accept_timeout << " seconds"<< endl;
 			break;
 		}
 

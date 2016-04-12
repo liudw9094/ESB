@@ -27,6 +27,10 @@ struct SAppConfig
 		std::wstring szUsername;
 		std::wstring szPwd;
 	} dbConnection;
+
+	bool bAuthentication;
+	ESBWebService::SAuthentication authentication;
+
 	SAppConfig() :
 		nPort(14051)
 	{

@@ -8,8 +8,7 @@ using namespace ESBMidClient;
 using namespace std;
 
 CDQClientApp::CDQClientApp()
-	: m_spConnection(CreateESBConnection()),
-	m_appCfg(L".\\DQClient.xml")
+	: m_appCfg(L".\\DQClient.xml")
 {
 
 }
@@ -30,6 +29,10 @@ BOOL CDQClientApp::OnInitialization()
 		//return FALSE;
 	}
 	SAppConfig config = m_appCfg.GetConfig();
+	if (config.bAuthentication)
+		m_spConnection = CreateESBConnection(&config.authentication);
+	else
+		m_spConnection = CreateESBConnection(NULL);
 
 	wcout << L"Connecting to service..." << endl;
 	if (m_spConnection->StartSession(config.szHubURL, config.szServiceGUID) != 0)

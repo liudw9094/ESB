@@ -81,7 +81,7 @@ ESBWEBSERVICE_API int ESBWebService::InstantClientInvoke(const std::wstring& wsU
 	return client.Invoke(wsSession, wsInputs, wsResults);
 }
 
-ESBWEBSERVICE_API IESBWebServiceClient* ESBWebService::CreateESBWebServiceClient(SAuthentication *pAuthentication/* = NULL*/)
+ESBWEBSERVICE_API IESBWebServiceClient* ESBWebService::CreateESBWebServiceClient(const SAuthentication *pAuthentication/* = NULL*/)
 {
-	return new CESBSoapClientImp;
+	return new CESBSoapClientImp(pAuthentication);
 }

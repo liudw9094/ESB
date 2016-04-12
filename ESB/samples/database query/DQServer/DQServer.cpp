@@ -41,12 +41,21 @@ BOOL CDQServerApp::OnInitialization()
 		//return FALSE;
 	}
 
+
 	wcout << L"Opening port..." << endl;
-	if (!m_spService->Start(config.nPort))
+
+	bool bStarted = false;
+	if (config.bAuthentication)
+		bStarted = m_spService->Start(config.nPort, &config.authentication);
+	else
+		bStarted = m_spService->Start(config.nPort);
+
+	if (!bStarted)
 	{
 		wcerr << L"Failed to start service at port " << config.nPort << L"!" << endl;
 		return FALSE;
 	}
+
 
 	wcout << L"Registering the service..." << endl;
 	if(m_spService->RegisterToHub(config.hubConnection.szHubURL,

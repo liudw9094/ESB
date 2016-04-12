@@ -9,8 +9,8 @@ using namespace ESBCommon;
 using namespace ESBDataSerialzer;
 using namespace ESBWebService;
 
-CESBConnectionImp::CESBConnectionImp() :
-	m_webClient(CreateESBWebServiceClient()),
+CESBConnectionImp::CESBConnectionImp(const ESBWebService::SAuthentication *pAuthentication) :
+	m_webClient(CreateESBWebServiceClient(pAuthentication)),
 	m_threadClient(CreateThread([this](IThread*) {_InitializeClientThread();}, [this](IThread*) {_UninitializeClientThread();})),
 	m_bValid(FALSE)
 {
@@ -273,7 +273,7 @@ void CESBConnectionImp::_UninitializeClientThread()
 	::CoUninitialize();
 }
 
-ESBMIDCONN_API IESBConnection* ESBMidClient::CreateESBConnection()
+ESBMIDCONN_API IESBConnection* ESBMidClient::CreateESBConnection(const ESBWebService::SAuthentication *pAuthentication/* = NULL*/)
 {
-	return new CESBConnectionImp;
+	return new CESBConnectionImp(pAuthentication);
 }

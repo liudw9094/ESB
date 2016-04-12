@@ -8,6 +8,8 @@
 #define ESBMIDCONN_API
 #endif
 
+#include "../ESBWebService/Authenticate.h"
+
 namespace ESBMidClient
 {
 	class IESBConnection : public Utils::SafeCoding::IDisposable
@@ -22,7 +24,7 @@ namespace ESBMidClient
 		virtual GUID GetServiceGUID() = 0;
 	};
 
-	ESBMIDCONN_API IESBConnection* CreateESBConnection();
+	ESBMIDCONN_API IESBConnection* CreateESBConnection(const ESBWebService::SAuthentication *pAuthentication = NULL);
 };
 
 #endif //_INCLUDE_ESBMIDCLIENT_CONNECTION_H_

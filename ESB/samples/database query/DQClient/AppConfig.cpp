@@ -24,6 +24,8 @@ CAppConfig::~CAppConfig()
 
 BOOL CAppConfig::Load()
 {
+	m_cfg = SAppConfig();
+
 	SREF(IXMLDoc) pXmlDoc = CreateXMLDoc();
 	auto pXmlRoot = pXmlDoc->Load(m_szFilePath);
 	if (!pXmlRoot->IsValid() || pXmlRoot->GetNodeName() != L"Root")
@@ -43,6 +45,19 @@ BOOL CAppConfig::Load()
 		wstring szServiceGUID = pXmlAppNode->GetAttributeStr(L"ServiceGUID");
 		if (szServiceGUID != L"")
 			String2Data(m_cfg.szServiceGUID, szServiceGUID);
+	}
+
+	auto pXmlAuthenticationNode = pXmlAppNode->GetSubNode(L"Authentication");
+	if (pXmlAuthenticationNode->IsValid())
+	{
+		m_cfg.bAuthentication = true;
+		m_cfg.authentication.keyfile = pXmlAuthenticationNode->GetAttributeStr(L"keyfile");
+		m_cfg.authentication.password = pXmlAuthenticationNode->GetAttributeStr(L"password");
+		m_cfg.authentication.cafile = pXmlAuthenticationNode->GetAttributeStr(L"cafile");
+		m_cfg.authentication.capath = pXmlAuthenticationNode->GetAttributeStr(L"capath");
+		m_cfg.authentication.dhfile = pXmlAuthenticationNode->GetAttributeStr(L"dhfile");
+		m_cfg.authentication.randomfile = pXmlAuthenticationNode->GetAttributeStr(L"randomfile");
+		m_cfg.authentication.sid = pXmlAuthenticationNode->GetAttributeStr(L"sid");
 	}
 
 
