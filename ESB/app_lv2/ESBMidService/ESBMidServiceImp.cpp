@@ -17,7 +17,8 @@ CESBMidServiceImp::CESBMidServiceImp(UINT uSessionTimeoutSecs) :
 	m_webService(CreateESBWebServiceServer()),
 	m_hubConnection(this),
 	m_uMaxSessionNum(0),
-	m_plkMapUsers(CreateCriticalSection())
+	m_plkMapUsers(CreateCriticalSection()),
+	m_bAuthentication(false)
 {
 	auto initSessionMgr = [this]() {
 		if (m_uSessionTimeoutSecs != 0)
@@ -52,6 +53,20 @@ BOOL CESBMidServiceImp::Start(int nPort, const ESBWebService::SAuthentication *p
 		m_timerSessionMgr->GetOwnerThread()->Invoke([this]() {
 			m_timerSessionMgr->Enable(true);
 		});
+		if (pAuthentication != NULL)
+		{
+			m_bAuthentication = true;
+			m_authentication = *pAuthentication;
+			m_authenticationToHub = ESBWebService::SAuthentication();
+			m_authenticationToHub.cafile = m_authentication.cafile;
+			m_authenticationToHub.capath = m_authentication.capath;
+		}
+		else
+		{
+			m_bAuthentication = false;
+			m_authentication = ESBWebService::SAuthentication();
+			m_authenticationToHub = ESBWebService::SAuthentication();
+		}
 		return TRUE;
 	}
 	return FALSE;
@@ -78,6 +93,11 @@ BOOL CESBMidServiceImp::Stop(void)
 		{
 			return 0;
 		});
+		
+		m_bAuthentication = false;
+		m_authentication = ESBWebService::SAuthentication();
+		m_authenticationToHub = ESBWebService::SAuthentication();
+
 		return nRet;
 	}
 	else
@@ -166,13 +186,19 @@ int	CESBMidServiceImp::RegisterToHub(const std::wstring& wsHubURL,
 									const std::wstring& wsServiceName,
 									UINT maximumSession)
 {
+	if (!IsStarted())
+		return -1;
 	int nRet = 0;
 	UINT curNum = 0;
 	{
 		SLOCK(m_plkMapUsers);
 		curNum = m_mapUsers.size();
 	}
-	if (0 == (nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, curNum)))
+	if (m_bAuthentication)
+		nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, curNum, &m_authenticationToHub);
+	else
+		nRet = m_hubConnection.RegisterToHub(wsHubURL, wsServiceURL, guidService, wsServiceName, maximumSession, curNum, NULL);
+	if (0 == nRet)
 	{
 		::InterlockedExchange((volatile long*)&m_uMaxSessionNum, maximumSession);
 		if (m_funcOnRegisteredOnHub)

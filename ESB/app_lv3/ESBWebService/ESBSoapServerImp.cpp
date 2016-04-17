@@ -3,6 +3,8 @@
 #include "ESBSoapServerImp.h"
 #include "ESBServiceSoap.nsmap"
 
+#define AUTO_NULL_STR(wstr) (!(wstr).empty() ? WStrToUtf8((wstr)).c_str() : NULL)
+
 using namespace Utils::Thread;
 using namespace Utils::SafeCoding;
 using namespace ESBWebService;
@@ -14,7 +16,8 @@ CESBSoapServerImp::CESBSoapServerImp(void) :
 	m_bExitThread(FALSE),
 	m_plkMapAcceptSoap(CreateCriticalSection()),
 	m_nPort(-1),
-	m_pAuthentication(NULL)
+	m_pAuthentication(NULL),
+	m_csSoapEnd(CreateCriticalSection())
 {
 	m_soap = soap_new();
 }
@@ -36,13 +39,13 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 	{
 		if (soap_ssl_server_context(m_soap,
 			SOAP_SSL_DEFAULT,
-			WStrToUtf8(pAuthentication->keyfile).c_str(),	// keyfile: required when server must authenticate to clients
-			WStrToUtf8(pAuthentication->password).c_str(),	// password to read the key file
-			WStrToUtf8(pAuthentication->cafile).c_str(),	// optional cacert file to store trusted certificates
-			WStrToUtf8(pAuthentication->capath).c_str(),	// optional capath to directory with trusted certificates
-			WStrToUtf8(pAuthentication->dhfile).c_str(),	// DH file name or DH key len bits 
-			WStrToUtf8(pAuthentication->randomfile).c_str(), // if randfile!=NULL: use a file with random data
-			WStrToUtf8(pAuthentication->sid).c_str())) {
+			AUTO_NULL_STR(pAuthentication->keyfile),	// keyfile: required when server must authenticate to clients
+			AUTO_NULL_STR(pAuthentication->password),	// password to read the key file
+			AUTO_NULL_STR(pAuthentication->cafile),	// optional cacert file to store trusted certificates
+			AUTO_NULL_STR(pAuthentication->capath),	// optional capath to directory with trusted certificates
+			AUTO_NULL_STR(pAuthentication->dhfile),	// DH file name or DH key len bits 
+			AUTO_NULL_STR(pAuthentication->randomfile), // if randfile!=NULL: use a file with random data
+			AUTO_NULL_STR(pAuthentication->sid))) {
 			return FALSE;
 		}
 
@@ -86,8 +89,10 @@ BOOL CESBSoapServerImp::Stop()
 	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bExitThread), TRUE);
 
 	//soap_destroy(m_soap);
-	soap_end(m_soap);
-	soap_done(m_soap);
+	m_csSoapEnd->LockOperation([this]() {
+		soap_end(m_soap);
+		soap_done(m_soap);
+	});
 
 	// Dispose the main soap thread object
 	m_thdSoap = NULL;
@@ -271,9 +276,11 @@ void CESBSoapServerImp::SoapThread()
 
 	if (m_soap)
 	{
-		soap_destroy(m_soap); // dealloc C++ data
-		soap_end(m_soap); // dealloc data and clean up
-		soap_done(m_soap); // detach soap struct
+		m_csSoapEnd->LockOperation([this]() {
+			soap_destroy(m_soap); // dealloc C++ data
+			soap_end(m_soap); // dealloc data and clean up
+			soap_done(m_soap); // detach soap struct
+		});
 		//soap_free(m_soap);
 	}
 }

@@ -29,7 +29,8 @@ public:
 		const GUID guidService,
 		const std::wstring& wsServiceName,
 		UINT maximumSessionNum,
-		UINT currentSessionNum);
+		UINT currentSessionNum,
+		const ESBWebService::SAuthentication *pAuthentication);
 	virtual int Unregister();
 	virtual BOOL IsValid() const;
 

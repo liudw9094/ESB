@@ -193,7 +193,7 @@ void CHubServiceDlg::OnClickedBtStartOrStop()
 	if (!m_spHubService->IsStarted())
 	{
 		SAppConfig cfg = m_appCfg.GetConfig();
-		bool bStarted = false;
+		BOOL bStarted = FALSE;
 		if (cfg.bAuthentication)
 			bStarted = m_spHubService->Start(cfg.nPort, &cfg.authentication);
 		else

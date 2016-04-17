@@ -14,6 +14,7 @@ private:
 	int m_nPort;
 	ESBWebService::SAuthentication *m_pAuthentication;
 	SREF(Utils::Thread::IThread) m_thdSoap;
+	SREF(Utils::Thread::ICriticalSection) m_csSoapEnd;
 	volatile BOOL	m_bExitThread;
 
 	mutable SREF(Utils::Thread::ICriticalSection) m_plkMapAcceptSoap;

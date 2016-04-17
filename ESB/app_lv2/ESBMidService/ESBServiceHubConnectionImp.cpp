@@ -10,7 +10,6 @@ using namespace ESBWebService;
 
 CESBServiceHubConnectionImp::CESBServiceHubConnectionImp(CESBMidServiceImp* pESBMidServiceImp) :
 	m_pESBMidServiceImp(pESBMidServiceImp),
-	m_webClient(CreateESBWebServiceClient()),
 	m_bValid(FALSE),
 	m_uMaximumSessionNum(0),
 	m_currentSessionNum(0)
@@ -30,7 +29,8 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	const GUID guidService,
 	const std::wstring& wsServiceName,
 	UINT maximumSession,
-	UINT currentSessionNum)
+	UINT currentSessionNum,
+	const ESBWebService::SAuthentication *pAuthentication)
 {
 	int nRet = 0;
 	ESBService_HubMethod_RegisterToHub reg;
@@ -48,12 +48,13 @@ int	CESBServiceHubConnectionImp::RegisterToHub(const std::wstring& wsHubURL,
 	if (!Data2String(wsRequest, rq))
 		return -3;
 
-	m_threadClient->Invoke([this, &wsHubURL, wsRequest, &nRet]() {
+	m_threadClient->Invoke([this, &wsHubURL, pAuthentication, wsRequest, &nRet]() {
 		if (IsValid())
 		{
 			nRet = -1;
 			return;
 		}
+		m_webClient = CreateESBWebServiceClient(pAuthentication);
 		m_webClient->SetURL(wsHubURL);
 
 		wstring wsReply;
@@ -86,7 +87,7 @@ int CESBServiceHubConnectionImp::Unregister()
 	int nRet = 0;
 
 	m_threadClient->Invoke([this, &nRet]() {
-		if(m_bValid)
+		if(m_webClient != NULL && m_bValid)
 		{
 			wstring wSession = m_wsHubSession.wsServiceSession;
 
@@ -128,6 +129,8 @@ int CESBServiceHubConnectionImp::Unregister()
 				nRet = -4;
 				return;
 			}
+
+			m_webClient = NULL;
 
 			nRet = 0;
 		}
@@ -179,7 +182,7 @@ int CESBServiceHubConnectionImp::UpdateLoadState(UINT maximumSessionNum, UINT cu
 		}
 
 
-		if (!IsValid())
+		if (m_webClient == NULL || !IsValid())
 		{
 			nRet = -1;
 			return;
@@ -223,7 +226,7 @@ void CESBServiceHubConnectionImp::_UninitializeClientThread()
 void CESBServiceHubConnectionImp::_OnHeartBeatTimer()
 {
 	m_threadClient->Invoke([this]() {
-		if (!IsValid())
+		if (m_webClient == NULL || !IsValid())
 		{
 			m_timerHeartBeat->Enable(false);
 			Unregister();

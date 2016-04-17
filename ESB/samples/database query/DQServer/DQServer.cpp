@@ -44,7 +44,7 @@ BOOL CDQServerApp::OnInitialization()
 
 	wcout << L"Opening port..." << endl;
 
-	bool bStarted = false;
+	BOOL bStarted = FALSE;
 	if (config.bAuthentication)
 		bStarted = m_spService->Start(config.nPort, &config.authentication);
 	else
@@ -58,11 +58,11 @@ BOOL CDQServerApp::OnInitialization()
 
 
 	wcout << L"Registering the service..." << endl;
-	if(m_spService->RegisterToHub(config.hubConnection.szHubURL,
+	if (0 != m_spService->RegisterToHub(config.hubConnection.szHubURL,
 		config.hubConnection.szServiceURL,
 		config.hubConnection.szServiceGUID,
 		config.hubConnection.szServiceName,
-		config.hubConnection.nMaximumSession) != 0)
+		config.hubConnection.nMaximumSession))
 	{
 		wcerr << L"Failed to register the service on the hub!" << endl;
 		return FALSE;

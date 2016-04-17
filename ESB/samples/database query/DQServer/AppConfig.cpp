@@ -55,17 +55,7 @@ BOOL CAppConfig::Load()
 	}
 
 	auto pXmlAuthenticationNode = pXmlAppNode->GetSubNode(L"Authentication");
-	if (pXmlAuthenticationNode->IsValid())
-	{
-		m_cfg.bAuthentication = true;
-		m_cfg.authentication.keyfile = pXmlAuthenticationNode->GetAttributeStr(L"keyfile");
-		m_cfg.authentication.password = pXmlAuthenticationNode->GetAttributeStr(L"password");
-		m_cfg.authentication.cafile = pXmlAuthenticationNode->GetAttributeStr(L"cafile");
-		m_cfg.authentication.capath = pXmlAuthenticationNode->GetAttributeStr(L"capath");
-		m_cfg.authentication.dhfile = pXmlAuthenticationNode->GetAttributeStr(L"dhfile");
-		m_cfg.authentication.randomfile = pXmlAuthenticationNode->GetAttributeStr(L"randomfile");
-		m_cfg.authentication.sid = pXmlAuthenticationNode->GetAttributeStr(L"sid");
-	}
+	m_cfg.bAuthentication = _LoadAuthentication(pXmlAuthenticationNode, m_cfg.authentication);
 
 	return TRUE;
 }
@@ -133,6 +123,9 @@ void CAppConfig::_LoadHubConnection(const ESBXMLParser::IXMLNode *node)
 		if (value != L"")
 			String2Data(m_cfg.hubConnection.nMaximumSession, value);
 	}
+
+	auto pXmlAuthenticationNode = node->GetSubNode(L"Authentication");
+	m_cfg.hubConnection.bAuthentication = _LoadAuthentication(pXmlAuthenticationNode, m_cfg.hubConnection.authentication);
 }
 
 void CAppConfig::_LoadDbConnection(const ESBXMLParser::IXMLNode * node)
@@ -140,4 +133,23 @@ void CAppConfig::_LoadDbConnection(const ESBXMLParser::IXMLNode * node)
 	m_cfg.dbConnection.szConStr = node->GetAttributeStr(L"ConStr");
 	m_cfg.dbConnection.szUsername = node->GetAttributeStr(L"Username");
 	m_cfg.dbConnection.szPwd = node->GetAttributeStr(L"Pwd");
+}
+
+bool CAppConfig::_LoadAuthentication(const ESBXMLParser::IXMLNode * node, ESBWebService::SAuthentication& auth)
+{
+	if (node->IsValid())
+	{
+		auth.keyfile = node->GetAttributeStr(L"keyfile");
+		auth.password = node->GetAttributeStr(L"password");
+		auth.cafile = node->GetAttributeStr(L"cafile");
+		auth.capath = node->GetAttributeStr(L"capath");
+		auth.dhfile = node->GetAttributeStr(L"dhfile");
+		auth.randomfile = node->GetAttributeStr(L"randomfile");
+		auth.sid = node->GetAttributeStr(L"sid");
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

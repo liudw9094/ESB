@@ -31,7 +31,9 @@ private:
 	mutable SREF(Utils::Thread::ICriticalSection)	m_plkMapUsers;
 	std::map<std::wstring, CLIENTINFO>				m_mapUsers;
 	volatile UINT									m_uMaxSessionNum;
-
+	bool											m_bAuthentication;
+	ESBWebService::SAuthentication					m_authentication;
+	ESBWebService::SAuthentication					m_authenticationToHub;
 public:
 	explicit CESBMidServiceImp(UINT uSessionTimeoutSecs);
 	~CESBMidServiceImp();

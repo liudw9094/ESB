@@ -41,7 +41,8 @@ BOOL CESBHubServiceImp::Start(int nPort, const ESBWebService::SAuthentication *p
 		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
 		m_service->SetCallback_OnPreInvoke(func);
 		nRet = m_service->Start(nPort, pAuthentication);
-		m_timerHeartBeatMonitor->Enable(true);
+		if (nRet)
+			m_timerHeartBeatMonitor->Enable(true);
 	});
 	return nRet;
 }

@@ -3,11 +3,15 @@
 #include "ESBSoapClientImp.h"
 
 
+#define AUTO_NULL_STR(wstr) (!(wstr).empty() ? WStrToUtf8((wstr)).c_str() : NULL)
+
 
 using namespace std;
 using namespace ESBWebService;
 using namespace ESBCommon;
 using namespace Utils::SafeCoding;
+
+
 
 CESBSoapClientImp::CESBSoapClientImp(const SAuthentication* pAuthentication /*= NULL*/)
 	: m_pAuthentication(NULL)
@@ -22,11 +26,11 @@ CESBSoapClientImp::CESBSoapClientImp(const SAuthentication* pAuthentication /*= 
 			/* SOAP_SSL_NO_AUTHENTICATION, */ /* for encryption w/o authentication */
 											  /* SOAP_SSL_DEFAULT | SOAP_SSL_SKIP_HOST_CHECK, */	/* if we don't want the host name checks since these will change from machine to machine */
 			SOAP_SSL_DEFAULT,	/* use SOAP_SSL_DEFAULT in production code */
-			WStrToUtf8(m_pAuthentication->keyfile).c_str(), 	/* keyfile (cert+key): required only when client must authenticate to server (see SSL docs to create this file) */
-			WStrToUtf8(m_pAuthentication->password).c_str(), 	/* password to read the keyfile */
-			WStrToUtf8(m_pAuthentication->cafile).c_str(),		/* optional cacert file to store trusted certificates, use cacerts.pem for all public certificates issued by common CAs */
-			WStrToUtf8(m_pAuthentication->capath).c_str(),		/* optional capath to directory with trusted certificates */
-			WStrToUtf8(m_pAuthentication->randomfile).c_str()	/* if randfile!=NULL: use a file with random data to seed randomness */
+			AUTO_NULL_STR(m_pAuthentication->keyfile), 	/* keyfile (cert+key): required only when client must authenticate to server (see SSL docs to create this file) */
+			AUTO_NULL_STR(m_pAuthentication->password), 	/* password to read the keyfile */
+			AUTO_NULL_STR(m_pAuthentication->cafile),		/* optional cacert file to store trusted certificates, use cacerts.pem for all public certificates issued by common CAs */
+			AUTO_NULL_STR(m_pAuthentication->capath),		/* optional capath to directory with trusted certificates */
+			AUTO_NULL_STR(m_pAuthentication->randomfile)	/* if randfile!=NULL: use a file with random data to seed randomness */
 			)));
 	}
 #endif
