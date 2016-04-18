@@ -34,10 +34,14 @@ BOOL CDQClientApp::OnInitialization()
 	else
 		m_spConnection = CreateESBConnection(NULL);
 
+	int nResult;
+
 	wcout << L"Connecting to service..." << endl;
-	if (m_spConnection->StartSession(config.szHubURL, config.szServiceGUID) != 0)
+	if ((nResult = m_spConnection->StartSession(config.szHubURL, config.szServiceGUID)) != 0)
 	{
-		wcerr << L"Failed to connect to service at URL \"" << config.szHubURL << L"\"" << endl;
+		wcerr << L"Failed to connect to service at URL \"" << config.szHubURL << L"\"" << endl <<
+			L"Error code: " << nResult << endl;
+		
 		return FALSE;
 	}
 

@@ -18,9 +18,6 @@ private:
 	SREF(Utils::Thread::IDispatcher)		m_spDispatcher;
 	static const UINT						m_uMsgDispatch;
 	CButton m_btStartOrStop;
-	CEdit m_edtHubStatue;
-	CEdit m_edtServiceStatue;
-	CTreeCtrl m_treServices;
 // Construction
 public:
 	CHubServiceDlg(CWnd* pParent = NULL);	// standard constructor

@@ -11,7 +11,8 @@ struct SAppConfig
 	ESBWebService::SAuthentication authentication;
 	SAppConfig()
 		: szHubURL(L"127.0.0.1:13000"),
-		szServiceGUID(SERVICE_GUID)
+		szServiceGUID(SERVICE_GUID),
+		bAuthentication(false)
 	{
 	}
 };

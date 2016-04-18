@@ -76,7 +76,7 @@ BOOL CRegisteredService::NewToken(ESBCommon::ESBClientToken& token)
 		ESBCommon::ESBClientToken newToken_Client;
 		ESBCommon::ESBServiceToken newToken_Service;
 		newToken_Service.wsClientSession = newToken_Client.wsClientSession = CreateGuid();
-		newToken_Service.timeStamp = newToken_Client.timeStamp = chrono::steady_clock::now();
+		newToken_Service.timeStamp = newToken_Client.timeStamp = chrono::system_clock::now();
 		newToken_Service.timeReplyDeadLine = newToken_Client.timeReplyDeadLine = newToken_Client.timeStamp + chrono::seconds(120);
 		newToken_Client.wsURLRedirection = m_serviceInfo.wsServiceURL;
 

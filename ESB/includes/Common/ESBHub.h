@@ -59,8 +59,8 @@ namespace ESBCommon
 	struct ESBServiceToken
 	{
 		std::wstring							wsClientSession;
-		std::chrono::steady_clock::time_point	timeStamp;
-		std::chrono::steady_clock::time_point	timeReplyDeadLine;
+		std::chrono::system_clock::time_point	timeStamp;
+		std::chrono::system_clock::time_point	timeReplyDeadLine;
 
 		static struct _TAGNAME
 		{
@@ -74,8 +74,8 @@ namespace ESBCommon
 	struct ESBClientToken
 	{
 		std::wstring							wsClientSession;
-		std::chrono::steady_clock::time_point	timeStamp;
-		std::chrono::steady_clock::time_point	timeReplyDeadLine;
+		std::chrono::system_clock::time_point	timeStamp;
+		std::chrono::system_clock::time_point	timeReplyDeadLine;
 		std::wstring							wsURLRedirection;
 
 		static struct _TAGNAME

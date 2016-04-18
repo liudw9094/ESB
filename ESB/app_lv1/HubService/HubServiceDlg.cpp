@@ -68,9 +68,6 @@ void CHubServiceDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_BT_STARTORSTOP, m_btStartOrStop);
-	DDX_Control(pDX, IDC_EDT_HUB_STATUE, m_edtHubStatue);
-	DDX_Control(pDX, IDC_EDT_SERVICE_STATUE, m_edtServiceStatue);
-	DDX_Control(pDX, IDC_TRE_SERVICES, m_treServices);
 
 	if (!pDX->m_bSaveAndValidate)
 		_UpdateCtrls();

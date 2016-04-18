@@ -41,6 +41,8 @@ namespace ESBDataSerialzer
 	BOOL Data2String(OUT std::wstring& string, IN const std::chrono::steady_clock::time_point& data);
 	BOOL String2Data(OUT std::chrono::steady_clock::time_point& data, IN const std::wstring& string);
 
+	BOOL Data2String(OUT std::wstring& string, IN const std::chrono::system_clock::time_point& data);
+	BOOL String2Data(OUT std::chrono::system_clock::time_point& data, IN const std::wstring& string);
 };
 
 

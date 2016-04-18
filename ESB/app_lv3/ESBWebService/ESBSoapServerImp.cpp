@@ -55,6 +55,7 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 	m_soap->send_timeout = 10; // 10 seconds 
 	m_soap->recv_timeout = 10; // 10 seconds 
 	//m_soap.accept_timeout = 3600; // server stops after 1 hour of inactivity 
+	m_soap->accept_timeout = 0;
 	m_soap->max_keep_alive = 100; // max keep-alive sequence 
 	m_soap->user = this;
 

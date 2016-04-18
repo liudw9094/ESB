@@ -282,12 +282,14 @@ void CESBMidServiceImp::_UpdateClientSessionTimePoint(const wstring& wsSession)
 
 void CESBMidServiceImp::_OnTimer_SessionMgr(Utils::Thread::ITimer *)
 {
+	bool bChanged = false;
 	SLOCK(m_plkMapUsers);
 	for (auto iter = m_mapUsers.begin(); iter != m_mapUsers.end(); )
 	{
 		CLIENTINFO& userInfo = iter->second;
 		if (userInfo.tpSession + chrono::seconds(m_uSessionTimeoutSecs) < chrono::steady_clock::now())
 		{
+			bChanged = true;
 			// Remove registered service
 			wstring session = iter->first;
 			if (iter != m_mapUsers.begin())
@@ -310,6 +312,9 @@ void CESBMidServiceImp::_OnTimer_SessionMgr(Utils::Thread::ITimer *)
 		}
 		++iter;
 	}
+	
+	if(bChanged)
+		m_hubConnection.UpdateLoadState(m_uMaxSessionNum, m_mapUsers.size());
 }
 
 
@@ -407,7 +412,7 @@ int CESBMidServiceImp::_ProcessClientRequest(SREF(Utils::Thread::IThread) pthrea
 		{
 			SLOCK(m_plkMapUsers);
 			CLIENTINFO& clientInfo = m_mapUsers[wsSession];
-			auto tmNow = chrono::steady_clock::now();
+			auto tmNow = chrono::system_clock::now();
 			if (tmNow >= clientInfo.token.timeStamp &&
 				tmNow <= clientInfo.token.timeReplyDeadLine)
 			{
@@ -462,6 +467,14 @@ int  CESBMidServiceImp::_On_ESBService_ServiceMethod(const std::wstring& session
 	ESBService_ServiceReply_LoadStateUpdate reply;
 	CLIENTINFO clientInfo;
 	clientInfo.token = param;
+	// correct timestamp
+	auto time_now = chrono::system_clock::now();
+	if (time_now != clientInfo.token.timeStamp)
+	{
+		auto period = max(clientInfo.token.timeReplyDeadLine - clientInfo.token.timeStamp, chrono::seconds(1));
+		clientInfo.token.timeStamp = time_now;
+		clientInfo.token.timeReplyDeadLine = time_now + period;
+	}
 	m_mapUsers[clientInfo.token.wsClientSession] = clientInfo;
 	reply.currentSessionNum = m_mapUsers.size();
 	reply.maximumSession = m_uMaxSessionNum;

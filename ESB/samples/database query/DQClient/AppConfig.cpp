@@ -59,6 +59,8 @@ BOOL CAppConfig::Load()
 		m_cfg.authentication.randomfile = pXmlAuthenticationNode->GetAttributeStr(L"randomfile");
 		m_cfg.authentication.sid = pXmlAuthenticationNode->GetAttributeStr(L"sid");
 	}
+	else
+		m_cfg.bAuthentication = false;
 
 
 	return TRUE;

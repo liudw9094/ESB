@@ -162,3 +162,19 @@ BOOL ESBDataSerialzer::String2Data(OUT std::chrono::steady_clock::time_point& da
 	data = time;
 	return TRUE;
 }
+
+BOOL ESBDataSerialzer::Data2String(OUT std::wstring& string, IN const std::chrono::system_clock::time_point& data)
+{
+	return Data2String(string, std::chrono::system_clock::to_time_t(data));
+}
+
+BOOL ESBDataSerialzer::String2Data(OUT std::chrono::system_clock::time_point& data, IN const std::wstring& string)
+{
+	long long count = 0;
+	if (!String2Data(count, string))
+		return FALSE;
+	std::chrono::system_clock::time_point time;
+	std::chrono::system_clock::from_time_t(count);
+	data = time;
+	return TRUE;
+}
