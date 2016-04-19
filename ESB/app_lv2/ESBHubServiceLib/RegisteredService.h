@@ -13,7 +13,7 @@ private:
 
 	std::chrono::steady_clock::time_point			m_tmLastHeartBeat;
 public:
-	CRegisteredService(const std::wstring& session, const ESBCommon::ESBService_HubMethod_RegisterToHub& info);
+	CRegisteredService(const std::wstring& session, const ESBCommon::ESBService_HubMethod_RegisterToHub& info, const ESBWebService::SAuthentication *pAuthentication);
 	~CRegisteredService();
 
 	virtual void Dispose();

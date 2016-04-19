@@ -16,6 +16,7 @@ private:
 	SREF(Utils::Thread::IThread) m_thdSoap;
 	SREF(Utils::Thread::ICriticalSection) m_csSoapEnd;
 	volatile BOOL	m_bExitThread;
+	volatile BOOL	m_bSafeConnection;
 
 	mutable SREF(Utils::Thread::ICriticalSection) m_plkMapAcceptSoap;
 	std::map<struct soap*, SREF(Utils::Thread::IThread)>m_mapAcceptSoap;

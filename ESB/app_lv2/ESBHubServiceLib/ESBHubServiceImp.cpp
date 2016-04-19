@@ -12,7 +12,8 @@ using namespace ESBDataSerialzer;
 using namespace ESBXMLParser;
 
 CESBHubServiceImp::CESBHubServiceImp() :
-	m_service(CreateESBService())
+	m_service(CreateESBService()),
+	m_bAuthentication(FALSE)
 {
 	m_serviceThread =
 	CreateThread(
@@ -37,6 +38,9 @@ BOOL CESBHubServiceImp::Start(int nPort, const ESBWebService::SAuthentication *p
 {
 	BOOL nRet = FALSE;
 	m_serviceThread->Invoke([this, nPort, pAuthentication, &nRet]() {
+		m_bAuthentication = pAuthentication != NULL;
+		if (m_bAuthentication)
+			m_authentication = *pAuthentication;
 		using namespace std::placeholders;
 		auto func = std::bind(&CESBHubServiceImp::_PreProcessInvoke, this, _1, _2, _3, _4, _5, _6, _7);
 		m_service->SetCallback_OnPreInvoke(func);
@@ -51,6 +55,7 @@ BOOL CESBHubServiceImp::Stop(void)
 {
 	BOOL nRet = 0;
 	m_serviceThread->Invoke([this, &nRet]() {
+		m_bAuthentication = FALSE;
 		m_timerHeartBeatMonitor->Enable(false);
 		nRet = m_service->Stop();
 	});
@@ -407,7 +412,16 @@ int CESBHubServiceImp::_On_ESBService_HubMethod(const std::wstring& session,
 		if (!bExists)
 		{
 			wsSession = CreateGuid();
-			SREF(CRegisteredService) newRegService = new CRegisteredService(wsSession, param);
+			SREF(CRegisteredService) newRegService;
+			if(m_bAuthentication)
+			{
+				ESBWebService::SAuthentication authentication;
+				authentication.cafile = m_authentication.cafile;
+				authentication.capath = m_authentication.capath;
+				newRegService = new CRegisteredService(wsSession, param, &authentication);
+			}
+			else
+				newRegService = new CRegisteredService(wsSession, param, NULL);
 			refVec.push_back(newRegService);
 			m_mapServices_session[wsSession] = newRegService;
 			newRegService->UpdateHeartBeat();

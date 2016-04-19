@@ -11,6 +11,8 @@ private:
 	SREF(Utils::Thread::ITimer)										m_timerHeartBeatMonitor;
 	std::map<std::wstring, std::vector<SREF(CRegisteredService)>>	m_mapServices_guid;
 	std::map<std::wstring, SREF(CRegisteredService)>				m_mapServices_session;
+	ESBWebService::SAuthentication									m_authentication;
+	BOOL															m_bAuthentication;
 public:
 	CESBHubServiceImp();
 	~CESBHubServiceImp();

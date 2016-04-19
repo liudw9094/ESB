@@ -58,6 +58,13 @@ BOOL CDbCon::Connect(const SAppConfig::SDbConnection& config)
 	return _Connect(config.szConStr, config.szUsername, config.szPwd);
 }
 
+static wstring righttrim(const wstring str)
+{
+	int i = str.length() - 1;
+	for (; i >= 0 && str[i] == ' '; --i);
+	return str.substr(0, i + 1);
+}
+
 std::wstring CDbCon::Execute(const std::wstring& szCommand)
 {
 	SLOCK(m_csDb);
@@ -92,7 +99,9 @@ std::wstring CDbCon::Execute(const std::wstring& szCommand)
 				wstring field;
 				if (var.vt == VT_NULL)
 					field = L"-";
-				field = (const wchar_t *)_bstr_t(var);
+				else
+					field = (const wchar_t *)_bstr_t(var);
+				field = righttrim(field);
 				result = result + L"\t" + field;
 			}
 			result = result + L"\n";
@@ -105,7 +114,9 @@ std::wstring CDbCon::Execute(const std::wstring& szCommand)
 					wstring field;
 					if ((var = pRecordset->GetCollect(i)).vt == VT_NULL)
 						field = L"-";
-					field = (const wchar_t *)_bstr_t(var);
+					else
+						field = (const wchar_t *)_bstr_t(var);
+					field = righttrim(field);
 					result = result + L"\t" + field;
 				}
 				result = result + L"\n";

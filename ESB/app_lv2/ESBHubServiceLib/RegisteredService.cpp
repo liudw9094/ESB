@@ -10,9 +10,10 @@ using namespace ESBDataSerialzer;
 using namespace ESBXMLParser;
 
 CRegisteredService::CRegisteredService(const std::wstring& session,
-	const ESBService_HubMethod_RegisterToHub& info)
+	const ESBService_HubMethod_RegisterToHub& info,
+	const ESBWebService::SAuthentication *pAuthentication)
 	: m_threadCommu(CreateThread([](IThread*) {::CoInitialize(NULL);}, [](IThread*) {::CoUninitialize();})),
-	m_commu(CreateESBWebServiceClient()),
+	m_commu(CreateESBWebServiceClient(pAuthentication)),
 	m_serviceInfo(info),
 	m_wsSession(session)
 {

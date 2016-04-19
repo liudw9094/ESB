@@ -23,9 +23,9 @@ CESBSoapClientImp::CESBSoapClientImp(const SAuthentication* pAuthentication /*= 
 	{
 		m_pAuthentication = new SAuthentication(*pAuthentication);
 		ASSERT((0 == soap_ssl_client_context(&m_soapClient,
-			/* SOAP_SSL_NO_AUTHENTICATION, */ /* for encryption w/o authentication */
-											  /* SOAP_SSL_DEFAULT | SOAP_SSL_SKIP_HOST_CHECK, */	/* if we don't want the host name checks since these will change from machine to machine */
-			SOAP_SSL_DEFAULT,	/* use SOAP_SSL_DEFAULT in production code */
+			// SOAP_SSL_NO_AUTHENTICATION, */ /* for encryption w/o authentication */
+			SOAP_SSL_DEFAULT | SOAP_SSL_SKIP_HOST_CHECK,	/* if we don't want the host name checks since these will change from machine to machine */
+			//SOAP_SSL_DEFAULT,	/* use SOAP_SSL_DEFAULT in production code */
 			AUTO_NULL_STR(m_pAuthentication->keyfile), 	/* keyfile (cert+key): required only when client must authenticate to server (see SSL docs to create this file) */
 			AUTO_NULL_STR(m_pAuthentication->password), 	/* password to read the keyfile */
 			AUTO_NULL_STR(m_pAuthentication->cafile),		/* optional cacert file to store trusted certificates, use cacerts.pem for all public certificates issued by common CAs */

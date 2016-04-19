@@ -14,6 +14,7 @@ using namespace std;
 CESBSoapServerImp::CESBSoapServerImp(void) :
 	m_bIsStarted(FALSE),
 	m_bExitThread(FALSE),
+	m_bSafeConnection(FALSE),
 	m_plkMapAcceptSoap(CreateCriticalSection()),
 	m_nPort(-1),
 	m_pAuthentication(NULL),
@@ -38,7 +39,7 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 	if(pAuthentication != NULL)
 	{
 		if (soap_ssl_server_context(m_soap,
-			SOAP_SSL_DEFAULT,
+			SOAP_SSL_DEFAULT | SOAP_SSL_SKIP_HOST_CHECK,
 			AUTO_NULL_STR(pAuthentication->keyfile),	// keyfile: required when server must authenticate to clients
 			AUTO_NULL_STR(pAuthentication->password),	// password to read the key file
 			AUTO_NULL_STR(pAuthentication->cafile),	// optional cacert file to store trusted certificates
@@ -51,6 +52,7 @@ BOOL CESBSoapServerImp::Start(int nPort, const SAuthentication *pAuthentication 
 
 		m_pAuthentication = new SAuthentication(*pAuthentication);
 	}
+	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bSafeConnection), (pAuthentication != NULL));
 #endif
 	m_soap->send_timeout = 10; // 10 seconds 
 	m_soap->recv_timeout = 10; // 10 seconds 
@@ -120,6 +122,7 @@ BOOL CESBSoapServerImp::Stop()
 
 	m_nPort = -1;
 	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bIsStarted), FALSE);
+	::InterlockedExchange(reinterpret_cast<volatile LONG*>(&m_bSafeConnection), FALSE);
 
 	if (m_funcOnStoped)
 		m_funcOnStoped(this);
@@ -215,19 +218,23 @@ UINT CESBSoapServerImp::ProcessRequestThread(struct soap* pSoap)
 {
 	{
 		ASSERT(pSoap);
-		CFinalize fin([pSoap]() {
+		CFinalize fin([this, pSoap]() {
 			soap_destroy(pSoap); // dealloc C++ data
 			soap_end(pSoap); // dealloc data and clean up
 			soap_done(pSoap); // detach soap struct
 			soap_free(pSoap);
+
+			SLOCK(m_plkMapAcceptSoap);
+			m_mapAcceptSoap.erase(pSoap);
 		});
+		if (m_bSafeConnection)
+		{
+			if (soap_ssl_accept(pSoap) != SOAP_OK)
+				return 0;
+		}
 		soap_serve(pSoap);
 	}
 
-	{
-		SLOCK(m_plkMapAcceptSoap);
-		m_mapAcceptSoap.erase(pSoap);
-	}
 
 	return 0;
 }
