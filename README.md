@@ -5,8 +5,11 @@ This project is to solve congestion and overloading problem on network services 
 -	High Level Application Program Interfaces (APIs) for developers. Developer can use this set of APIs to design C/S structure applications with the benefit of the system, including managed load control and one-end-point connection binding. Programmer would never care with the detail network protocol and communication with a Hub, since these would be hidden by the APIs.  
 
 1. Development
-- Language: VC++ with Visual Studio 2015
-- Thirdparty Library: gSoap
+  - Language: VC++ with Visual Studio 2015
+  - Thirdparty Library: gSoap
 2. Target Platform
+  - Windows 7 or higher
 3. Test Samples
+  - ESB/samples/database query/
 4. Test Results
+  - see Report.pdf
