@@ -12,4 +12,4 @@ This project is to solve congestion and overloading problem on network services 
 3. Test Samples
   - ESB/samples/database query/
 4. Test Results
-  - see ESB/Report.pdf
+  - see Report.pdf
